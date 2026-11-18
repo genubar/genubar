@@ -296,3 +296,8 @@ cargo test --workspace
 ## License
 
 Licensed under the [MIT License](LICENSE).
+
+
+## Acknowledgements
+
+Developed in collaboration with **Google Gemini**
