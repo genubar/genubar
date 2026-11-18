@@ -1,0 +1,60 @@
+# macOS Terminal-style profile for GNOME Ptyxis Terminal (`org.gnome.Ptyxis`).
+# Demonstrates merging custom GTK action items with live GTK4 Hook items using
+# `merge_with_live = true`, `match_aliases`, and `type = "inherit_others"`.
+id = "ptyxis"
+name = "Ptyxis Terminal"
+author = "genubar"
+description = "Provides File/Shell, Edit, and View menus for the Ptyxis terminal emulator."
+enabled = true
+priority = 10
+sync_new_items = true
+include_app_system_column = true
+fallback_only = false
+
+matchers = [
+    { field = "app_id", contains = "Ptyxis" },
+    { field = "app_id", contains = "ptyxis" },
+]
+
+[[columns]]
+type = "submenu"
+label = "File"
+merge_with_live = true
+match_aliases = [["File"], ["Shell"]]
+items = [
+    { type = "action", label = "New Window", action = "gtk:win.new-window|app.new-window", shortcut = ["Ctrl", "Shift", "N"], icon = "window-new-symbolic", match_aliases = [["File", "New Window"]] },
+    { type = "action", label = "New Tab", action = "gtk:win.new-tab", shortcut = ["Ctrl", "Shift", "T"], icon = "tab-new-symbolic", match_aliases = [["File", "New Tab"]] },
+    { type = "separator" },
+    { type = "inherit_others" },
+    { type = "separator" },
+    { type = "action", label = "Close Tab", action = "gtk:tab.close|win.close-tab", shortcut = ["Ctrl", "Shift", "W"], icon = "window-close-symbolic" },
+]
+
+[[columns]]
+type = "submenu"
+label = "Edit"
+merge_with_live = true
+match_aliases = [["Edit"]]
+items = [
+    { type = "action", label = "Copy", action = "gtk:clipboard.copy|win.copy", shortcut = ["Ctrl", "Shift", "C"], icon = "edit-copy-symbolic", match_aliases = [["Edit", "Copy"]] },
+    { type = "action", label = "Paste", action = "gtk:clipboard.paste|win.paste", shortcut = ["Ctrl", "Shift", "V"], icon = "edit-paste-symbolic", match_aliases = [["Edit", "Paste"]] },
+    { type = "action", label = "Select All", action = "gtk:page.select-all|win.select-all", shortcut = ["Ctrl", "Shift", "A"], icon = "edit-select-all-symbolic", match_aliases = [["Edit", "Select All"]] },
+    { type = "separator" },
+    { type = "action", label = "Find in Terminal…", action = "gtk:win.search|page.search", shortcut = ["Ctrl", "Shift", "F"], icon = "edit-find-symbolic", match_aliases = [["Edit", "Find"], ["File", "Find"]] },
+    { type = "separator" },
+    { type = "inherit_others" },
+]
+
+[[columns]]
+type = "submenu"
+label = "View"
+merge_with_live = true
+match_aliases = [["View"]]
+items = [
+    { type = "action", label = "Tab Overview", action = "gtk:win.tab-overview", shortcut = ["Ctrl", "Shift", "O"], icon = "view-grid-symbolic", match_aliases = [["View", "Tab Overview"]] },
+    { type = "separator" },
+    { type = "inherit_others" },
+]
+
+[[columns]]
+type = "inherit_others"

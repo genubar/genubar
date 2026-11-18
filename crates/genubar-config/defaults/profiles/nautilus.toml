@@ -1,0 +1,71 @@
+# macOS Finder-style profile for GNOME Files (Nautilus).
+# Complements the live GTK4 Hook menu by adding the 'Go' navigation column and View mode toggle
+# without duplicating native File/Edit/View/Help items.
+#
+# Application Profile Schema Reference (used across ~/.config/genubar/profiles/*.toml):
+#   id, name, version, author, description : package metadata (min_app_version optional)
+#   enabled                   : bool — toggle profile without deleting the file
+#   priority                  : i32  — lower value wins when multiple profiles match
+#   sync_new_items            : bool — keep unmatched live top-level columns alongside custom columns
+#   include_app_system_column : bool — let app_menu.toml prepend the {app_name} system column
+#   fallback_only             : bool — true = only apply when no live menu tier succeeded (Default-Fallback)
+#   disable_root_sort         : bool — skip global [root_sorting] order for matched windows
+#   allowed_tiers             : optional list of allowed tiers ("gtk_native", "gtk4_hook", "canonical_dbus", "atspi", "app_fallback")
+#   volatile_submenus         : submenu labels excluded from AT-SPI2 disk caching
+#   python_script             : optional path under ~/.config/genubar/ for per-app Python post-processing
+#   matchers                  : array of { field = "app_id" | "title" | "any" | "wildcard" | "desktop", contains = "..." }
+#
+# Note: in `action = "gtk:a|b"`, `|` tries fallback GTK action names in order until a live target matches.
+
+id = "nautilus"
+name = "GNOME Files (Nautilus)"
+author = "genubar"
+description = "Adds Finder-style Go navigation menu and List/Grid toggle to Nautilus."
+enabled = true
+priority = 10
+sync_new_items = true
+include_app_system_column = true
+fallback_only = false
+
+matchers = [
+    { field = "app_id", contains = "Nautilus" },
+    { field = "app_id", contains = "nautilus" },
+]
+
+[[columns]]
+type = "submenu"
+label = "File"
+merge_with_live = true
+match_aliases = [["File"]]
+items = [
+    { type = "inherit_others" },
+    { type = "separator" },
+    { type = "action", label = "Search in Folder…", action = "gtk:slot.focus-search|slot.search-visible", shortcut = ["Ctrl", "F"], icon = "edit-find-symbolic" },
+]
+
+[[columns]]
+type = "submenu"
+label = "View"
+merge_with_live = true
+match_aliases = [["View"]]
+items = [
+    { type = "action", label = "Toggle List / Grid View", action = "gtk:slot.files-view-mode-toggle", shortcut = ["Ctrl", "1"], icon = "view-grid-symbolic" },
+    { type = "separator" },
+    { type = "inherit_others" },
+]
+
+[[columns]]
+type = "submenu"
+label = "Go"
+items = [
+    { type = "action", label = "Back", action = "gtk:slot.back", shortcut = ["Alt", "Left"], icon = "go-previous-symbolic" },
+    { type = "action", label = "Forward", action = "gtk:slot.forward", shortcut = ["Alt", "Right"], icon = "go-next-symbolic" },
+    { type = "action", label = "Enclosing Folder", action = "gtk:slot.up", shortcut = ["Alt", "Up"], icon = "go-up-symbolic" },
+    { type = "separator" },
+    { type = "action", label = "Home", action = "gtk:win.go-home", shortcut = ["Alt", "Home"], icon = "user-home-symbolic" },
+    { type = "separator" },
+    { type = "action", label = "Enter Location…", action = "gtk:toolbar.edit-location|slot.open-location", shortcut = ["Ctrl", "L"], icon = "folder-remote-symbolic" },
+]
+
+[[columns]]
+type = "inherit_others"

@@ -1,0 +1,128 @@
+# Universal application menu template (`~/.config/genubar/app_menu.toml`).
+# Merged around/into focused application menus after per-app profiles run.
+#
+# Top-level fields:
+#   mode           : "static" | "python_script"
+#   sync_new_items : bool — include extra live top-level columns alongside matched template columns
+#   python_script  : optional path under ~/.config/genubar/ when mode = "python_script"
+#
+# Inheritance helpers used in [[columns]] / items:
+#   type = "inherit_others"     - splices all remaining live/profile columns or submenu items here
+#   merge_with_live = true      - merges this column into an existing live column matched by `match_aliases`
+#   match_aliases = [[...]]     - path/title aliases matched case-insensitively against live items;
+#                                 when a template action matches a live item, the native app item is kept!
+#   only_tiers = [...]          - restricts node visibility to specific source tiers:
+#                                 "gtk_native" | "gtk4_hook" | "canonical_dbus" | "atspi" | "app_fallback"
+#   {app_name}                  - expands to cleaned window app name
+
+mode = "static"
+sync_new_items = false
+
+# 1. First column displaying the active application's name
+[[columns]]
+type = "submenu"
+label = "{app_name}"
+items = [
+    { type = "action", label = "Genubar Settings...", action = "cmd:genubar-settings" },
+    { type = "separator" },
+    { type = "action", label = "Capture Menu Snapshot", action = "sys:capture_menu_snapshot" },
+    { type = "action", label = "Refresh Menu Cache", action = "sys:refresh_menu", only_tiers = ["atspi"] },
+    { type = "separator" },
+    { type = "action", label = "Quit {app_name}", action = "sys:quit_app", shortcut = ["Ctrl", "Q"] },
+]
+
+# 2. Splice point where all native/profile columns of the application (File, View, ...) are inserted
+[[columns]]
+type = "inherit_others"
+
+# 3. Mandatory Edit menu merged into all applications (prefers native app items when present)
+[[columns]]
+type = "submenu"
+label = "Edit"
+merge_with_live = true
+match_aliases = [["Edit"]]
+items = [
+    { type = "action", label = "Undo", action = "key:Ctrl+Z", shortcut = ["Ctrl", "Z"], match_aliases = [
+        ["Edit", "Undo"],
+        ["Undo"]
+    ] },
+    { type = "action", label = "Redo", action = "key:Ctrl+Shift+Z", shortcut = ["Ctrl", "Shift", "Z"], match_aliases = [
+        ["Edit", "Redo"],
+        ["Redo"]
+    ] },
+    { type = "separator" },
+    { type = "action", label = "Cut", action = "key:Ctrl+X", shortcut = ["Ctrl", "X"], match_aliases = [
+        ["Edit", "Cut"],
+        ["Cut"]
+    ] },
+    { type = "action", label = "Copy", action = "key:Ctrl+C", shortcut = ["Ctrl", "C"], match_aliases = [
+        ["Edit", "Copy"],
+        ["Copy"]
+    ] },
+    { type = "action", label = "Paste", action = "key:Ctrl+V", shortcut = ["Ctrl", "V"], match_aliases = [
+        ["Edit", "Paste"],
+        ["Paste"]
+    ] },
+    { type = "action", label = "Select All", action = "key:Ctrl+A", shortcut = ["Ctrl", "A"], match_aliases = [
+        ["Edit", "Select All"],
+        ["Select All"]
+    ] },
+    { type = "separator" },
+    { type = "inherit_others" },
+    { type = "separator" },
+    { type = "submenu", label = "Transformations", items = [
+        { type = "action", label = "Make Upper Case", action = "sys:transform_upper" },
+        { type = "action", label = "Make Lower Case", action = "sys:transform_lower" },
+        { type = "action", label = "Capitalize Words", action = "sys:transform_capitalize" },
+    ] },
+]
+
+# 4. Mandatory Window menu with Check(bool) Always on Top and dynamic WindowList
+[[columns]]
+type = "submenu"
+label = "Window"
+merge_with_live = true
+match_aliases = [["Window"], ["Windows"]]
+items = [
+    { type = "action", label = "Minimize", action = "sys:minimize_window", match_aliases = [
+        ["Window", "Minimize"],
+        ["Windows", "Minimize"],
+        ["Minimize Window"]
+    ] },
+    { type = "action", label = "Maximize", action = "sys:maximize_window", match_aliases = [
+        ["Window", "Maximize"],
+        ["Window", "Max Window"],
+        ["Windows", "Maximize(default)"],
+        ["Window", "Zoom"],
+        ["Maximize Window"]
+    ] },
+    { type = "check", label = "Always on Top", checked = false, action = "sys:always_on_top" },
+    { type = "action", label = "Center Window", action = "sys:center_window" },
+    { type = "action", label = "Full Screen", action = "sys:fullscreen_window", shortcut = ["F11"], match_aliases = [
+        ["Window", "Full Screen"],
+        ["View", "Full Screen"],
+        ["Full Screen"]
+    ] },
+    { type = "separator" },
+    { type = "action", label = "Close Window", action = "sys:close_window", shortcut = ["Alt", "F4"], match_aliases = [
+        ["Window", "Close Window"],
+        ["Window", "Close"],
+        ["File", "Close Window"]
+    ] },
+    { type = "inherit_others" },
+    { type = "separator" },
+    # `window_list` dynamically populates running windows of the focused app (or all apps if >= min_windows_to_show)
+    { type = "window_list", min_windows_to_show = 1, max_title_length = 32 },
+]
+
+# 5. Mandatory Help menu with inline SearchBar at the top
+[[columns]]
+type = "submenu"
+label = "Help"
+merge_with_live = true
+match_aliases = [["Help"]]
+items = [
+    { type = "search_bar", placeholder = "Search menu..." },
+    { type = "separator" },
+    { type = "inherit_others" },
+]

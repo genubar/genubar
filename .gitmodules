@@ -1,0 +1,3 @@
+[submodule "genubar-gnome-extension"]
+	path = genubar-gnome-extension
+	url = https://github.com/genubar/genubar-gnome-extension.git

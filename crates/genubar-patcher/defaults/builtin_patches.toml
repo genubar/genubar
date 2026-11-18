@@ -1,0 +1,187 @@
+# Built-in catalog of application patches with per-app environment scoping and tags.
+
+[[patches]]
+[patches.meta]
+id = "vscode_x11_dbusmenu"
+kind = "patch"
+name = "VS Code Native DBusMenu (X11)"
+version = "1.0.0"
+author = "genubar"
+description = "Sets window.titleBarStyle to native and scopes XDG_CURRENT_DESKTOP=Unity:GNOME + X11 backend exclusively to VS Code."
+tags = ["official", "electron", "x11", "dbusmenu"]
+part_of_bundles = ["developer_ide_pack"]
+restart_hint = "Restart Visual Studio Code for changes to take effect."
+origin = "built_in"
+
+[patches.detection]
+window_matches = ["code", "visual studio code", "com.microsoft.vscode"]
+binaries = ["code"]
+desktop_files = ["com.microsoft.VSCode.desktop", "code.desktop"]
+
+[[patches.steps]]
+type = "check"
+condition = { check_type = "path_exists", path = "~/.config/Code/User/settings.json" }
+on_fail = "abort_patch"
+error_message = "VS Code settings.json not found at ~/.config/Code/User/settings.json. Launch VS Code once first."
+
+[[patches.steps]]
+type = "json_set"
+file = "~/.config/Code/User/settings.json"
+key = "window.titleBarStyle"
+value = "native"
+
+[[patches.steps]]
+type = "json_set"
+file = "~/.config/Code/User/settings.json"
+key = "window.menuStyle"
+value = "native"
+
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "com.microsoft.VSCode.desktop"
+aliases = ["code.desktop"]
+inject_env = { XDG_CURRENT_DESKTOP = "Unity:GNOME", ELECTRON_OZONE_PLATFORM_HINT = "x11", GDK_BACKEND = "x11" }
+append_args = ["--ozone-platform=x11"]
+force_no_dbus_activatable = true
+
+[[patches.steps]]
+type = "cli_wrapper"
+binary_name = "code"
+target_binary_path = "/usr/share/code/code"
+inject_env = { XDG_CURRENT_DESKTOP = "Unity:GNOME", ELECTRON_OZONE_PLATFORM_HINT = "x11", GDK_BACKEND = "x11" }
+append_args = ["--ozone-platform=x11"]
+
+
+[[patches]]
+[patches.meta]
+id = "jetbrains_rustrover_xtoolkit"
+kind = "patch"
+name = "JetBrains RustRover Global Menu (XToolkit)"
+version = "1.0.0"
+author = "genubar"
+description = "Appends -Dawt.toolkit.name=XToolkit and -DjbScreenMenuBar.enabled=true to RustRover VM options."
+tags = ["official", "jetbrains", "java", "dbusmenu"]
+part_of_bundles = ["developer_ide_pack"]
+restart_hint = "Restart RustRover for VM options to take effect."
+origin = "built_in"
+
+[patches.detection]
+window_matches = ["jetbrains-rustrover", "rustrover"]
+home_dirs = [".config/JetBrains/RustRover"]
+
+[[patches.steps]]
+type = "check"
+condition = { check_type = "path_exists", path = "~/.config/JetBrains" }
+on_fail = "abort_patch"
+error_message = "JetBrains configuration directory (~/.config/JetBrains) does not exist."
+
+[[patches.steps]]
+type = "text_line_append"
+file_pattern = "~/.config/JetBrains/RustRover*/rustrover64.vmoptions"
+line = "-Dawt.toolkit.name=XToolkit"
+
+[[patches.steps]]
+type = "text_line_append"
+file_pattern = "~/.config/JetBrains/RustRover*/rustrover64.vmoptions"
+line = "-DjbScreenMenuBar.enabled=true"
+
+
+[[patches]]
+[patches.meta]
+id = "gtk4_text_editor_hook"
+kind = "patch"
+name = "GNOME Text Editor GTK4 Menu Hook"
+version = "1.0.0"
+author = "genubar"
+description = "Scopes LD_PRELOAD=libgenubar_gtk4_hook.so exclusively to GNOME Text Editor and disables DBusActivatable bypass."
+tags = ["official", "gtk4", "ld_preload", "gnome"]
+part_of_bundles = ["gnome_gtk4_core_pack"]
+restart_hint = "Close all GNOME Text Editor windows and launch it again."
+origin = "built_in"
+
+[patches.detection]
+window_matches = ["org.gnome.TextEditor", "gnome-text-editor"]
+binaries = ["gnome-text-editor"]
+desktop_files = ["org.gnome.TextEditor.desktop"]
+
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.TextEditor.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+append_args = ["--standalone"]
+force_no_dbus_activatable = true
+
+[[patches.steps]]
+type = "cli_wrapper"
+binary_name = "gnome-text-editor"
+target_binary_path = "/usr/bin/gnome-text-editor"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+append_args = ["--standalone"]
+
+
+[[patches]]
+[patches.meta]
+id = "gnome_nautilus_gtk4_hook"
+kind = "patch"
+name = "GNOME Files (Nautilus) GTK4 Menubar Hook"
+version = "1.0.0"
+author = "genubar"
+description = "Injects libgenubar_gtk4_hook.so into GNOME Files (Nautilus) and disables DBusActivatable so in-window actions and menus export to Genubar."
+tags = ["gtk4", "gnome", "nautilus", "files"]
+restart_hint = "Run 'killall nautilus' and reopen Files."
+origin = "built_in"
+
+[patches.detection]
+window_matches = ["nautilus", "org.gnome.Nautilus"]
+desktop_files = ["org.gnome.Nautilus.desktop"]
+
+[[patches.steps]]
+type = "check"
+on_fail = "abort_patch"
+error_message = "libgenubar_gtk4_hook.so was not found. Run 'cargo build' first."
+condition = { check_type = "path_exists", path = "{GTK4_HOOK_SO}" }
+
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Nautilus.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+append_args = []
+force_no_dbus_activatable = true
+
+
+[[patches]]
+[patches.meta]
+id = "inkscape_menubar_hook"
+kind = "patch"
+name = "Inkscape Global Menu & Hide In-Window Menubar"
+version = "1.0.0"
+author = "genubar"
+description = "Injects libgenubar_gtk4_hook.so into Inkscape to hide the duplicate in-window GtkMenuBar on Wayland and expose document-scoped (doc.*) actions to Genubar."
+tags = ["official", "gtk3", "inkscape", "ld_preload"]
+restart_hint = "Close all Inkscape windows and launch Inkscape again."
+origin = "built_in"
+
+[patches.detection]
+window_matches = ["org.inkscape.Inkscape", "inkscape"]
+binaries = ["inkscape"]
+desktop_files = ["org.inkscape.Inkscape.desktop"]
+
+[[patches.steps]]
+type = "check"
+on_fail = "abort_patch"
+error_message = "libgenubar_gtk4_hook.so was not found. Run 'cargo build' or install Genubar first."
+condition = { check_type = "path_exists", path = "{GTK4_HOOK_SO}" }
+
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.inkscape.Inkscape.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+append_args = []
+force_no_dbus_activatable = true
+
+[[patches.steps]]
+type = "cli_wrapper"
+binary_name = "inkscape"
+target_binary_path = "/usr/bin/inkscape"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+append_args = []

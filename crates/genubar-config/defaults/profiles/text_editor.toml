@@ -1,0 +1,48 @@
+# Profile for GNOME Text Editor (`org.gnome.TextEditor`).
+# Adds standard macOS File (New Tab / Window / Open / Save / Save As) and Edit (Find / Replace) entries
+# on top of the live GTK4 Hook menu without duplicating matching live actions (`match_aliases`).
+id = "text_editor"
+name = "GNOME Text Editor"
+author = "genubar"
+description = "Enhances GNOME Text Editor with complete File, Edit, and View actions."
+enabled = true
+priority = 10
+sync_new_items = true
+include_app_system_column = true
+fallback_only = false
+
+matchers = [
+    { field = "app_id", contains = "TextEditor" },
+    { field = "app_id", contains = "gnome-text-editor" },
+]
+
+[[columns]]
+type = "submenu"
+label = "File"
+merge_with_live = true
+match_aliases = [["File"]]
+items = [
+    { type = "action", label = "New Tab", action = "gtk:session.new-draft|win.new-tab|app.new-tab", shortcut = ["Ctrl", "T"], icon = "tab-new-symbolic", match_aliases = [["File", "New Tab"]] },
+    { type = "action", label = "New Window", action = "gtk:app.new-window", shortcut = ["Ctrl", "N"], icon = "window-new-symbolic", match_aliases = [["File", "New Window"]] },
+    { type = "action", label = "Open…", action = "gtk:win.open", shortcut = ["Ctrl", "O"], icon = "document-open-symbolic", match_aliases = [["File", "Open…"], ["File", "Open"]] },
+    { type = "separator" },
+    { type = "action", label = "Save", action = "gtk:page.save|win.save", shortcut = ["Ctrl", "S"], icon = "document-save-symbolic", match_aliases = [["File", "Save"]] },
+    { type = "action", label = "Save As…", action = "gtk:page.save-as|win.save-as", shortcut = ["Ctrl", "Shift", "S"], icon = "document-save-as-symbolic", match_aliases = [["File", "Save As…"]] },
+    { type = "separator" },
+    { type = "inherit_others" },
+]
+
+[[columns]]
+type = "submenu"
+label = "Edit"
+merge_with_live = true
+match_aliases = [["Edit"]]
+items = [
+    { type = "inherit_others" },
+    { type = "separator" },
+    { type = "action", label = "Find…", action = "gtk:page.begin-search|win.find", shortcut = ["Ctrl", "F"], icon = "edit-find-symbolic", match_aliases = [["Edit", "Find/Replace…"], ["Edit", "Find…"]] },
+    { type = "action", label = "Find and Replace…", action = "gtk:page.begin-replace|win.replace", shortcut = ["Ctrl", "H"], icon = "edit-find-replace-symbolic" },
+]
+
+[[columns]]
+type = "inherit_others"

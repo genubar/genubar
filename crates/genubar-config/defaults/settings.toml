@@ -1,0 +1,127 @@
+# Global Genubar settings (`~/.config/genubar/settings.toml`).
+# After manual edits, run `genubar-cli reload-config` (or click "Reload Genubar Daemon" in Settings).
+
+[general]
+# Manifest URL checked by Settings -> About & Updates for core app and extension updates
+app_update_url = "https://raw.githubusercontent.com/genubar/genubar-registry/main/app.json"
+# Registry feeds (local JSON file paths or HTTPS URLs) listed in Marketplace
+registry_urls = [
+    "~/.config/genubar/example_registry.json",
+    "https://raw.githubusercontent.com/genubar/genubar-registry/main/registry.json",
+]
+# Executable name or path for Python menu/patch scripts (# ==GenubarScript==)
+python_binary = "python3"
+# Hard timeout per Python script execution in milliseconds
+script_timeout_ms = 500
+# Group extra top-level menu tabs into an overflow dropdown when max_top_columns is exceeded
+enable_more_overflow = false
+# Maximum top-level menu columns shown before moving overflow tabs under `more_column_label`
+max_top_columns = 10
+# Label of the overflow menu button when `enable_more_overflow = true`
+more_column_label = "More"
+# Patch execution failure policy:
+#   "strict"               - abort on any failing check/step and roll back previous steps
+#   "ignore_system_errors" - skip missing optional system files/apps safely (recommended for multi-app suites)
+#   "ignore_all"           - continue past check/step errors best-effort
+patch_error_policy = "strict"
+# Global switches reflected in popup menus and top bar:
+enable_menu_search = true
+show_menu_icons = true
+auto_map_standard_icons = true
+
+# Optional top-level column sorting section (uncomment to customize):
+# [root_sorting]
+# # Options: "disabled" | "standard" | "custom" | "python_script"
+# mode = "standard"
+# # Used when mode = "custom" ("*" acts as wildcard placeholder for remaining columns):
+# custom_order = ["{app_name}", "File", "Edit", "Selection", "View", "Go", "*", "Tools", "Window", "Help"]
+# # Apps skipped by global root column sorting:
+# exclude_apps = []
+# # Script path relative to ~/.config/genubar/ when mode = "python_script":
+# python_script = "scripts/example_menu_transformer.py"
+
+[style]
+# How ~/.config/genubar/style.css syncs to the GNOME Shell extension stylesheet:
+#   "copy_to_extension"     - renders active preset + metrics and copies to `extension_css_path` (default)
+#   "symlink_to_extension"  - symlinks `custom_css_path` to `extension_css_path`
+#   "direct_extension_file" - disables syncing so you can edit the extension CSS directly
+sync_mode = "copy_to_extension"
+# Active preset filename under ~/.config/genubar/styles/
+active_style = "default.css"
+# Output stylesheet path (relative paths resolve under ~/.config/genubar/)
+custom_css_path = "style.css"
+# Target stylesheet inside GNOME Shell extensions directory
+extension_css_path = "~/.local/share/gnome-shell/extensions/genubar@github.com/stylesheet.css"
+# Color scheme for panel & popup menus:
+#   "auto"  - follows GNOME org.gnome.desktop.interface color-scheme / gtk-theme
+#   "dark"  - forces dark menus
+#   "light" - forces light menus
+theme_mode = "auto"
+# Applies .genubar-panel-light to GNOME #panel when Light mode is active
+recolor_gnome_panel = true
+# Injects the metrics below into /* GENUBAR_METRICS_START */ ... /* GENUBAR_METRICS_END */
+apply_metrics_to_css = true
+max_column_height_px = 620
+min_column_width_px = 215
+panel_button_hpadding_px = 6
+item_vpadding_px = 5
+item_hpadding_px = 10
+popup_border_radius_px = 14
+item_border_radius_px = 9
+font_size_px = 13
+
+[api_tiers.gtk_native]
+# Tier 1: Reads native GTK3 GMenuModel (org.gtk.Menus / org.gtk.Actions)
+enabled = true
+# Include the separate GApplication app-menu object path when exported by GTK3 apps
+include_app_menu_column = true
+# Optional Python transformer for GTK Native menus:
+# python_script = "scripts/example_menu_transformer.py"
+
+[api_tiers.gtk4_hook]
+# Tier 2: Accepts menus/actions exported by LD_PRELOAD libgenubar_gtk4_hook.so
+enabled = true
+# Column organization for flat GTK4 popovers:
+#   "standard"      - groups items into File | Edit | View | Help (recommended)
+#   "original"      - preserves raw popover groups as extracted
+#   "python_script" - delegates layout to `python_script` below
+layout_algorithm = "standard"
+# Surface custom header/popover widget controls that lack a GMenuModel inside View
+expose_unknown_custom_widgets = true
+# Sets GENUBAR_GTK4_HIDE_BUTTONS=1 in GTK4 env to hide in-window hamburger buttons
+hide_original_buttons = true
+# Optional custom hook library symlink source (defaults to built-in libgenubar_gtk4_hook.so)
+# custom_hook_so_path = "~/my_custom_hook.so"
+
+[api_tiers.canonical_dbus]
+# Tier 3: Reads com.canonical.dbusmenu (Qt, Electron, Firefox, JetBrains/JVM)
+enabled = true
+# Number of startup AboutToShow passes used to warm dynamic submenus
+preload_passes = 2
+# Delay (ms) for JVM/Swing dynamic submenu expansion during preloading
+swing_open_delay_ms = 35
+# Cache the last valid root menu briefly while an app rebuilds its D-Bus menu
+cache_last_valid_menu = true
+
+[api_tiers.atspi]
+# Tier 4: Accessibility tree fallback (org.a11y.Bus) when D-Bus menu tiers are absent
+enabled = true
+# Persist AT-SPI2 menu skeletons in ~/.cache/genubar/ for instant repeat loads
+enable_disk_cache = true
+# Appends a "Refresh Menu Cache" item under the app menu for AT-SPI2 windows
+append_refresh_cache_button = true
+# Submenu labels skipped from AT-SPI2 skeleton caching so they always re-fetch live
+default_volatile_submenus = []
+
+[api_tiers.atspi.search]
+# AT-SPI2 accessible roles treated as top-level menubar containers
+target_roles = ["menu bar"]
+# Optional substring filter on the menubar accessible name (unset = match all)
+# name_contains = "Menu"
+# Descend into "document web" / Chromium containers (needed for web-wrapped Electron apps)
+traverse_document = false
+# Hoist a single top-level hamburger/menu button children directly onto the panel bar
+hoist_single_button = false
+max_depth = 6
+# Safety cap on visited accessible nodes per window focus to keep UI latency low
+max_nodes_budget = 85

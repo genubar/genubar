@@ -1,0 +1,26 @@
+[package]
+name = "genubar-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "genubar-settings"
+path = "src/main.rs"
+
+[dependencies]
+genubar-core = { path = "../genubar-core" }
+genubar-config = { path = "../genubar-config" }
+genubar-packages = { path = "../genubar-packages" }
+genubar-patcher = { path = "../genubar-patcher" }
+genubar-pipeline = { path = "../genubar-pipeline" }
+genubar-platform = { path = "../genubar-platform" }
+genubar-protocol = { path = "../genubar-protocol" }
+gtk4.workspace = true
+libadwaita.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+toml.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+zbus.workspace = true

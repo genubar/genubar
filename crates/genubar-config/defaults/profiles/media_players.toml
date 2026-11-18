@@ -1,0 +1,34 @@
+# Fallback profile for MPRIS2-compatible audio & music players (Spotify, YouTube Music, Amberol, Rhythmbox).
+# Demonstrates `fallback_only = true`, `field = "any"` (matches either app_id or window title),
+# and `dbus:<bus>|<object_path>|<interface>|<method>` direct D-Bus action invocation.
+id = "media_players"
+name = "Audio & Music Players (MPRIS2)"
+enabled = true
+sync_new_items = false
+include_app_system_column = true
+fallback_only = true
+
+matchers = [
+    { field = "any", contains = "spotify" },
+    { field = "any", contains = "youtube-music" },
+    { field = "any", contains = "amberol" },
+    { field = "any", contains = "rhythmbox" },
+]
+
+[[columns]]
+type = "submenu"
+label = "Playback"
+items = [
+    { type = "action", label = "Play / Pause", action = "dbus:org.mpris.MediaPlayer2.spotify|/org/mpris/MediaPlayer2|org.mpris.MediaPlayer2.Player|PlayPause", shortcut = ["Space"] },
+    { type = "action", label = "Next Track", action = "dbus:org.mpris.MediaPlayer2.spotify|/org/mpris/MediaPlayer2|org.mpris.MediaPlayer2.Player|Next", shortcut = ["Ctrl", "Right"] },
+    { type = "action", label = "Previous Track", action = "dbus:org.mpris.MediaPlayer2.spotify|/org/mpris/MediaPlayer2|org.mpris.MediaPlayer2.Player|Previous", shortcut = ["Ctrl", "Left"] },
+    { type = "separator" },
+    { type = "action", label = "Stop", action = "dbus:org.mpris.MediaPlayer2.spotify|/org/mpris/MediaPlayer2|org.mpris.MediaPlayer2.Player|Stop" },
+]
+
+[[columns]]
+type = "submenu"
+label = "Window"
+items = [
+    { type = "action", label = "Close Window", action = "sys:close_window", shortcut = ["Alt", "F4"] },
+]

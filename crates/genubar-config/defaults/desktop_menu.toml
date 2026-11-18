@@ -1,0 +1,70 @@
+# Desktop Idle menu configuration (`~/.config/genubar/desktop_menu.toml`).
+# Shown whenever no application window is focused.
+#
+# Top-level fields:
+#   mode          : "static" | "python_script"
+#   python_script : optional path relative to ~/.config/genubar/ (when mode = "python_script")
+#   system_title  : optional override for {os_name} label in UI / templates
+#
+# Supported item/column `type` values:
+#   "submenu"     - nested menu; supports `label`, `icon`, `enabled`, `visible`, `only_tiers`, `items`
+#   "action"      - clickable entry; supports `label`, `action`, `icon`, `enabled`, `visible`, `shortcut`, `only_tiers`
+#   "check"       - checkbox item; supports `label`, `checked` (bool), `action`, `icon`, `shortcut`
+#   "radio"       - radio item; supports `label`, `selected` (bool), `action`, `icon`, `shortcut`
+#   "separator"   - horizontal divider (`{ type = "separator" }`)
+#   "window_list" - expands open windows (`min_windows_to_show`, `max_title_length`)
+#   "search_bar"  - inline live menu search (`placeholder`)
+#
+# Supported `action` schemes:
+#   "cmd:<command>"                     - executes binary/args detached
+#   "sh:<shell command>"                - runs via `sh -c` detached
+#   "uri:<url_or_path>"                 - opens URL or folder (~ expanded) via xdg-open
+#   "sys:<system_command_slug>"         - built-in actions: reload_config, lock_screen, logout,
+#                                         quit_app, close_window, minimize_window, maximize_window,
+#                                         fullscreen_window, always_on_top, move_workspace_left,
+#                                         move_workspace_right, center_window, capture_menu_snapshot,
+#                                         refresh_menu, transform_upper, transform_lower, transform_capitalize
+#   "key:<Ctrl+Shift+Key>"              - synthesizes keyboard shortcut against focused window
+#   "dbus:<dest>|<path>|<iface>|<meth>" - invokes a session D-Bus method (no arguments)
+
+mode = "static"
+
+[[columns]]
+type = "submenu"
+# {os_name} expands to PRETTY_NAME / NAME from /etc/os-release (or `system_title`)
+label = "{os_name}"
+items = [
+    { type = "action", label = "About System", action = "cmd:gnome-control-center about" },
+    { type = "separator" },
+    { type = "action", label = "System Settings", action = "cmd:gnome-control-center" },
+    { type = "action", label = "Extensions", action = "sh:flatpak run com.mattjakeman.ExtensionManager || gnome-extensions-app" },
+    { type = "action", label = "Software Center", action = "cmd:gnome-software" },
+    { type = "action", label = "Genubar Settings", action = "cmd:genubar-settings" },
+    { type = "separator" },
+    { type = "action", label = "System Monitor", action = "cmd:gnome-system-monitor" },
+    { type = "separator" },
+    { type = "action", label = "Reload Genubar Config", action = "sys:reload_config" },
+    { type = "action", label = "Lock Screen", action = "sys:lock_screen", shortcut = ["Super", "L"] },
+    { type = "action", label = "Log Out...", action = "sys:logout" },
+]
+
+[[columns]]
+type = "submenu"
+label = "Places"
+items = [
+    { type = "action", label = "Home", action = "uri:~/" },
+    { type = "action", label = "Projects", action = "uri:~/Projects" },
+    { type = "action", label = "Downloads", action = "uri:~/Downloads" },
+    { type = "action", label = "Documents", action = "uri:~/Documents" },
+    { type = "separator" },
+    { type = "action", label = "Genubar Config", action = "uri:~/.config/genubar" },
+]
+
+[[columns]]
+type = "submenu"
+label = "Tools"
+items = [
+    { type = "action", label = "New Terminal", action = "cmd:ptyxis --new-window", shortcut = ["Ctrl", "Alt", "T"] },
+    { type = "action", label = "New File Manager", action = "cmd:nautilus --new-window" },
+    { type = "action", label = "Text Editor", action = "cmd:gnome-text-editor --standalone" },
+]

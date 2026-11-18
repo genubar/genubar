@@ -1,0 +1,45 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/genubar-protocol",
+    "crates/genubar-core",
+    "crates/genubar-platform",
+    "crates/genubar-config",
+    "crates/genubar-pipeline",
+    "crates/genubar-patcher",
+    "crates/genubar-packages",
+    "crates/genubar-dbus",
+    "crates/genubar-daemon",
+    "crates/genubar-gtk4-hook",
+    "crates/genubar-cli",
+    "crates/genubar-ui",
+    "crates/genubar-installer",
+]
+
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Universal global menubar ecosystem for GNOME Shell across GTK3, GTK4/Libadwaita, Qt, Electron, Firefox, and AT-SPI2 applications"
+repository = "https://github.com/genubar/genubar"
+homepage = "https://github.com/genubar/genubar"
+readme = "README.md"
+keywords = ["gnome", "gnome-shell", "menubar", "global-menu", "gtk4"]
+categories = ["os::linux-apis", "gui"]
+
+
+[workspace.dependencies]
+tokio = { version = "1.54.1", features = ["full"] }
+zbus = { version = "6.1.0", default-features = false, features = ["tokio", "tracing", "proxy", "service"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+thiserror = "2.0.21"
+async-trait = "0.1.92"
+clap = { version = "4.6.7", features = ["derive"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+libc = { version = "0.2.1" }
+toml = "1.1.8"
+gtk4 = "0.11.5"
+libadwaita = "0.9.2"

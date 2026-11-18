@@ -1,0 +1,12 @@
+[package]
+name = "genubar-gtk4-hook"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"] # Compile as a C dynamic shared library (.so) and rlib for unit tests
+
+[dependencies]
+genubar-protocol = { path = "../genubar-protocol" }
+libc.workspace = true

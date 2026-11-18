@@ -1,0 +1,310 @@
+# Master GTK4 Menubar Hook patch for the GNOME Core Applications suite (`~/.config/genubar/patches/`).
+#
+# Patch Manifest Reference (`[[patches]]` catalog or single `[meta]` file):
+#   meta.id, meta.name, meta.version, meta.author, meta.description, meta.tags, meta.min_app_version
+#   meta.part_of_bundles : optional list of parent bundle IDs
+#   meta.restart_hint    : user guidance displayed after applying/reverting
+#   meta.error_policy    : "strict" (rollback all steps on error) | "ignore_system_errors" (skip missing apps) | "ignore_all"
+#   detection            : window_matches, binaries, desktop_files, flatpak_ids, home_dirs
+#
+# Supported `[[patches.steps]]` types:
+#   "check"              - pre-flight check (`binary_exists`, `path_exists`, `flatpak_installed`, `env_equals`, `file_contains`)
+#                          with `on_fail = "abort_patch" | "skip_step"`
+#   "desktop_override"   - writes ~/.local/share/applications/<desktop_file> with `inject_env`, `append_args`, `force_no_dbus_activatable`
+#   "cli_wrapper"        - creates ~/.local/bin/<binary_name> wrapper around `target_binary_path`
+#   "flatpak_override"   - updates Flatpak user overrides (`talk_names`, `inject_env`, automatic ~/.local/lib/genubar:ro access)
+#   "json_set"           - sets a dot-separated `key` to `value` inside a JSON file (`file`)
+#   "text_line_append"   - appends `line` idempotently to files matched by `file_pattern` (supports single-level `*` globs)
+#   "firefox_user_js"    - manages `user_pref(pref_key, pref_value)` in Firefox profiles
+#   "gsettings_set"      - applies a `schema` / `key` / `value` via GSettings
+#   "python_script"      - runs a reversible `# ==GenubarScript==` plugin (`apply(ctx)` / `revert(ctx, saved_state)`)
+#
+# Path placeholders: `{HOME}` expands to $HOME; `{GTK4_HOOK_SO}` resolves active_gtk4_hook.so.
+
+[[patches]]
+[patches.meta]
+id = "gnome_core_apps_gtk4_hook"
+kind = "patch"
+name = "GNOME Core Applications Suite (All-in-One GTK4 Hook)"
+version = "1.0.0"
+author = "genubar"
+description = "Injects libgenubar_gtk4_hook.so and disables DBusActivatable across 27 standard GNOME applications (Files, Ptyxis, Text Editor, Software, Settings, System Monitor, Calculator, Calendar, Clocks, Loupe, Papers, Camera, Disks, Weather, Maps, etc.)."
+tags = ["gtk4", "gnome", "suite", "core"]
+part_of_bundles = ["gnome_core_suite"]
+restart_hint = "Close and reopen running GNOME applications (or run 'killall nautilus gnome-text-editor gnome-calculator') to activate their global menus."
+error_policy = "ignore_system_errors"
+origin = "built_in"
+
+[patches.detection]
+window_matches = [
+    "org.gnome.Nautilus",
+    "org.gnome.Ptyxis",
+    "org.gnome.TextEditor",
+    "org.gnome.Software",
+    "org.gnome.Settings",
+    "org.gnome.SystemMonitor",
+    "org.gnome.Calculator",
+    "org.gnome.Calendar",
+    "org.gnome.clocks",
+    "org.gnome.Loupe",
+    "org.gnome.Papers",
+    "org.gnome.Snapshot",
+    "org.gnome.Showtime",
+    "org.gnome.Decibels",
+    "org.gnome.baobab",
+    "org.gnome.DiskUtility",
+    "org.gnome.Logs",
+    "org.gnome.Weather",
+    "org.gnome.Maps",
+    "org.gnome.Contacts",
+    "org.gnome.Characters",
+    "org.gnome.Connections",
+    "org.gnome.Boxes",
+    "org.gnome.SimpleScan",
+    "org.gnome.font-viewer",
+    "org.gnome.Tecla",
+    "org.gnome.tweaks",
+    "org.gnome.Yelp",
+    "yelp",
+    "org.freedesktop.MalcontentControl",
+    "malcontent-control",
+    "org.gnome.Extensions",
+    "org.gnome.Shell.Extensions",
+]
+desktop_files = [
+    "org.gnome.Nautilus.desktop",
+    "org.gnome.Ptyxis.desktop",
+    "org.gnome.TextEditor.desktop",
+    "org.gnome.Software.desktop",
+    "org.gnome.Settings.desktop",
+]
+
+[[patches.steps]]
+type = "check"
+on_fail = "abort_patch"
+error_message = "libgenubar_gtk4_hook.so was not found. Run 'cargo build' first."
+condition = { check_type = "path_exists", path = "{GTK4_HOOK_SO}" }
+
+# 1. GNOME Files (Nautilus)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Nautilus.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 2. Ptyxis Terminal
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Ptyxis.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 3. GNOME Text Editor
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.TextEditor.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 4. GNOME Software
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Software.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 5. GNOME Settings (Control Center)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Settings.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 6. GNOME System Monitor
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.SystemMonitor.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 7. GNOME Calculator
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Calculator.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 8. GNOME Calendar
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Calendar.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 9. GNOME Clocks
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.clocks.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 10. GNOME Image Viewer (Loupe)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Loupe.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 11. GNOME Document Viewer (Papers)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Papers.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 12. GNOME Camera (Snapshot)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Snapshot.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 13. GNOME Video Player (Showtime)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Showtime.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 14. GNOME Audio Player (Decibels)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Decibels.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 15. Disk Usage Analyzer (Baobab)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.baobab.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 16. GNOME Disks (DiskUtility)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.DiskUtility.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 17. GNOME Logs
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Logs.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 18. GNOME Weather
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Weather.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 19. GNOME Maps
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Maps.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 20. GNOME Contacts
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Contacts.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 21. GNOME Characters
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Characters.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 22. GNOME Connections
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Connections.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 23. GNOME Boxes
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Boxes.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 24. Document Scanner (SimpleScan)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.SimpleScan.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 25. GNOME Fonts (font-viewer)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.font-viewer.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 26. Tecla Keyboard Viewer
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Tecla.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 27. GNOME Tweaks
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.tweaks.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 28. GNOME Help (Yelp)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.gnome.Yelp.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 29. Parental Controls (MalcontentControl)
+[[patches.steps]]
+type = "desktop_override"
+desktop_file = "org.freedesktop.MalcontentControl.desktop"
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+force_no_dbus_activatable = true
+
+# 30. GNOME Extensions (Flatpak)
+[[patches.steps]]
+type = "flatpak_override"
+app_id = "org.gnome.Extensions"
+talk_names = ["org.genubar.WindowTracker"]
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+
+# 31. Extension Manager (Flatpak)
+[[patches.steps]]
+type = "flatpak_override"
+app_id = "com.mattjakeman.ExtensionManager"
+talk_names = ["org.genubar.WindowTracker"]
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }
+
+# 32. Flatseal (Flatpak)
+[[patches.steps]]
+type = "flatpak_override"
+app_id = "com.github.tchx84.Flatseal"
+talk_names = ["org.genubar.WindowTracker"]
+inject_env = { LD_PRELOAD = "{GTK4_HOOK_SO}" }

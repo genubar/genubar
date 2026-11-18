@@ -1,0 +1,30 @@
+# Profile for GNOME Image Viewer (`org.gnome.Loupe`) and Document Viewer (`org.gnome.Papers`).
+# Shows how one profile can target multiple apps using multiple `matchers`.
+id = "loupe_papers"
+name = "GNOME Loupe & Papers Viewers"
+author = "genubar"
+description = "Adds macOS Preview-style File and View menus to GNOME Loupe and Papers."
+enabled = true
+priority = 10
+sync_new_items = true
+include_app_system_column = true
+fallback_only = false
+
+matchers = [
+    { field = "app_id", contains = "Loupe" },
+    { field = "app_id", contains = "Papers" },
+]
+
+[[columns]]
+type = "submenu"
+label = "File"
+merge_with_live = true
+match_aliases = [["File"]]
+items = [
+    { type = "action", label = "Open…", action = "gtk:win.open", shortcut = ["Ctrl", "O"], icon = "document-open-symbolic", match_aliases = [["File", "Open…"], ["File", "Open"]] },
+    { type = "separator" },
+    { type = "inherit_others" },
+]
+
+[[columns]]
+type = "inherit_others"

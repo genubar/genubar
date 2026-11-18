@@ -1,0 +1,48 @@
+{
+  "entries": [
+    {
+      "id": "vim_navigation_profile",
+      "kind": "profile",
+      "name": "Neovim / Terminal IDE Profile",
+      "version": "1.0.0",
+      "author": "genubar-community",
+      "min_app_version": "0.1.0",
+      "description": "Adds quick File/Buffers/Split/Search top-level organization when Neovim runs inside a terminal window.",
+      "tags": ["profile", "neovim", "vim", "terminal", "ide"],
+      "content": "id = \"vim_navigation_profile\"\nname = \"Neovim / Terminal IDE\"\nversion = \"1.0.0\"\nauthor = \"genubar-community\"\ndescription = \"Custom panel layout for Neovim sessions\"\nmin_app_version = \"0.1.0\"\nenabled = true\npriority = 15\nsync_new_items = true\ninclude_app_system_column = true\n\n[[matchers]]\nfield = \"title\"\ncontains = \"nvim\"\n\n[[columns]]\ntype = \"inherit\"\nfrom = \"File\"\n\n[[columns]]\ntype = \"inherit\"\nfrom = \"Edit\"\n\n[[columns]]\ntype = \"inherit\"\nfrom = \"View\"\n\n[[columns]]\ntype = \"inherit_others\"\n"
+    },
+    {
+      "id": "nordic_frost_style",
+      "kind": "style",
+      "name": "Nordic Frost Panel",
+      "version": "1.0.0",
+      "author": "genubar-themes",
+      "min_app_version": "0.1.0",
+      "description": "Cool arctic slate accent styling for Genubar panel buttons and active menu focus.",
+      "tags": ["style", "nord", "theme", "arctic"],
+      "content": "/* ==GenubarStyle==\n * @id              nordic_frost_style\n * @name            Nordic Frost Panel\n * @version         1.0.0\n * @author          genubar-themes\n * @description     Cool arctic slate accent styling for Genubar panel buttons\n * @min_app_version 0.1.0\n * ==/GenubarStyle== */\n\n.panel-button.genubar-panel-button {\n    -natural-hpadding: 7px;\n    -minimum-hpadding: 4px;\n    border-radius: 6px;\n}\n\n.panel-button.genubar-panel-button:hover,\n.panel-button.genubar-panel-button:active,\n.panel-button.genubar-panel-button:checked {\n    background-color: rgba(136, 192, 208, 0.22);\n    color: #eceff4;\n}\n\n.genubar-app-button {\n    font-weight: 700;\n    color: #88c0d0;\n}\n"
+    },
+    {
+      "id": "wayland_compositor_bridge",
+      "kind": "patch",
+      "name": "Wayland Compositor Direct Hook",
+      "version": "0.2.0",
+      "author": "genubar-core",
+      "min_app_version": "0.2.0",
+      "description": "Next-generation compositor protocol bridge (requires Genubar v0.2.0).",
+      "tags": ["patch", "wayland", "v0.2"],
+      "content": "[[patches]]\n[patches.meta]\nid = \"wayland_compositor_bridge\"\nname = \"Wayland Compositor Direct Hook\"\nversion = \"0.2.0\"\nauthor = \"genubar-core\"\ndescription = \"Next-generation compositor protocol bridge (requires Genubar v0.2.0).\"\nmin_app_version = \"0.2.0\"\ntags = [\"wayland\", \"experimental\"]\n\n[[patches.steps]]\ntype = \"wayland_bridge_hook\"\nmode = \"native_toplevel\"\n"
+    },
+    {
+      "id": "ai_smart_bar_widget",
+      "kind": "menubar_widget",
+      "name": "AI Context Status Pill",
+      "version": "2.0.0",
+      "author": "genubar-labs",
+      "min_app_version": "0.2.0",
+      "description": "Future v0.2+ inline top-bar widget type demonstrating unknown kind forward compatibility.",
+      "tags": ["widget", "ai", "v0.2"],
+      "content": "# Saved prototype manifest for AI Context Status Pill (requires Genubar v0.2.0)\nid = \"ai_smart_bar_widget\"\nkind = \"menubar_widget\"\nversion = \"2.0.0\"\n"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[package]
+name = "genubar-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "genubar-cli"
+path = "src/main.rs"
+
+[dependencies]
+genubar-core = { path = "../genubar-core" }
+genubar-config = { path = "../genubar-config" }
+genubar-daemon = { path = "../genubar-daemon" }
+genubar-dbus = { path = "../genubar-dbus" }
+genubar-packages = { path = "../genubar-packages" }
+genubar-patcher = { path = "../genubar-patcher" }
+genubar-protocol = { path = "../genubar-protocol" }
+tokio.workspace = true
+clap.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

@@ -1,0 +1,25 @@
+# Profile for Mozilla Firefox demonstrating tree inheritance (`type = "inherit"`) and `sync_new_items`.
+# Because Firefox exports Canonical DBusMenu when patched, `sync_new_items = true` preserves
+# all browser menus automatically while letting you override or hide specific columns below.
+id = "firefox"
+name = "Mozilla Firefox"
+enabled = true
+# Include new/remaining live browser columns automatically
+sync_new_items = true
+# Keep the leading {app_name} column from app_menu.toml
+include_app_system_column = true
+# Run for live Firefox menus (not only fallback)
+fallback_only = false
+
+# Match any window whose WM_CLASS / app_id contains "firefox" (case-insensitive)
+matchers = [
+    { field = "app_id", contains = "firefox" },
+]
+
+# Optional inheritance overrides:
+#   type = "inherit" overrides an existing live node matched by `from` / `match_labels` / `match_aliases`:
+#   label, icon, enabled, visible, shortcut, sync_new_items, items
+# columns = [
+#     { type = "inherit", from = "File" },
+#     { type = "inherit", from = "Profiles", visible = false },
+# ]

@@ -1,0 +1,206 @@
+# Global icon rendering configuration and system fallback rules (`~/.config/genubar/icons.toml`).
+#
+# Icon packs stored in ~/.config/genubar/icons/<pack_id>/pack.toml are evaluated first
+# (sorted by `priority`, lowest number first), then `[[system_rules]]` below run when
+# `use_system_fallback = true`.
+
+[general]
+# Master switch for displaying icons inside menu rows
+show_menu_icons = true
+# Legacy flag kept compatible alongside `icon_column_policy`
+reserve_icon_column = false
+# Controls icon slot width alignment per column:
+#   "always" - always reserve leading icon space even when no items have icons
+#   "auto"   - reserve space only if at least one visible item in that column has an icon
+#   "never"  - only allocate icon slots on rows that carry an icon
+icon_column_policy = "auto"
+# Where check/radio state markers appear relative to row icons:
+#   "before_icon"  - [✓] [icon] Label
+#   "after_icon"   - [icon] [✓] Label
+#   "replace_icon" - shares one slot; shows checkmark/radio unless unchecked + item has icon
+#   "right"        - places checkmark/radio on the right side (before shortcut/arrow)
+check_position = "before_icon"
+# Controls check/radio slot width alignment per column: "always" | "auto" | "never"
+check_column_policy = "auto"
+# Visual indicator used for Check / Radio items:
+#   "symbol" - renders Unicode ✓ / • glyphs
+#   "icon"   - renders GNOME symbolic icons (object-select-symbolic / radio-checked-symbolic)
+#   "box"    - renders boxed checkboxes/radios (☑ / ☐ / ◉ / ○)
+check_style = "symbol"
+# Icon and check indicator size in pixels inside menu rows
+icon_size_px = 12
+# Evaluates [[system_rules]] below for items without a native or custom-pack icon
+use_system_fallback = true
+
+# Supported matcher fields in each [[system_rules]] (or custom pack [[rules]]) block:
+#   icon               : GNOME icon name (e.g. "edit-find-symbolic"), "none" (suppress icon),
+#                        or relative/absolute .svg/.png file path inside the pack folder
+#   match_apps         : wildcard patterns matched against app_id or title (e.g. ["*firefox*"])
+#   exclude_apps       : wildcard patterns excluded even if match_apps matched
+#   match_paths        : full menu paths like ["File -> New*"] or [["File", "New*"]]
+#   exclude_paths      : excluded full paths
+#   match_parent_paths : parent submenu paths (e.g. ["History -> Recently Closed*"])
+#   match_labels       : label wildcard patterns (case-insensitive, e.g. ["*find*"])
+#   exclude_labels     : excluded label wildcard patterns
+#   match_actions      : action string wildcards (e.g. ["copy:*", "*open*"])
+#   exclude_actions    : excluded action string wildcards
+#   min_index / max_index : restrict by 0-based position within the submenu
+#   after_label / before_label : restrict to items appearing after/before a sibling label pattern
+
+# 1. Suppress false icons on dynamic browser history & bookmark items in Firefox
+[[system_rules]]
+icon = "none"
+match_apps = ["*firefox*"]
+match_parent_paths = ["History"]
+after_label = "Recently Closed Windows"
+
+[[system_rules]]
+icon = "none"
+match_apps = ["*firefox*"]
+match_parent_paths = ["History -> Recently Closed*"]
+before_label = "Reopen All*"
+
+[[system_rules]]
+icon = "none"
+match_apps = ["*firefox*"]
+match_parent_paths = ["Bookmarks", "Bookmarks -> *"]
+after_label = "Other Bookmarks"
+
+
+# 2. System fallback rules (evaluated after enabled custom packs in ~/.config/genubar/icons/*)
+[[system_rules]]
+icon = "tab-new-symbolic"
+match_labels = ["*new tab*", "*new window*", "*new private window*"]
+
+[[system_rules]]
+icon = "document-new-symbolic"
+match_labels = ["new*"]
+exclude_labels = ["news*", "*newsletter*", "*whats new*", "*what's new*"]
+match_actions = ["*new*"]
+
+[[system_rules]]
+icon = "document-open-symbolic"
+match_labels = ["open*", "*import*"]
+match_actions = ["*open*"]
+
+[[system_rules]]
+icon = "document-save-as-symbolic"
+match_labels = ["*save as*", "*save page as*"]
+
+[[system_rules]]
+icon = "document-save-symbolic"
+match_labels = ["save*"]
+match_actions = ["*save*"]
+
+[[system_rules]]
+icon = "document-print-symbolic"
+match_labels = ["print*"]
+match_actions = ["*print*"]
+
+[[system_rules]]
+icon = "edit-undo-symbolic"
+match_labels = ["undo*"]
+match_actions = ["*undo*"]
+
+[[system_rules]]
+icon = "edit-redo-symbolic"
+match_labels = ["redo*"]
+match_actions = ["*redo*"]
+
+[[system_rules]]
+icon = "edit-cut-symbolic"
+match_labels = ["cut*"]
+match_actions = ["*cut*"]
+
+[[system_rules]]
+icon = "edit-copy-symbolic"
+match_labels = ["copy*"]
+match_actions = ["copy:*", "*copy*"]
+
+[[system_rules]]
+icon = "edit-paste-symbolic"
+match_labels = ["paste*"]
+match_actions = ["insert:*", "*paste*"]
+
+[[system_rules]]
+icon = "edit-delete-symbolic"
+match_labels = ["delete*", "clear*"]
+
+[[system_rules]]
+icon = "edit-select-all-symbolic"
+match_labels = ["select all*"]
+
+[[system_rules]]
+icon = "edit-find-symbolic"
+match_labels = ["*find*", "*search*"]
+
+[[system_rules]]
+icon = "emblem-system-symbolic"
+match_labels = ["*preference*", "*setting*"]
+
+[[system_rules]]
+icon = "zoom-in-symbolic"
+match_labels = ["zoom in*"]
+
+[[system_rules]]
+icon = "zoom-out-symbolic"
+match_labels = ["zoom out*"]
+
+[[system_rules]]
+icon = "view-fullscreen-symbolic"
+match_labels = ["*full screen*"]
+match_actions = ["*fullscreen*"]
+
+[[system_rules]]
+icon = "window-minimize-symbolic"
+match_labels = ["minimize*"]
+match_actions = ["*minimize*"]
+
+[[system_rules]]
+icon = "window-maximize-symbolic"
+match_labels = ["maximize*"]
+match_actions = ["*maximize*"]
+
+[[system_rules]]
+icon = "view-pin-symbolic"
+match_labels = ["*always on top*"]
+match_actions = ["*always_on_top*"]
+
+[[system_rules]]
+icon = "view-refresh-symbolic"
+match_labels = ["*refresh*", "*reload*"]
+
+[[system_rules]]
+icon = "camera-photo-symbolic"
+match_labels = ["*snapshot*"]
+
+[[system_rules]]
+icon = "system-lock-screen-symbolic"
+match_labels = ["lock screen*"]
+
+[[system_rules]]
+icon = "system-log-out-symbolic"
+match_labels = ["log out*"]
+
+[[system_rules]]
+icon = "window-close-symbolic"
+match_labels = ["close*"]
+match_actions = ["*close_window*"]
+
+[[system_rules]]
+icon = "application-exit-symbolic"
+match_labels = ["quit*"]
+match_actions = ["*quit_app*"]
+
+[[system_rules]]
+icon = "help-about-symbolic"
+match_labels = ["*about*", "*help*"]
+
+[[system_rules]]
+icon = "folder-symbolic"
+match_labels = ["home", "projects", "downloads", "documents", "*folder*", "*config*"]
+match_actions = ["uri:*"]
+
+[[system_rules]]
+icon = "utilities-terminal-symbolic"
+match_labels = ["*terminal*"]

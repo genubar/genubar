@@ -1,0 +1,35 @@
+# Built-in bundle definition (`~/.config/genubar/bundles/<bundle_id>/bundle.toml`).
+#
+# Bundles group related patches, application profiles, CSS styles, and icon packs so
+# `genubar-settings` (Bundles tab) and `genubar-cli apply-bundle` can toggle them together.
+#   patches    : manifest filenames or patch IDs loaded from ~/.config/genubar/patches/ or bundle subfolder
+#   profiles   : profile filenames loaded from ~/.config/genubar/profiles/
+#   styles     : stylesheet filenames under ~/.config/genubar/styles/
+#   icon_packs : custom icon pack folder IDs under ~/.config/genubar/icons/
+
+id = "gnome_core_suite"
+name = "GNOME Core Applications Suite"
+version = "1.0.0"
+author = "genubar"
+description = "Complete out-of-the-box integration for 27 standard GNOME applications (Files, Ptyxis, Text Editor, Software, Settings, System Monitor, Calculator, Calendar, Clocks, Loupe, Papers, Camera, Disks, Weather, Maps) with native GTK4 hooks and Finder/Terminal profiles."
+min_app_version = "0.1.0"
+tags = ["gnome", "gtk4", "official", "suite"]
+
+patches = [
+    "gnome_core_apps.toml",
+]
+
+profiles = [
+    "nautilus.toml",
+    "ptyxis.toml",
+    "text_editor.toml",
+    "loupe_papers.toml",
+]
+
+styles = [
+    "default.css",
+]
+
+icon_packs = [
+    "custom_sample",
+]

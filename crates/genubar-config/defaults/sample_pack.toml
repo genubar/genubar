@@ -1,0 +1,27 @@
+# Sample custom icon pack (`~/.config/genubar/icons/custom_sample/pack.toml`).
+# Place custom `.svg` or `.png` files in the same folder as `pack.toml` and reference them
+# by filename (e.g. `icon = "my_star.svg"`), or use GNOME theme icon names (`icon = "starred-symbolic"`),
+# or `"none"` to suppress an unwanted icon.
+
+id = "custom_sample"
+name = "Custom Priority Icon Pack"
+enabled = false
+# Lower priority runs first when multiple packs match the same item
+priority = 10
+author = "user"
+description = "Demonstrates matching icons by app_id (`match_apps`) and exact menu path (`match_paths`)."
+# Optional minimum Genubar version compatibility guard:
+# min_app_version = "0.1.0"
+
+# Available rule fields: match_apps, exclude_apps, match_paths, exclude_paths,
+# match_parent_paths, match_labels, exclude_labels, match_actions, exclude_actions,
+# min_index, max_index, after_label, before_label.
+
+[[rules]]
+icon = "folder-new-symbolic"
+match_apps = ["*nautilus*", "*files*"]
+match_paths = ["File -> New*", "Edit -> New*"]
+
+[[rules]]
+icon = "starred-symbolic"
+match_labels = ["*bookmark*"]

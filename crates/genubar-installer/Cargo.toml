@@ -1,0 +1,14 @@
+[package]
+name = "genubar-installer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+genubar-core = { path = "../genubar-core" }
+genubar-patcher = { path = "../genubar-patcher" }
+genubar-platform = { path = "../genubar-platform" }
+genubar-protocol = { path = "../genubar-protocol" }
+gtk4.workspace = true
+libadwaita.workspace = true
+thiserror.workspace = true

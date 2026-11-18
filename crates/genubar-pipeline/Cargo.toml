@@ -1,0 +1,12 @@
+[package]
+name = "genubar-pipeline"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+genubar-core = { path = "../genubar-core" }
+genubar-config = { path = "../genubar-config" }
+genubar-platform = { path = "../genubar-platform" }
+serde_json.workspace = true
+tracing.workspace = true
