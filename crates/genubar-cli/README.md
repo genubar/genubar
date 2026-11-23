@@ -19,7 +19,8 @@ Defined in `src/cli.rs` and implemented across `src/commands/`:
   - `inspect-atspi --pid <PID>` — extracts menus via AT-SPI2 by process ID.
   - `dump-atspi --pid <PID> [--depth 6] [--include-doc]` — dumps raw AT-SPI2 accessible hierarchies for debugging.
   - `dump-gtk4 --pid <PID>` — queries `org.genubar.Gtk4Bridge.DumpIntrospection` on a hooked GTK4 app.
-  - `click` / `click-gtk` — activates a specific menu item ID over Canonical DBusMenu or GTK actions.
+  - `click --dest <BUS_NAME> --id <ID> [--path /MenuBar/2]` — activates a specific menu item ID over Canonical DBusMenu.
+  - `click-gtk --dest <BUS_NAME> --menubar-path <PATH> --id <ID> [--app-path ...] [--win-path ...]` — activates a specific menu item ID over GTK actions.
 - **Patches & Bundles (`commands/packages.rs`):**
   - `patches`, `apply-patch --id <ID> [--skip-unsupported]`, `revert-patch --id <ID> [--force]`
   - `bundles`, `apply-bundle --id <ID>`, `revert-bundle --id <ID>`

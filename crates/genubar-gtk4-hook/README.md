@@ -1,17 +1,17 @@
-# genubar-gtk4-hook (libgenubar_gtk4_hook.so)
+# genubar-gtk4-hook
 
-An `LD_PRELOAD` shared library written in Rust (`cdylib` + `rlib` for unit testing) that extracts in-window hamburger/popover menus (`GtkMenuButton`) from modern **GTK4 / GTK3 / Libadwaita** applications and exports them to the **Genubar** global menubar daemon over D-Bus.
+An `LD_PRELOAD` shared library (`libgenubar_gtk4_hook.so`, built as `cdylib` + `rlib` for unit testing) that extracts in-window popover menus (`GtkMenuButton`) from **GTK4 / GTK3 / Libadwaita** applications and exports them to `genubar-daemon` over D-Bus.
 
 ## Why This Hook Exists
 
-Modern GTK4 / Libadwaita applications rarely use a traditional `GtkPopoverMenuBar`. Instead, they embed one or more `GtkMenuButton` hamburger buttons inside `AdwHeaderBar` and bind actions to internal widget-level `GtkActionMuxer` scopes (such as `page.*`, `view.*`, `slot.*`, or `editor.*`) that are invisible to external D-Bus clients.
+GTK4 and Libadwaita applications removed the traditional `GtkMenuBar` and automatic `org.gtk.Menus` D-Bus export in favor of internal popover menus (`GtkPopoverMenu` / `GtkMenuButton`) inside `AdwHeaderBar` and actions bound to widget-scoped `GtkActionMuxer` groups (`page.*`, `view.*`, `slot.*`, `editor.*`) that external D-Bus clients cannot inspect. Meanwhile, Wayland isolates application windows from each other so window focus and metadata must be tracked through the GNOME Shell compositor.
 
-`libgenubar_gtk4_hook.so` bridges this gap without requiring source-code modifications to GTK applications:
+`libgenubar_gtk4_hook.so` bridges GTK internals without modifying application source code:
 
-1. **Zero Compile-Time GTK Linking:** Resolves GTK / GLib / GIO / Adwaita / WebKit symbols dynamically via `dlsym(RTLD_DEFAULT, ...)` at runtime so it never pollutes non-GTK processes with `DT_NEEDED` dependencies.
-2. **Child-Process Safe:** Clears `LD_PRELOAD` inside `g_application_run` before starting the main loop so child processes (shells, compilers, browsers) spawned by the app run cleanly.
-3. **Widget-Tree Menu Extraction & Live Signal Tracking:** Walks realized `GtkWindow` widget trees on `map`, collects every `GtkMenuButton`'s `GMenuModel`, tracks `GtkWidget::insert_action_group` and `GActionGroup` change signals (`action-added`, `action-removed`, `action-enabled-changed`, `action-state-changed`), infers column titles (`File`, `View`, `Options`), optionally hides original hamburger buttons (`GENUBAR_GTK4_HIDE_BUTTONS=1`), and cleans up destroyed widgets automatically via `g_object_weak_ref`.
-4. **In-Process Action & Zoom Bridge (`org.genubar.Gtk4Bridge`):** Exports `/org/genubar/gtk4_bridge` to dispatch widget-scoped actions, report structured `GetActionStates` tuples (`a(sbss)`), switch Libadwaita color schemes (`System` / `Light` / `Dark`), and handle universal Zoom controls (`Zoom In`, `Zoom Out`, `Reset Zoom` with live percentage tracking).
+1. **Dynamic Linker Resolution (`ld.so`):** Resolves GTK / GLib / GIO / Adwaita / WebKit symbols dynamically via `dlsym(RTLD_DEFAULT, ...)` at runtime so it never adds compile-time `DT_NEEDED` dependencies to non-GTK processes.
+2. **Child-Process Safe:** Clears `LD_PRELOAD` inside `g_application_run` before starting the GLib event loop (`GMainLoop`) so child processes (shells, compilers, browsers) spawned by the app start without the hook.
+3. **Widget-Tree Menu Extraction & Live Signal Tracking:** Walks realized `GtkWindow` widget trees on `map` within `GMainLoop`, collects every `GtkMenuButton`'s `GMenuModel`, tracks `GtkWidget::insert_action_group` and `GActionGroup` change signals (`action-added`, `action-removed`, `action-enabled-changed`, `action-state-changed`), infers column titles (`File`, `View`, `Options`), optionally hides original hamburger buttons (`GENUBAR_GTK4_HIDE_BUTTONS=1`), and cleans up destroyed widgets via `g_object_weak_ref`.
+4. **In-Process Action & Zoom Bridge (`org.genubar.Gtk4Bridge`):** Exports `/org/genubar/gtk4_bridge` to dispatch widget-scoped actions, report structured `GetActionStates` tuples (`a(sbss)`), switch Libadwaita color schemes (`System` / `Light` / `Dark`), and handle Zoom controls (`Zoom In`, `Zoom Out`, `Reset Zoom` with live percentage tracking).
 
 ## Module Structure
 

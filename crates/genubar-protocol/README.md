@@ -15,8 +15,8 @@ Both the main async Tokio workspace (`genubar-daemon`, `genubar-dbus`, `genubar-
   - `REGISTRAR_BUS_NAME` / `REGISTRAR_OBJECT_PATH` (`com.canonical.AppMenu.Registrar`).
   - `GTK4_BRIDGE_INTERFACE` / `GTK4_BRIDGE_PATH` / `GTK4_MENU_PATH` / `GTK4_APP_PATH` / `GTK4_WIN_PATH` (`/org/genubar/gtk4_*`) and their `*\_C` counterparts.
 - **Cross-Process Action Contracts:** `ACTION_THEME_SYSTEM`, `ACTION_THEME_LIGHT`, `ACTION_THEME_DARK`, `ACTION_ZOOM_IN`, `ACTION_ZOOM_OUT`, `ACTION_ZOOM_RESET`, and `HIDDEN_BUTTONS_ENV` (`GENUBAR_GTK4_HIDE_BUTTONS`).
-- **GNOME Shell Extension Metadata:** `EXTENSION_UUID` (`genubar@github.com`), `LEGACY_EXTENSION_UUID` (`genubar@local`), and `EXTENSION_FILES` (canonical manifest of all 24 extension files synchronized with `genubar-platform`).
-- **Hook Library & Safety Guards:** `GTK4_HOOK_ACTIVE_SO_NAME`, `GTK4_HOOK_CANONICAL_SO_NAME`, `GTK4_HOOK_LEGACY_SO_NAME`, `GTK4_HOOK_MAP_MARKERS`, `PROTECTED_SHELL_BINARIES`, and `PROTECTED_HOOK_GUARD_BINARIES`.
+- **GNOME Shell Extension Metadata:** `EXTENSION_UUID` (`genubar@github.com`) and `EXTENSION_FILES` (canonical manifest of all 24 extension files synchronized with `genubar-platform`).
+- **Hook Library & Safety Guards:** `GTK4_HOOK_ACTIVE_SO_NAME`, `GTK4_HOOK_CANONICAL_SO_NAME`, `GTK4_HOOK_MAP_MARKERS`, `PROTECTED_SHELL_BINARIES`, and `PROTECTED_HOOK_GUARD_BINARIES`.
 
 ## Testing
 
