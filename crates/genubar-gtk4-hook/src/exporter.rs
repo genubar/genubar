@@ -42,8 +42,7 @@ pub struct DbusExporter;
 impl DbusExporter {
     /// Resolves the session `GDBusConnection` from `GApplication` or falls back to `g_bus_get_sync`.
     pub unsafe fn resolve_session_connection(app: *mut GApplication) -> *mut GDBusConnection {
-        let mut conn =
-            unsafe { g_application_get_dbus_connection(app) }.unwrap_or(ptr::null_mut());
+        let mut conn = unsafe { g_application_get_dbus_connection(app) }.unwrap_or(ptr::null_mut());
         if conn.is_null() {
             conn = unsafe { g_bus_get_sync(2, ptr::null_mut(), ptr::null_mut()) }
                 .unwrap_or(ptr::null_mut());

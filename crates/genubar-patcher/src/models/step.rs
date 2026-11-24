@@ -64,7 +64,9 @@ pub enum PatchStep {
         args: BTreeMap<String, String>,
     },
     #[serde(skip_deserializing)]
-    Unsupported { raw_type: String },
+    Unsupported {
+        raw_type: String,
+    },
 }
 
 impl Serialize for PatchStep {

@@ -29,10 +29,9 @@ impl A11yBusClient {
                 let bus_proxy = A11yBusProxy::new(&self.session_conn)
                     .await
                     .map_err(|e| MenuError::Transport(format!("A11yBus proxy error: {e}")))?;
-                let addr = bus_proxy
-                    .get_address()
-                    .await
-                    .map_err(|e| MenuError::Transport(format!("Failed to get A11y address: {e}")))?;
+                let addr = bus_proxy.get_address().await.map_err(|e| {
+                    MenuError::Transport(format!("Failed to get A11y address: {e}"))
+                })?;
                 connection::Builder::address(addr.as_str())
                     .build()
                     .await

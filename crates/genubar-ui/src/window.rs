@@ -1,16 +1,17 @@
 use crate::error::UiError;
 use crate::state::AppState;
 use crate::views::{
-    about_view::build_about_view, bundles_view::build_bundles_view, general_view::build_general_view,
-    icons_view::build_icons_view, installed_view::build_installed_view,
-    marketplace_view::build_marketplace_view, patches_view::build_patches_view,
-    profiles_view::build_profiles_view, protocols_view::build_protocols_view,
-    styles_view::build_styles_view, system_menus_view::build_system_menus_view,
+    about_view::build_about_view, bundles_view::build_bundles_view,
+    general_view::build_general_view, icons_view::build_icons_view,
+    installed_view::build_installed_view, marketplace_view::build_marketplace_view,
+    patches_view::build_patches_view, profiles_view::build_profiles_view,
+    protocols_view::build_protocols_view, styles_view::build_styles_view,
+    system_menus_view::build_system_menus_view,
 };
 use genubar_config::ConfigManager;
 use genubar_patcher::PatchManager;
-use gtk4 as gtk;
 use gtk::prelude::*;
+use gtk4 as gtk;
 use libadwaita as adw;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -98,7 +99,13 @@ pub fn build_main_window(
 
     let has_rec_filter = recommend_filter.is_some();
 
-    add_refreshable_slot_tab(&view_stack, &state, "general", "General", build_general_view);
+    add_refreshable_slot_tab(
+        &view_stack,
+        &state,
+        "general",
+        "General",
+        build_general_view,
+    );
     view_stack.add_titled(
         &build_styles_view(&state),
         Some("styles"),

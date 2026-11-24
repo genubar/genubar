@@ -50,26 +50,30 @@ pub unsafe fn collect_all_action_states(
     }
 
     for (act_name, enabled) in HookState::get_live_class_action_states(&live_widgets) {
-        if !out.iter().any(|(existing_key, ..)| existing_key == &act_name) {
+        if !out
+            .iter()
+            .any(|(existing_key, ..)| existing_key == &act_name)
+        {
             out.push((act_name, enabled, "none", String::new()));
         }
     }
 
     if let Some(mgr) = unsafe { adw_style_manager_get_default() }
-        && !mgr.is_null() {
-            let scheme = unsafe { adw_style_manager_get_color_scheme(mgr) }.unwrap_or(0);
-            let scheme_str = match scheme {
-                1 => "light",
-                4 => "dark",
-                _ => "system",
-            };
-            out.push((
-                String::from("genubar.theme"),
-                true,
-                "str",
-                String::from(scheme_str),
-            ));
-        }
+        && !mgr.is_null()
+    {
+        let scheme = unsafe { adw_style_manager_get_color_scheme(mgr) }.unwrap_or(0);
+        let scheme_str = match scheme {
+            1 => "light",
+            4 => "dark",
+            _ => "system",
+        };
+        out.push((
+            String::from("genubar.theme"),
+            true,
+            "str",
+            String::from(scheme_str),
+        ));
+    }
 
     out
 }
@@ -104,7 +108,14 @@ unsafe fn append_group_states(
                 let class_code = unsafe { g_variant_classify(state_ptr) }.unwrap_or(0);
                 let parsed = if class_code == G_VARIANT_CLASS_BOOLEAN {
                     let b = unsafe { g_variant_get_boolean(state_ptr) }.unwrap_or(0) != 0;
-                    ("bool", if b { String::from("true") } else { String::from("false") })
+                    (
+                        "bool",
+                        if b {
+                            String::from("true")
+                        } else {
+                            String::from("false")
+                        },
+                    )
                 } else if class_code == G_VARIANT_CLASS_STRING {
                     let s_ptr = unsafe { g_variant_get_string(state_ptr, ptr::null_mut()) }
                         .unwrap_or(ptr::null());
@@ -115,7 +126,8 @@ unsafe fn append_group_states(
                     };
                     ("str", s)
                 } else {
-                    let printed = unsafe { g_variant_print(state_ptr, 0) }.unwrap_or(ptr::null_mut());
+                    let printed =
+                        unsafe { g_variant_print(state_ptr, 0) }.unwrap_or(ptr::null_mut());
                     let txt = if !printed.is_null() {
                         let s = unsafe { CStr::from_ptr(printed).to_string_lossy().to_string() };
                         unsafe {

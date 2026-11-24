@@ -3,11 +3,11 @@ use crate::components::rows::build_action_row;
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
 use crate::utils::system::open_directory;
-use gtk4 as gtk;
 use gtk::prelude::*;
+use gtk4 as gtk;
 use libadwaita as adw;
-use std::path::PathBuf;
 use libadwaita::prelude::ActionRowExt;
+use std::path::PathBuf;
 
 pub fn build_script_selector_row(
     state: &AppState,

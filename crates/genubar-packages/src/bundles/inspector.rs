@@ -32,8 +32,7 @@ pub fn inspect_bundles(cfg: &ConfigManager, patcher: &PatchManager) -> Vec<Bundl
         let m = &status.manifest;
         let mut components = Vec::new();
 
-        let (applied_patches, total_patches) =
-            inspect_patches(cfg, patcher, m, &mut components);
+        let (applied_patches, total_patches) = inspect_patches(cfg, patcher, m, &mut components);
         inspect_profiles(cfg, m, &mut components);
         inspect_styles(cfg, m, &styles, &mut components);
         inspect_icon_packs(cfg, m, &mut components);
@@ -108,11 +107,7 @@ fn inspect_patches(
     (applied_patches, total_patches)
 }
 
-fn inspect_profiles(
-    cfg: &ConfigManager,
-    m: &BundleManifest,
-    out: &mut Vec<BundleComponentItem>,
-) {
+fn inspect_profiles(cfg: &ConfigManager, m: &BundleManifest, out: &mut Vec<BundleComponentItem>) {
     for prof_file in &m.profiles {
         let stem = prof_file.trim_end_matches(".toml");
         if let Some(p) = cfg.profiles.iter().find(|pr| {
@@ -178,11 +173,7 @@ fn inspect_styles(
     }
 }
 
-fn inspect_icon_packs(
-    cfg: &ConfigManager,
-    m: &BundleManifest,
-    out: &mut Vec<BundleComponentItem>,
-) {
+fn inspect_icon_packs(cfg: &ConfigManager, m: &BundleManifest, out: &mut Vec<BundleComponentItem>) {
     for pack_id in &m.icon_packs {
         if let Some(ic) = cfg.icon_packs.iter().find(|p| p.id == *pack_id) {
             out.push(BundleComponentItem {

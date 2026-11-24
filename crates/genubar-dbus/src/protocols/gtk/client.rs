@@ -70,10 +70,10 @@ impl GtkMenuClient {
                     for key in [":section", ":submenu"] {
                         if let Some((ref_group, _)) = GtkMenuParser::extract_link_tuple(item, key)
                             && !subscribed_groups.contains(&ref_group)
-                                && !pending_groups.contains(&ref_group)
-                            {
-                                pending_groups.push(ref_group);
-                            }
+                            && !pending_groups.contains(&ref_group)
+                        {
+                            pending_groups.push(ref_group);
+                        }
                     }
                 }
                 menus_map.insert((group_id, menu_id), items);
@@ -143,34 +143,35 @@ impl MenuProvider for GtkMenuClient {
         let mut top_children = Vec::new();
 
         if let Some(app_menu_p) = app_menu_path.as_deref().filter(|p| !p.is_empty())
-            && let Ok(groups) = self.fetch_all_menu_groups(bus_name, app_menu_p).await {
-                let mut visited = HashSet::new();
-                let app_items = GtkMenuParser::build_nodes_from_group(
-                    (0, 0),
-                    &groups,
-                    &all_states,
-                    zoom_pct,
-                    &mut next_id,
-                    &mut local_cache,
-                    &mut visited,
-                );
-                if !app_items.is_empty() {
-                    let id = next_id;
-                    next_id += 1;
-                    top_children.push(MenuNode {
-                        id,
-                        label: String::from("Application"),
-                        enabled: true,
-                        visible: true,
-                        item_type: MenuItemType::Submenu,
-                        shortcut: None,
-                        action: None,
-                        origin_path: None,
-                        children: app_items,
-                        icon: None,
-                    });
-                }
+            && let Ok(groups) = self.fetch_all_menu_groups(bus_name, app_menu_p).await
+        {
+            let mut visited = HashSet::new();
+            let app_items = GtkMenuParser::build_nodes_from_group(
+                (0, 0),
+                &groups,
+                &all_states,
+                zoom_pct,
+                &mut next_id,
+                &mut local_cache,
+                &mut visited,
+            );
+            if !app_items.is_empty() {
+                let id = next_id;
+                next_id += 1;
+                top_children.push(MenuNode {
+                    id,
+                    label: String::from("Application"),
+                    enabled: true,
+                    visible: true,
+                    item_type: MenuItemType::Submenu,
+                    shortcut: None,
+                    action: None,
+                    origin_path: None,
+                    children: app_items,
+                    icon: None,
+                });
             }
+        }
 
         if let Some(menubar_p) = menubar_path.as_deref().filter(|p| !p.is_empty()) {
             let groups = self.fetch_all_menu_groups(bus_name, menubar_p).await?;
@@ -257,7 +258,13 @@ impl MenuProvider for GtkMenuClient {
         let params: Vec<OwnedVariant> = cached.target_param.into_iter().collect();
 
         if menubar_path.as_deref() == Some(genubar_protocol::GTK4_MENU_PATH)
-            && try_activate_bridge_action(&self.connection, bus_name, &cached.full_action, params.clone()).await
+            && try_activate_bridge_action(
+                &self.connection,
+                bus_name,
+                &cached.full_action,
+                params.clone(),
+            )
+            .await
         {
             return Ok(());
         }
@@ -281,7 +288,14 @@ impl MenuProvider for GtkMenuClient {
             ))
         })?;
 
-        activate_org_gtk_action(&self.connection, bus_name, action_path, short_action, params).await
+        activate_org_gtk_action(
+            &self.connection,
+            bus_name,
+            action_path,
+            short_action,
+            params,
+        )
+        .await
     }
 }
 

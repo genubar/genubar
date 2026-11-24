@@ -5,11 +5,10 @@ use crate::models::info_item::InfoField;
 use crate::models::package_ui::{package_kind_badge, package_kind_tab_id};
 use crate::services::bundle_service::{BundleOpOutcome, BundleService};
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_packages::BundleDetailedView;
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 
 fn apply_bundle_outcome(state: &AppState, outcome: BundleOpOutcome) {
     *state.config.borrow_mut() = outcome.config;
@@ -23,7 +22,10 @@ fn apply_bundle_outcome(state: &AppState, outcome: BundleOpOutcome) {
 
 fn spawn_bundle_op<F>(state: &AppState, menu_btn: &gtk::MenuButton, op: F)
 where
-    F: FnOnce(genubar_config::ConfigManager, genubar_patcher::PatchManager) -> Result<BundleOpOutcome, crate::error::UiError>
+    F: FnOnce(
+            genubar_config::ConfigManager,
+            genubar_patcher::PatchManager,
+        ) -> Result<BundleOpOutcome, crate::error::UiError>
         + Send
         + 'static,
 {

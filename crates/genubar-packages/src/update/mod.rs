@@ -73,40 +73,42 @@ impl UpdateService {
 
         if !app_update_url.trim().is_empty()
             && let Ok(bytes) = Self::fetch_bytes_from_source(app_update_url)
-                && let Ok(manifest) = serde_json::from_slice::<AppReleaseManifest>(&bytes) {
-                    parsed_ext = manifest.extension.clone();
-                    if !manifest.latest_app_version.trim().is_empty() {
-                        if !is_version_compatible(&manifest.latest_app_version, CURRENT_APP_VERSION) {
-                            return UpdateCheckStatus::UpdateAvailable(AppUpdateInfo {
-                                version: manifest.latest_app_version,
-                                download_url: manifest.download_url,
-                                changelog: manifest.changelog,
-                                extension: manifest.extension,
-                            });
-                        }
-                        return UpdateCheckStatus::UpToDate {
-                            extension: manifest.extension,
-                        };
-                    }
-                    saw_reachable_manifest = true;
+            && let Ok(manifest) = serde_json::from_slice::<AppReleaseManifest>(&bytes)
+        {
+            parsed_ext = manifest.extension.clone();
+            if !manifest.latest_app_version.trim().is_empty() {
+                if !is_version_compatible(&manifest.latest_app_version, CURRENT_APP_VERSION) {
+                    return UpdateCheckStatus::UpdateAvailable(AppUpdateInfo {
+                        version: manifest.latest_app_version,
+                        download_url: manifest.download_url,
+                        changelog: manifest.changelog,
+                        extension: manifest.extension,
+                    });
                 }
+                return UpdateCheckStatus::UpToDate {
+                    extension: manifest.extension,
+                };
+            }
+            saw_reachable_manifest = true;
+        }
 
         for reg_url in registry_urls {
             if let Ok(bytes) = Self::fetch_bytes_from_source(reg_url)
-                && let Ok(cat) = serde_json::from_slice::<RemoteRegistryCatalog>(&bytes) {
-                    saw_reachable_manifest = true;
-                    if let Some(latest) = cat.latest_app_version
-                        && !latest.trim().is_empty()
-                            && !is_version_compatible(&latest, CURRENT_APP_VERSION)
-                        {
-                            return UpdateCheckStatus::UpdateAvailable(AppUpdateInfo {
-                                version: latest,
-                                download_url: cat.download_url,
-                                changelog: Vec::new(),
-                                extension: parsed_ext,
-                            });
-                        }
+                && let Ok(cat) = serde_json::from_slice::<RemoteRegistryCatalog>(&bytes)
+            {
+                saw_reachable_manifest = true;
+                if let Some(latest) = cat.latest_app_version
+                    && !latest.trim().is_empty()
+                    && !is_version_compatible(&latest, CURRENT_APP_VERSION)
+                {
+                    return UpdateCheckStatus::UpdateAvailable(AppUpdateInfo {
+                        version: latest,
+                        download_url: cat.download_url,
+                        changelog: Vec::new(),
+                        extension: parsed_ext,
+                    });
                 }
+            }
         }
 
         if saw_reachable_manifest {

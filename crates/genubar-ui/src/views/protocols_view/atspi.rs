@@ -3,10 +3,8 @@ use crate::components::rows::{
 };
 use crate::state::AppState;
 use crate::utils::text::{format_csv_list, parse_csv_list};
-use gtk::prelude::*;
-use gtk4 as gtk;
-use libadwaita as adw;
 use adw::prelude::*;
+use libadwaita as adw;
 
 pub fn build_atspi_group(state: &AppState) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
@@ -114,7 +112,12 @@ pub fn build_atspi_group(state: &AppState) -> adw::PreferencesGroup {
         "Optional # ==GenubarScript== executed on AT-SPI2 trees",
         script.as_ref(),
         |st, chosen| {
-            st.config.borrow_mut().settings.api_tiers.atspi.python_script = chosen;
+            st.config
+                .borrow_mut()
+                .settings
+                .api_tiers
+                .atspi
+                .python_script = chosen;
         },
     ));
 

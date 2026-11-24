@@ -108,7 +108,13 @@ impl RegistryPackageInstaller {
                 cfg.save_profile(profile)?;
                 Ok(format!("Saved profile '{name}'"))
             }
-            (PackageKind::Style, FetchedPackagePayload::TextContent { raw, file_name_hint }) => {
+            (
+                PackageKind::Style,
+                FetchedPackagePayload::TextContent {
+                    raw,
+                    file_name_hint,
+                },
+            ) => {
                 let fname = if file_name_hint.ends_with(".css") {
                     Self::validate_safe_id(&file_name_hint, "style file name")?;
                     file_name_hint
@@ -176,9 +182,13 @@ impl RegistryPackageInstaller {
                 *patcher = PatchManager::load_from_packages_dir(packages_dir)?;
                 Ok(format!("Installed bundle '{id}'"))
             }
-            (PackageKind::Unknown, FetchedPackagePayload::TextContent { raw, file_name_hint })
-                if allow_incompatible =>
-            {
+            (
+                PackageKind::Unknown,
+                FetchedPackagePayload::TextContent {
+                    raw,
+                    file_name_hint,
+                },
+            ) if allow_incompatible => {
                 let safe_name = Self::validate_safe_id(&file_name_hint, "download file name")
                     .map(|_| file_name_hint.as_str())
                     .unwrap_or("downloaded_package.txt");
@@ -208,9 +218,11 @@ impl RegistryPackageInstaller {
         if !allow_incompatible {
             for m in &parsed {
                 if !m.is_fully_compatible() {
-                    return Err(MenuError::Config(m.incompatibility_reason().unwrap_or_else(
-                        || String::from("Patch is incompatible with this Genubar version"),
-                    )));
+                    return Err(MenuError::Config(
+                        m.incompatibility_reason().unwrap_or_else(|| {
+                            String::from("Patch is incompatible with this Genubar version")
+                        }),
+                    ));
                 }
             }
         }
@@ -235,9 +247,9 @@ impl RegistryPackageInstaller {
         files: &HashMap<String, String>,
         allow_incompatible: bool,
     ) -> Result<String, MenuError> {
-        let pack_raw = files
-            .get("pack.toml")
-            .ok_or_else(|| MenuError::NotFound(String::from("Icon pack archive missing pack.toml")))?;
+        let pack_raw = files.get("pack.toml").ok_or_else(|| {
+            MenuError::NotFound(String::from("Icon pack archive missing pack.toml"))
+        })?;
         let mut pack: IconPackManifest = toml::from_str(pack_raw)
             .map_err(|e| MenuError::ParseError(format!("Invalid pack.toml: {e}")))?;
         if !allow_incompatible && !pack.is_compatible() {
@@ -394,9 +406,7 @@ pattern = "org.example.Sample"
         )
         .unwrap();
         assert!(RegistryPackageInstaller::is_package_installed(
-            &cfg,
-            &patcher,
-            &style_pkg
+            &cfg, &patcher, &style_pkg
         ));
 
         let icon_pkg = make_remote_entry("mono_icons", PackageKind::IconPack, "Mono Icons");
@@ -414,9 +424,7 @@ pattern = "org.example.Sample"
         )
         .unwrap();
         assert!(RegistryPackageInstaller::is_package_installed(
-            &cfg,
-            &patcher,
-            &icon_pkg
+            &cfg, &patcher, &icon_pkg
         ));
 
         let patch_pkg = make_remote_entry("demo_patch", PackageKind::Patch, "Demo Patch");
@@ -438,9 +446,7 @@ version = "1.0.0"
         )
         .unwrap();
         assert!(RegistryPackageInstaller::is_package_installed(
-            &cfg,
-            &patcher,
-            &patch_pkg
+            &cfg, &patcher, &patch_pkg
         ));
         assert!(tmp_base.join("patches/demo_patch.toml").is_file());
 
@@ -451,12 +457,16 @@ version = "1.0.0"
             "ocean",
             Some(PackageKind::Style),
         );
-        assert!(style_results
-            .iter()
-            .any(|item| item.kind == PackageKind::Style && item.is_local));
-        assert!(style_results
-            .iter()
-            .all(|item| item.kind == PackageKind::Style));
+        assert!(
+            style_results
+                .iter()
+                .any(|item| item.kind == PackageKind::Style && item.is_local)
+        );
+        assert!(
+            style_results
+                .iter()
+                .all(|item| item.kind == PackageKind::Style)
+        );
 
         let _ = fs::remove_dir_all(&tmp_base);
     }
@@ -520,17 +530,19 @@ version = "1.0.0"
 
         // 1. Path traversal in package ID and archive relative paths must fail explicitly
         let bad_id_pkg = make_remote_entry("../escape", PackageKind::Script, "Evil");
-        assert!(RegistryPackageInstaller::install_fetched_package_ext(
-            &mut cfg,
-            &mut patcher,
-            &bad_id_pkg,
-            FetchedPackagePayload::TextContent {
-                raw: String::from("# ==GenubarScript==\n# @id x\n# ==/GenubarScript=="),
-                file_name_hint: String::from("evil.py"),
-            },
-            false,
-        )
-        .is_err());
+        assert!(
+            RegistryPackageInstaller::install_fetched_package_ext(
+                &mut cfg,
+                &mut patcher,
+                &bad_id_pkg,
+                FetchedPackagePayload::TextContent {
+                    raw: String::from("# ==GenubarScript==\n# @id x\n# ==/GenubarScript=="),
+                    file_name_hint: String::from("evil.py"),
+                },
+                false,
+            )
+            .is_err()
+        );
 
         let traversal_icon = make_remote_entry("safe_pack", PackageKind::IconPack, "Safe Pack");
         let mut bad_files = HashMap::new();
@@ -539,29 +551,33 @@ version = "1.0.0"
             String::from("id = \"safe_pack\"\nname = \"Safe Pack\"\n"),
         );
         bad_files.insert(String::from("../../.bashrc"), String::from("pwned"));
-        assert!(RegistryPackageInstaller::install_fetched_package_ext(
-            &mut cfg,
-            &mut patcher,
-            &traversal_icon,
-            FetchedPackagePayload::BundleFiles { files: bad_files },
-            false,
-        )
-        .is_err());
+        assert!(
+            RegistryPackageInstaller::install_fetched_package_ext(
+                &mut cfg,
+                &mut patcher,
+                &traversal_icon,
+                FetchedPackagePayload::BundleFiles { files: bad_files },
+                false,
+            )
+            .is_err()
+        );
         assert!(!tmp_base.join(".bashrc").exists());
 
         // 2. Script installation checks # ==GenubarScript== header and marks installed
         let script_pkg = make_remote_entry("sample_tx", PackageKind::Script, "Sample Transformer");
-        assert!(RegistryPackageInstaller::install_fetched_package_ext(
-            &mut cfg,
-            &mut patcher,
-            &script_pkg,
-            FetchedPackagePayload::TextContent {
-                raw: String::from("print('no header')"),
-                file_name_hint: String::from("sample_tx.py"),
-            },
-            false,
-        )
-        .is_err());
+        assert!(
+            RegistryPackageInstaller::install_fetched_package_ext(
+                &mut cfg,
+                &mut patcher,
+                &script_pkg,
+                FetchedPackagePayload::TextContent {
+                    raw: String::from("print('no header')"),
+                    file_name_hint: String::from("sample_tx.py"),
+                },
+                false,
+            )
+            .is_err()
+        );
 
         let valid_script = "# ==GenubarScript==\n# @id sample_tx\n# @name Sample Transformer\n# ==/GenubarScript==\n";
         RegistryPackageInstaller::install_fetched_package_ext(

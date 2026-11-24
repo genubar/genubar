@@ -40,12 +40,13 @@ pub(crate) unsafe fn try_handle_adwaita_theme(
     let _ = unsafe { dispatch_widget_or_app_action(action_spec, ptr::null_mut()) };
 
     if let Some(mgr) = unsafe { adw_style_manager_get_default() }
-        && !mgr.is_null() {
-            unsafe {
-                let _ = adw_style_manager_set_color_scheme(mgr, scheme_val);
-            }
-            hook_log!("Applied Libadwaita color scheme={scheme_val}");
+        && !mgr.is_null()
+    {
+        unsafe {
+            let _ = adw_style_manager_set_color_scheme(mgr, scheme_val);
         }
+        hook_log!("Applied Libadwaita color scheme={scheme_val}");
+    }
 
     unsafe {
         DbusExporter::notify_daemon_refresh(connection);

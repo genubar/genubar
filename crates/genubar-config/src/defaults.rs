@@ -11,12 +11,9 @@ pub const DEFAULT_STYLE_CSS: &str = include_str!("../defaults/style.css");
 
 pub const DEFAULT_MEDIA_PROFILE_TOML: &str =
     include_str!("../defaults/profiles/media_players.toml");
-pub const DEFAULT_FIREFOX_PROFILE_TOML: &str =
-    include_str!("../defaults/profiles/firefox.toml");
-pub const DEFAULT_NAUTILUS_PROFILE_TOML: &str =
-    include_str!("../defaults/profiles/nautilus.toml");
-pub const DEFAULT_PTYXIS_PROFILE_TOML: &str =
-    include_str!("../defaults/profiles/ptyxis.toml");
+pub const DEFAULT_FIREFOX_PROFILE_TOML: &str = include_str!("../defaults/profiles/firefox.toml");
+pub const DEFAULT_NAUTILUS_PROFILE_TOML: &str = include_str!("../defaults/profiles/nautilus.toml");
+pub const DEFAULT_PTYXIS_PROFILE_TOML: &str = include_str!("../defaults/profiles/ptyxis.toml");
 pub const DEFAULT_TEXT_EDITOR_PROFILE_TOML: &str =
     include_str!("../defaults/profiles/text_editor.toml");
 pub const DEFAULT_LOUPE_PAPERS_PROFILE_TOML: &str =
@@ -31,8 +28,7 @@ pub const DEFAULT_MENU_SCRIPT_PY: &str =
     include_str!("../defaults/scripts/example_menu_transformer.py");
 pub const DEFAULT_PATCH_SCRIPT_PY: &str =
     include_str!("../defaults/scripts/example_patch_script.py");
-pub const DEFAULT_EXAMPLE_REGISTRY_JSON: &str =
-    include_str!("../defaults/example_registry.json");
+pub const DEFAULT_EXAMPLE_REGISTRY_JSON: &str = include_str!("../defaults/example_registry.json");
 
 pub struct ConfigBootstrapper;
 
@@ -155,9 +151,7 @@ impl ConfigBootstrapper {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        BundleManifest, ConfigManager, IconPackManifest, IconsConfig, ThemeMode,
-    };
+    use crate::{BundleManifest, ConfigManager, IconPackManifest, IconsConfig, ThemeMode};
     use genubar_platform::parse_metadata_block;
     use std::fs;
 

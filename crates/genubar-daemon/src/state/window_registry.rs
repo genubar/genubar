@@ -38,19 +38,20 @@ impl WindowRegistry {
     pub async fn remove_canonical(&self, window_id: u32) -> Option<RegisteredWindow> {
         let removed = self.by_wid.write().await.remove(&window_id);
         if let Some(ref entry) = removed
-            && let Some(pid) = entry.pid {
-                self.by_pid.write().await.remove(&pid);
-                let mut last_map = self.last_good_canonical_target.write().await;
-                if let Some(MenuTarget::Canonical {
-                    bus_name,
-                    object_path,
-                }) = last_map.get(&pid)
-                    && bus_name == &entry.bus_name
-                    && object_path == &entry.object_path
-                {
-                    last_map.remove(&pid);
-                }
+            && let Some(pid) = entry.pid
+        {
+            self.by_pid.write().await.remove(&pid);
+            let mut last_map = self.last_good_canonical_target.write().await;
+            if let Some(MenuTarget::Canonical {
+                bus_name,
+                object_path,
+            }) = last_map.get(&pid)
+                && bus_name == &entry.bus_name
+                && object_path == &entry.object_path
+            {
+                last_map.remove(&pid);
             }
+        }
         removed
     }
 
@@ -64,12 +65,13 @@ impl WindowRegistry {
 
     pub async fn resolve_canonical(&self, xid: u32, pid: u32) -> Option<MenuTarget> {
         if xid != 0
-            && let Some(entry) = self.by_wid.read().await.get(&xid) {
-                return Some(MenuTarget::Canonical {
-                    bus_name: entry.bus_name.clone(),
-                    object_path: entry.object_path.clone(),
-                });
-            }
+            && let Some(entry) = self.by_wid.read().await.get(&xid)
+        {
+            return Some(MenuTarget::Canonical {
+                bus_name: entry.bus_name.clone(),
+                object_path: entry.object_path.clone(),
+            });
+        }
         if pid != 0 {
             if let Some(entry) = self.by_pid.read().await.get(&pid) {
                 return Some(MenuTarget::Canonical {
@@ -86,12 +88,13 @@ impl WindowRegistry {
 
     pub async fn insert_gtk4(&self, pid: u32, target: MenuTarget) {
         if let MenuTarget::Gtk { ref bus_name, .. } = target
-            && !bus_name.is_empty() {
-                self.gtk4_by_bus
-                    .write()
-                    .await
-                    .insert(bus_name.clone(), target.clone());
-            }
+            && !bus_name.is_empty()
+        {
+            self.gtk4_by_bus
+                .write()
+                .await
+                .insert(bus_name.clone(), target.clone());
+        }
         if pid != 0 {
             self.gtk4_by_pid.write().await.insert(pid, target);
         }
@@ -99,13 +102,15 @@ impl WindowRegistry {
 
     pub async fn resolve_gtk4(&self, pid: u32, gtk_bus_name: &str) -> Option<MenuTarget> {
         if pid != 0
-            && let Some(target) = self.gtk4_by_pid.read().await.get(&pid).cloned() {
-                return Some(target);
-            }
+            && let Some(target) = self.gtk4_by_pid.read().await.get(&pid).cloned()
+        {
+            return Some(target);
+        }
         if !gtk_bus_name.is_empty()
-            && let Some(target) = self.gtk4_by_bus.read().await.get(gtk_bus_name).cloned() {
-                return Some(target);
-            }
+            && let Some(target) = self.gtk4_by_bus.read().await.get(gtk_bus_name).cloned()
+        {
+            return Some(target);
+        }
         None
     }
 }

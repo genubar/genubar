@@ -14,10 +14,7 @@ use std::collections::HashSet;
 use std::ffi::CStr;
 use std::ptr;
 
-pub unsafe fn dump_window_introspection(
-    window: *mut GtkWidget,
-    app: *mut GApplication,
-) -> String {
+pub unsafe fn dump_window_introspection(window: *mut GtkWidget, app: *mut GApplication) -> String {
     let mut out = String::new();
     if window.is_null() {
         return String::from("No active GTK window mapped in this process.\n");

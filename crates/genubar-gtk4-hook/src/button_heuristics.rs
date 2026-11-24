@@ -74,16 +74,16 @@ pub(crate) fn classify_popover_class(popover_class: &str) -> Option<&'static str
 
 /// Infers a clean top-level column label (`Options`, `View`, `File`, etc.) for a `GtkMenuButton`.
 pub unsafe fn infer_button_title(widget: *mut GtkWidget) -> String {
-    for lbl_opt in [
-        unsafe { gtk_menu_button_get_label(widget) },
-        unsafe { gtk_button_get_label(widget) },
-    ] {
+    for lbl_opt in [unsafe { gtk_menu_button_get_label(widget) }, unsafe {
+        gtk_button_get_label(widget)
+    }] {
         if let Some(lbl_ptr) = lbl_opt
             && !lbl_ptr.is_null()
-                && let Ok(s) = unsafe { CStr::from_ptr(lbl_ptr).to_str() }
-                    && !s.trim().is_empty() {
-                        return s.trim().to_string();
-                    }
+            && let Ok(s) = unsafe { CStr::from_ptr(lbl_ptr).to_str() }
+            && !s.trim().is_empty()
+        {
+            return s.trim().to_string();
+        }
     }
 
     let icon_name_opt = unsafe { gtk_menu_button_get_icon_name(widget) }.and_then(|icon_ptr| {
@@ -95,29 +95,33 @@ pub unsafe fn infer_button_title(widget: *mut GtkWidget) -> String {
     });
 
     if let Some(ref icon) = icon_name_opt
-        && let Some(title) = classify_primary_icon_name(icon) {
-            return String::from(title);
-        }
+        && let Some(title) = classify_primary_icon_name(icon)
+    {
+        return String::from(title);
+    }
 
     if let Some(tip_ptr) = unsafe { gtk_widget_get_tooltip_text(widget) }
         && !tip_ptr.is_null()
-            && let Ok(s) = unsafe { CStr::from_ptr(tip_ptr).to_str() }
-                && let Some(title) = classify_tooltip_title(s) {
-                    return title;
-                }
+        && let Ok(s) = unsafe { CStr::from_ptr(tip_ptr).to_str() }
+        && let Some(title) = classify_tooltip_title(s)
+    {
+        return title;
+    }
 
     if let Some(ref icon) = icon_name_opt
-        && let Some(title) = classify_secondary_icon_name(icon) {
-            return String::from(title);
-        }
+        && let Some(title) = classify_secondary_icon_name(icon)
+    {
+        return String::from(title);
+    }
 
     if let Some(popover) = unsafe { gtk_menu_button_get_popover(widget) }
-        && !popover.is_null() {
-            let pop_class = unsafe { widget_type_name(popover) };
-            if let Some(title) = classify_popover_class(&pop_class) {
-                return String::from(title);
-            }
+        && !popover.is_null()
+    {
+        let pop_class = unsafe { widget_type_name(popover) };
+        if let Some(title) = classify_popover_class(&pop_class) {
+            return String::from(title);
         }
+    }
 
     String::from("File")
 }
@@ -143,14 +147,32 @@ mod tests {
         assert!(is_ignored_widget_class("NautilusQueryEditor"));
         assert!(!is_ignored_widget_class("AdwHeaderBar"));
 
-        assert_eq!(classify_primary_icon_name("open-menu-symbolic"), Some("Options"));
+        assert_eq!(
+            classify_primary_icon_name("open-menu-symbolic"),
+            Some("Options")
+        );
         assert_eq!(classify_primary_icon_name("view-grid-symbolic"), None);
-        assert_eq!(classify_secondary_icon_name("view-sort-ascending-symbolic"), Some("View"));
+        assert_eq!(
+            classify_secondary_icon_name("view-sort-ascending-symbolic"),
+            Some("View")
+        );
 
-        assert_eq!(classify_tooltip_title("Main Menu").as_deref(), Some("Options"));
-        assert_eq!(classify_tooltip_title("Mode Selection").as_deref(), Some("View"));
-        assert_eq!(classify_tooltip_title("Bookmarks").as_deref(), Some("Bookmarks"));
+        assert_eq!(
+            classify_tooltip_title("Main Menu").as_deref(),
+            Some("Options")
+        );
+        assert_eq!(
+            classify_tooltip_title("Mode Selection").as_deref(),
+            Some("View")
+        );
+        assert_eq!(
+            classify_tooltip_title("Bookmarks").as_deref(),
+            Some("Bookmarks")
+        );
         assert_eq!(classify_tooltip_title("   "), None);
-        assert_eq!(classify_popover_class("BoxesKeysInputPopover"), Some("Send Key"));
+        assert_eq!(
+            classify_popover_class("BoxesKeysInputPopover"),
+            Some("Send Key")
+        );
     }
 }

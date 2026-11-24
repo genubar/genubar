@@ -3,10 +3,9 @@ use crate::components::dialogs::show_confirm_modal;
 use crate::components::rows::build_action_row;
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 use std::cell::RefCell;
 use std::rc::Rc;
 

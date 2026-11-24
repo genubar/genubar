@@ -4,10 +4,9 @@ use crate::components::rows::build_switch_row;
 use crate::models::info_item::InfoField;
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -87,15 +86,16 @@ pub fn build_icon_packs_group(
                     pack.description
                 );
                 let pack_id_sw = pack.id.clone();
-                let row = build_switch_row(&state, &pack.name, &sub, pack.enabled, move |st, active| {
-                    if let Err(e) = ConfigService::set_icon_pack_enabled(
-                        &mut st.config.borrow_mut(),
-                        &pack_id_sw,
-                        active,
-                    ) {
-                        st.notify(&format!("Failed saving icon pack: {e}"));
-                    }
-                });
+                let row =
+                    build_switch_row(&state, &pack.name, &sub, pack.enabled, move |st, active| {
+                        if let Err(e) = ConfigService::set_icon_pack_enabled(
+                            &mut st.config.borrow_mut(),
+                            &pack_id_sw,
+                            active,
+                        ) {
+                            st.notify(&format!("Failed saving icon pack: {e}"));
+                        }
+                    });
 
                 let st_up = state.clone();
                 let rh_up = reload_handle_inner.clone();
@@ -107,37 +107,33 @@ pub fn build_icon_packs_group(
                 let (up_btn, down_btn) = build_priority_arrows(
                     idx > 0,
                     idx + 1 < total_packs,
-                    move || {
-                        match ConfigService::move_icon_pack_by_id(
-                            &mut st_up.config.borrow_mut(),
-                            &id_up,
-                            -1,
-                        ) {
-                            Ok(true) => {
-                                st_up.save_and_reload();
-                                if let Some(ref cb) = *rh_up.borrow() {
-                                    cb();
-                                }
+                    move || match ConfigService::move_icon_pack_by_id(
+                        &mut st_up.config.borrow_mut(),
+                        &id_up,
+                        -1,
+                    ) {
+                        Ok(true) => {
+                            st_up.save_and_reload();
+                            if let Some(ref cb) = *rh_up.borrow() {
+                                cb();
                             }
-                            Ok(false) => {}
-                            Err(e) => st_up.notify(&format!("Reorder error: {e}")),
                         }
+                        Ok(false) => {}
+                        Err(e) => st_up.notify(&format!("Reorder error: {e}")),
                     },
-                    move || {
-                        match ConfigService::move_icon_pack_by_id(
-                            &mut st_down.config.borrow_mut(),
-                            &id_down,
-                            1,
-                        ) {
-                            Ok(true) => {
-                                st_down.save_and_reload();
-                                if let Some(ref cb) = *rh_down.borrow() {
-                                    cb();
-                                }
+                    move || match ConfigService::move_icon_pack_by_id(
+                        &mut st_down.config.borrow_mut(),
+                        &id_down,
+                        1,
+                    ) {
+                        Ok(true) => {
+                            st_down.save_and_reload();
+                            if let Some(ref cb) = *rh_down.borrow() {
+                                cb();
                             }
-                            Ok(false) => {}
-                            Err(e) => st_down.notify(&format!("Reorder error: {e}")),
                         }
+                        Ok(false) => {}
+                        Err(e) => st_down.notify(&format!("Reorder error: {e}")),
                     },
                 );
 

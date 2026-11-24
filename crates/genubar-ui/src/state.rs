@@ -2,8 +2,8 @@ use crate::models::package_ui::RegistryUiCache;
 use crate::services::daemon_ipc::DaemonIpcService;
 use genubar_config::ConfigManager;
 use genubar_patcher::PatchManager;
-use gtk4 as gtk;
 use gtk::prelude::*;
+use gtk4 as gtk;
 use libadwaita as adw;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -98,7 +98,8 @@ impl AppState {
         if let Err(e) = self.config.borrow().save_settings() {
             self.status_spinner.stop();
             self.status_spinner.set_visible(false);
-            self.status_icon.set_icon_name(Some("dialog-error-symbolic"));
+            self.status_icon
+                .set_icon_name(Some("dialog-error-symbolic"));
             self.status_icon.set_visible(true);
             self.status_label.set_text("Save error");
             self.notify(&format!("Failed to save settings: {e}"));

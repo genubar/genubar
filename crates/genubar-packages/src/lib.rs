@@ -7,8 +7,7 @@ pub mod models;
 pub mod update;
 
 pub use bundles::{
-    BundleActionOutcome, BundleComponentItem, BundleDetailedView, BundleManager,
-    BundleOrchestrator,
+    BundleActionOutcome, BundleComponentItem, BundleDetailedView, BundleManager, BundleOrchestrator,
 };
 pub use genubar_core::PackageKind;
 pub use installed::{collect_all_installed_items, delete_installed_item};

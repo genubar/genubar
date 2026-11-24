@@ -2,7 +2,9 @@ use crate::gtk4_layout::Gtk4LayoutOrganizer;
 use crate::icons::IconResolver;
 use crate::inherit::InheritanceEngine;
 use crate::mandatory::MandatoryMerger;
-use crate::postprocess::{apply_more_overflow, sanitize_separators, strip_action_items, strip_search_bars};
+use crate::postprocess::{
+    apply_more_overflow, sanitize_separators, strip_action_items, strip_search_bars,
+};
 use crate::python::{DEFAULT_SCRIPT_TIMEOUT_MS, PythonRunner};
 use crate::sorter::RootMenuSorter;
 use crate::static_builder::StaticMenuBuilder;
@@ -114,9 +116,10 @@ impl MenuPipeline {
                 tier,
                 &root,
                 runtime.script_timeout_ms,
-            ) {
-                root = script_out;
-            }
+            )
+        {
+            root = script_out;
+        }
 
         sanitize_separators(&mut root);
         root
@@ -143,7 +146,8 @@ impl MenuPipeline {
                 ..
             } = col_def
             {
-                let matches_col = (!from.is_empty() && clean_label(from).to_lowercase() == sub_norm)
+                let matches_col = (!from.is_empty()
+                    && clean_label(from).to_lowercase() == sub_norm)
                     || match_labels
                         .iter()
                         .any(|l| clean_label(l).to_lowercase() == sub_norm);
@@ -341,17 +345,18 @@ impl MenuPipeline {
 
         if template.mode == AppTemplateMode::PythonScript
             && let Some(ref script) = template.python_script
-                && let Some(out) = PythonRunner::run_with_timeout(
-                    python_bin,
-                    config_dir,
-                    script,
-                    info,
-                    tier,
-                    &root,
-                    runtime.script_timeout_ms,
-                ) {
-                    root = out;
-                }
+            && let Some(out) = PythonRunner::run_with_timeout(
+                python_bin,
+                config_dir,
+                script,
+                info,
+                tier,
+                &root,
+                runtime.script_timeout_ms,
+            )
+        {
+            root = out;
+        }
 
         sanitize_separators(&mut root);
         root
@@ -501,7 +506,13 @@ impl MenuPipeline {
         timeout_ms: u64,
     ) -> Option<MenuNode> {
         PythonRunner::run_with_timeout(
-            python_bin, config_dir, script_path, info, tier, root, timeout_ms,
+            python_bin,
+            config_dir,
+            script_path,
+            info,
+            tier,
+            root,
+            timeout_ms,
         )
     }
 }
@@ -621,7 +632,10 @@ mod tests {
             "MyApp",
             MenuSourceTier::CanonicalDbus,
         );
-        assert!(matches!(after_app.children[0].item_type, MenuItemType::SearchBar));
+        assert!(matches!(
+            after_app.children[0].item_type,
+            MenuItemType::SearchBar
+        ));
         assert_eq!(after_app.children.len(), 3);
     }
 

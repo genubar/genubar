@@ -58,9 +58,10 @@ impl AtspiDiscovery {
             return None;
         }
         if let Some((cached_rule, cached_target)) = self.target_cache.read().await.get(&target_pid)
-            && cached_rule == rule {
-                return Some(cached_target.clone());
-            }
+            && cached_rule == rule
+        {
+            return Some(cached_target.clone());
+        }
         let found = timeout(
             Duration::from_millis(450),
             self.discover_target_uncached(a11y, target_pid, rule),
@@ -103,14 +104,14 @@ impl AtspiDiscovery {
             if pids_match(target_pid, pid)
                 && let Some(menubar_path) =
                     Self::find_node_by_rule_bfs(a11y, &app_bus, app_path.as_str(), rule).await
-                {
-                    return Some(MenuTarget::Atspi {
-                        pid: target_pid,
-                        app_bus_name: app_bus,
-                        menubar_path,
-                        hoist_single_button: rule.hoist_single_button,
-                    });
-                }
+            {
+                return Some(MenuTarget::Atspi {
+                    pid: target_pid,
+                    app_bus_name: app_bus,
+                    menubar_path,
+                    hoist_single_button: rule.hoist_single_button,
+                });
+            }
         }
         None
     }

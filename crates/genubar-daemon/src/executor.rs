@@ -28,9 +28,10 @@ impl ActionExecutor {
             .env("GENUBAR_TITLE", &info.title);
 
         if Self::should_inject_gtk4_hook(cmd_str)
-            && let Some(so_path) = Self::resolve_gtk4_hook_so() {
-                cmd.env("LD_PRELOAD", so_path);
-            }
+            && let Some(so_path) = Self::resolve_gtk4_hook_so()
+        {
+            cmd.env("LD_PRELOAD", so_path);
+        }
     }
 
     fn spawn_detached(mut cmd: Command, label: &str) -> bool {
@@ -161,16 +162,25 @@ mod tests {
         assert!(ActionExecutor::should_inject_gtk4_hook(
             "gnome-text-editor ~/genubar/notes.txt"
         ));
-        assert!(!ActionExecutor::should_inject_gtk4_hook("ptyxis --new-window"));
-        assert!(!ActionExecutor::should_inject_gtk4_hook("/usr/bin/bash -lc echo"));
+        assert!(!ActionExecutor::should_inject_gtk4_hook(
+            "ptyxis --new-window"
+        ));
+        assert!(!ActionExecutor::should_inject_gtk4_hook(
+            "/usr/bin/bash -lc echo"
+        ));
         assert!(!ActionExecutor::should_inject_gtk4_hook("genubar-settings"));
-        assert!(!ActionExecutor::should_inject_gtk4_hook("/usr/bin/code --new-window"));
-        assert!(!ActionExecutor::should_inject_gtk4_hook("flatpak run org.gnome.Loupe"));
+        assert!(!ActionExecutor::should_inject_gtk4_hook(
+            "/usr/bin/code --new-window"
+        ));
+        assert!(!ActionExecutor::should_inject_gtk4_hook(
+            "flatpak run org.gnome.Loupe"
+        ));
         assert_eq!(
             ActionExecutor::resolve_program_path("/usr/bin/genubar-settings"),
             std::path::PathBuf::from("/usr/bin/genubar-settings")
         );
-        let resolved_missing = ActionExecutor::resolve_program_path("definitely-not-installed-genubar-bin");
+        let resolved_missing =
+            ActionExecutor::resolve_program_path("definitely-not-installed-genubar-bin");
         assert_eq!(
             resolved_missing,
             std::path::PathBuf::from("definitely-not-installed-genubar-bin")

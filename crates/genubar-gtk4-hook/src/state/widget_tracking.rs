@@ -100,12 +100,16 @@ pub fn cleanup_destroyed_widget(widget_addr: usize) {
     }
 }
 
-unsafe extern "C" fn on_action_group_weak_notify(_data: *mut c_void, where_the_object_was: *mut c_void) {
+unsafe extern "C" fn on_action_group_weak_notify(
+    _data: *mut c_void,
+    where_the_object_was: *mut c_void,
+) {
     let addr = where_the_object_was as usize;
     if addr != 0
-        && let Ok(mut guard) = tracked_action_groups_set().lock() {
-            guard.remove(&addr);
-        }
+        && let Ok(mut guard) = tracked_action_groups_set().lock()
+    {
+        guard.remove(&addr);
+    }
 }
 
 /// Attaches a single weak ref to a `GActionGroup` instance and returns `true` the first time it is seen.
@@ -165,7 +169,11 @@ pub(crate) fn set_widget_action_group_entry(
     changed
 }
 
-pub fn record_widget_action_group(widget: *mut GtkWidget, prefix: &str, group: *mut c_void) -> bool {
+pub fn record_widget_action_group(
+    widget: *mut GtkWidget,
+    prefix: &str,
+    group: *mut c_void,
+) -> bool {
     if widget.is_null() || prefix.is_empty() {
         return false;
     }
@@ -209,9 +217,10 @@ pub fn get_popover_menu_model(popover: *mut GtkWidget) -> *mut c_void {
         return ptr::null_mut();
     }
     if let Ok(guard) = popover_models_map().lock()
-        && let Some(&addr) = guard.get(&(popover as usize)) {
-            return addr as *mut c_void;
-        }
+        && let Some(&addr) = guard.get(&(popover as usize))
+    {
+        return addr as *mut c_void;
+    }
     ptr::null_mut()
 }
 

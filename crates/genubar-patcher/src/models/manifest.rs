@@ -38,7 +38,9 @@ impl PatchManifest {
 
     pub fn incompatibility_reason(&self) -> Option<String> {
         if self.meta.kind == PackageKind::Unknown {
-            return Some(String::from("Requires a newer Genubar release (unknown package kind)"));
+            return Some(String::from(
+                "Requires a newer Genubar release (unknown package kind)",
+            ));
         }
         if !self.meta.is_compatible_with_current_app() {
             let ver = self.meta.min_app_version.as_deref().unwrap_or("newer");

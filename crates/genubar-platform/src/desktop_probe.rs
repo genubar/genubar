@@ -91,7 +91,8 @@ mod tests {
 
     #[test]
     fn parses_desktop_exec_basename() {
-        let desktop = "[Desktop Entry]\nName=App\nExec=/usr/bin/gnome-calendar --gapplication-service\n";
+        let desktop =
+            "[Desktop Entry]\nName=App\nExec=/usr/bin/gnome-calendar --gapplication-service\n";
         assert_eq!(
             parse_desktop_exec_bin(desktop).as_deref(),
             Some("gnome-calendar")

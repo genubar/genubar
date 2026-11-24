@@ -14,9 +14,7 @@ pub trait GtkMenus {
 
 #[proxy(interface = "org.gtk.Actions")]
 pub trait GtkActions {
-    fn describe_all(
-        &self,
-    ) -> zbus::Result<HashMap<String, (bool, Signature, Vec<OwnedVariant>)>>;
+    fn describe_all(&self) -> zbus::Result<HashMap<String, (bool, Signature, Vec<OwnedVariant>)>>;
 
     fn activate(
         &self,

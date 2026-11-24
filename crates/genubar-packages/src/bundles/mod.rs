@@ -60,7 +60,7 @@ impl BundleOrchestrator {
 mod tests {
     use super::*;
     use genubar_config::{AppProfile, BundleManifest};
-    use genubar_patcher::{PatchLedger, PatchManifest, PackageMetadata};
+    use genubar_patcher::{PackageMetadata, PatchLedger, PatchManifest};
     use std::fs;
 
     #[test]
@@ -78,7 +78,11 @@ mod tests {
             icon_packs: vec![String::from("sf_pack")],
             ..Default::default()
         };
-        fs::write(bundle_dir.join("bundle.toml"), toml::to_string(&bm).unwrap()).unwrap();
+        fs::write(
+            bundle_dir.join("bundle.toml"),
+            toml::to_string(&bm).unwrap(),
+        )
+        .unwrap();
 
         let mut cfg = ConfigManager::load_from_base_dir(tmp_base.clone()).unwrap();
         cfg.profiles.push(AppProfile {
@@ -166,10 +170,11 @@ mod tests {
         assert_eq!(outcome.bundle_id, "local_suite");
         assert!(cfg.profiles.iter().any(|p| p.id == "editor" && p.enabled));
         assert_eq!(cfg.settings.style.active_style, "theme.css");
-        assert!(cfg
-            .icon_packs
-            .iter()
-            .any(|ic| ic.id == "sample_icons" && ic.enabled));
+        assert!(
+            cfg.icon_packs
+                .iter()
+                .any(|ic| ic.id == "sample_icons" && ic.enabled)
+        );
 
         BundleOrchestrator::uninstall(&tmp_base, "local_suite").unwrap();
         assert!(!tmp_base.join("bundles/local_suite").exists());

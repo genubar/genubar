@@ -79,7 +79,10 @@ impl StepApplier {
                 Some(Box::new(gsettings::GSettingsApplier { schema, key, value }))
             }
             PatchStep::PythonScript { script, args } => {
-                Some(Box::new(python_script::PythonScriptApplier { script, args }))
+                Some(Box::new(python_script::PythonScriptApplier {
+                    script,
+                    args,
+                }))
             }
         }
     }
@@ -176,9 +179,7 @@ mod tests {
             on_fail: ConditionFailAction::SkipStep,
             error_message: None,
         };
-        assert!(
-            !StepApplier::apply_step("p", &skip_check, &mut ledger, false).unwrap()
-        );
+        assert!(!StepApplier::apply_step("p", &skip_check, &mut ledger, false).unwrap());
 
         let abort_check = PatchStep::Check {
             condition: PatchCondition::Unknown,
@@ -197,9 +198,7 @@ mod tests {
             key: String::from("titleBar"),
             value: serde_json::json!("native"),
         };
-        assert!(
-            StepApplier::apply_step("patch_a", &json_step, &mut ledger, false).unwrap()
-        );
+        assert!(StepApplier::apply_step("patch_a", &json_step, &mut ledger, false).unwrap());
         let after_apply_raw = std::fs::read_to_string(&tmp_json).unwrap();
         assert!(after_apply_raw.contains("\"native\""));
 

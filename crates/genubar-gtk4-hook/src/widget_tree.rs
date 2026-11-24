@@ -63,13 +63,16 @@ unsafe fn try_resolve_stack_children(
     }
     let mut children = Vec::new();
     if let Some(vis_child) = unsafe { get_visible_fn(widget) }
-        && !vis_child.is_null() {
-            children.push(vis_child);
-        }
+        && !vis_child.is_null()
+    {
+        children.push(vis_child);
+    }
     Some(children)
 }
 
-unsafe fn resolve_stack_children_if_applicable(widget: *mut GtkWidget) -> Option<Vec<*mut GtkWidget>> {
+unsafe fn resolve_stack_children_if_applicable(
+    widget: *mut GtkWidget,
+) -> Option<Vec<*mut GtkWidget>> {
     if let Some(gtk_stack_t) = unsafe { gtk_stack_get_type() } {
         unsafe fn get_gtk_vis(w: *mut GtkWidget) -> Option<*mut GtkWidget> {
             unsafe { gtk_stack_get_visible_child(w) }
@@ -95,7 +98,10 @@ unsafe fn resolve_stack_children_if_applicable(widget: *mut GtkWidget) -> Option
 
 /// Returns direct child widgets on both GTK4 (`gtk_widget_get_first_child`) and GTK3 (`gtk_container_forall`).
 /// For `GtkStack` and `AdwViewStack`, returns only the currently visible child so inactive stack pages are skipped.
-pub unsafe fn get_widget_children(widget: *mut GtkWidget, is_root_window: bool) -> Vec<*mut GtkWidget> {
+pub unsafe fn get_widget_children(
+    widget: *mut GtkWidget,
+    is_root_window: bool,
+) -> Vec<*mut GtkWidget> {
     let mut children = Vec::new();
     if widget.is_null() {
         return children;
@@ -116,9 +122,10 @@ pub unsafe fn get_widget_children(widget: *mut GtkWidget, is_root_window: bool) 
 
     if is_root_window
         && let Some(titlebar) = unsafe { gtk_window_get_titlebar(widget) }
-            && !titlebar.is_null() {
-                children.push(titlebar);
-            }
+        && !titlebar.is_null()
+    {
+        children.push(titlebar);
+    }
 
     if let Some(container_type) = unsafe { gtk_container_get_type() } {
         let is_container = container_type != 0
@@ -139,11 +146,7 @@ pub unsafe fn get_widget_children(widget: *mut GtkWidget, is_root_window: bool) 
     children
 }
 
-pub unsafe fn collect_live_widgets(
-    widget: *mut GtkWidget,
-    depth: usize,
-    out: &mut HashSet<usize>,
-) {
+pub unsafe fn collect_live_widgets(widget: *mut GtkWidget, depth: usize, out: &mut HashSet<usize>) {
     if widget.is_null() || depth > MAX_TREE_DEPTH {
         return;
     }

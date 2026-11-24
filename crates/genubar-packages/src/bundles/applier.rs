@@ -24,7 +24,9 @@ pub fn set_bundle_enabled(
         .into_iter()
         .find(|b| b.manifest.id == bundle_id)
     else {
-        return Err(MenuError::NotFound(format!("Bundle '{bundle_id}' not found")));
+        return Err(MenuError::NotFound(format!(
+            "Bundle '{bundle_id}' not found"
+        )));
     };
 
     if enabled && !bundle_view.is_compatible {

@@ -1,9 +1,9 @@
 use crate::components::controls::build_spin_button;
 use crate::components::rows::build_action_row;
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_config::StyleFileConfig;
 use libadwaita as adw;
-use adw::prelude::*;
 
 type MetricUpdater = fn(&mut StyleFileConfig, u32);
 
@@ -96,7 +96,10 @@ pub(super) fn build_metrics_group(state: &AppState) -> adw::PreferencesGroup {
         let st = state.clone();
         let updater = spec.updater;
         spin.connect_value_changed(move |sp| {
-            updater(&mut st.config.borrow_mut().settings.style, sp.value_as_int() as u32);
+            updater(
+                &mut st.config.borrow_mut().settings.style,
+                sp.value_as_int() as u32,
+            );
             st.save_and_reload();
         });
         row.add_suffix(&spin);

@@ -98,17 +98,18 @@ pub fn collect_all_installed_items(
         for entry in entries.flatten() {
             let p = entry.path();
             if p.extension().and_then(|e| e.to_str()) == Some("py")
-                && let Some(meta) = PythonRunner::parse_and_validate_header(&p) {
-                    items.push(InstalledPackageItem {
-                        id: meta.id,
-                        name: meta.name,
-                        version: meta.version,
-                        author: meta.author,
-                        kind: PackageKind::Script,
-                        path: Some(p),
-                        can_delete: true,
-                    });
-                }
+                && let Some(meta) = PythonRunner::parse_and_validate_header(&p)
+            {
+                items.push(InstalledPackageItem {
+                    id: meta.id,
+                    name: meta.name,
+                    version: meta.version,
+                    author: meta.author,
+                    kind: PackageKind::Script,
+                    path: Some(p),
+                    can_delete: true,
+                });
+            }
         }
     }
 

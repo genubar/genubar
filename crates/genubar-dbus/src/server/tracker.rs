@@ -37,10 +37,7 @@ impl WindowTrackerService {
         self.backend.get_active_menu_json().await
     }
 
-    async fn reload_config(
-        &self,
-        #[zbus(signal_emitter)] emitter: SignalEmitter<'_>,
-    ) -> bool {
+    async fn reload_config(&self, #[zbus(signal_emitter)] emitter: SignalEmitter<'_>) -> bool {
         let sink = ZbusMenuSignalSink(&emitter);
         self.backend.reload_config(&sink).await
     }

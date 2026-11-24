@@ -1,7 +1,6 @@
-use async_trait::async_trait;
 use crate::errors::MenuError;
 use crate::node::{MenuNode, MenuTarget};
-
+use async_trait::async_trait;
 
 #[async_trait]
 pub trait MenuProvider: Send + Sync {

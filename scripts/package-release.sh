@@ -14,6 +14,7 @@ ARCH="$(uname -m)"
 PKG_NAME="genubar-v${VERSION}-linux-${ARCH}"
 STAGE_DIR="${REPO_ROOT}/dist/${PKG_NAME}"
 TARBALL_PATH="${REPO_ROOT}/dist/${PKG_NAME}.tar.gz"
+SHA256_PATH="${TARBALL_PATH}.sha256"
 
 echo "Building Genubar v${VERSION} (${ARCH}) in release mode..."
 cargo build --workspace --release
@@ -37,8 +38,14 @@ if [ -d "genubar-gnome-extension" ]; then
     rm -rf "${STAGE_DIR}/genubar-gnome-extension/.git"
 fi
 
-rm -f "${TARBALL_PATH}"
+rm -f "${TARBALL_PATH}" "${SHA256_PATH}"
 tar -C "${REPO_ROOT}/dist" -czf "${TARBALL_PATH}" "${PKG_NAME}"
+(
+    cd "${REPO_ROOT}/dist"
+    sha256sum "${PKG_NAME}.tar.gz" > "${PKG_NAME}.tar.gz.sha256"
+)
 
 echo "Release archive ready: ${TARBALL_PATH}"
-ls -lh "${TARBALL_PATH}"
+echo "SHA-256 checksum ready: ${SHA256_PATH}"
+ls -lh "${TARBALL_PATH}" "${SHA256_PATH}"
+cat "${SHA256_PATH}"

@@ -109,7 +109,10 @@ mod tests {
     fn resolves_user_paths_and_tilde_consistently() {
         let base = Path::new("/tmp/genubar-cfg");
         let home = home_dir();
-        assert_eq!(expand_tilde("~/styles/test.css"), home.join("styles/test.css"));
+        assert_eq!(
+            expand_tilde("~/styles/test.css"),
+            home.join("styles/test.css")
+        );
         assert_eq!(expand_tilde("~"), home);
         assert_eq!(expand_tilde("$HOME"), home);
         assert_eq!(

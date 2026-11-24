@@ -84,7 +84,11 @@ impl HookState {
         export_registry::set_bridge_export_id(id);
     }
 
-    pub fn record_widget_action_group(widget: *mut GtkWidget, prefix: &str, group: *mut c_void) -> bool {
+    pub fn record_widget_action_group(
+        widget: *mut GtkWidget,
+        prefix: &str,
+        group: *mut c_void,
+    ) -> bool {
         widget_tracking::record_widget_action_group(widget, prefix, group)
     }
 
@@ -110,7 +114,11 @@ impl HookState {
 
     /// # Safety
     /// `window` and `model` must either be null or valid GObject pointers on the GTK thread.
-    pub unsafe fn record_window_primary_model(window: *mut GtkWidget, title: &str, model: *mut c_void) {
+    pub unsafe fn record_window_primary_model(
+        window: *mut GtkWidget,
+        title: &str,
+        model: *mut c_void,
+    ) {
         unsafe { export_registry::record_window_primary_model(window, title, model) };
     }
 
@@ -176,12 +184,10 @@ mod tests {
         let fake_sig = vec![(String::from("View Options"), 5, 0x1111)];
         export_registry::invalidate_export_signature();
         assert!(export_registry::check_and_update_export_signature(
-            fake_win,
-            &fake_sig
+            fake_win, &fake_sig
         ));
         assert!(!export_registry::check_and_update_export_signature(
-            fake_win,
-            &fake_sig
+            fake_win, &fake_sig
         ));
 
         assert!(widget_tracking::set_widget_action_group_entry(
@@ -190,8 +196,7 @@ mod tests {
             0x2222
         ));
         assert!(export_registry::check_and_update_export_signature(
-            fake_win,
-            &fake_sig
+            fake_win, &fake_sig
         ));
         assert!(!widget_tracking::set_widget_action_group_entry(
             fake_win as usize,
@@ -205,8 +210,7 @@ mod tests {
             false
         ));
         assert!(export_registry::check_and_update_export_signature(
-            fake_win,
-            &fake_sig
+            fake_win, &fake_sig
         ));
 
         widget_tracking::cleanup_destroyed_widget(fake_win as usize);

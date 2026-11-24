@@ -47,8 +47,9 @@ pub unsafe extern "C" fn on_bridge_method_call(
     }
 
     if m_name == "GetActionStates" {
-        let states =
-            unsafe { collect_all_action_states(HookState::active_window(), HookState::active_app()) };
+        let states = unsafe {
+            collect_all_action_states(HookState::active_window(), HookState::active_app())
+        };
         let ret_tuple = unsafe { build_action_states_tuple_variant(&states) };
         unsafe {
             let _ = g_dbus_method_invocation_return_value(invocation, ret_tuple);
@@ -66,8 +67,9 @@ pub unsafe extern "C" fn on_bridge_method_call(
     }
 
     if m_name == "DumpIntrospection" {
-        let report =
-            unsafe { dump_window_introspection(HookState::active_window(), HookState::active_app()) };
+        let report = unsafe {
+            dump_window_introspection(HookState::active_window(), HookState::active_app())
+        };
         let c_rep = CString::new(report).unwrap_or_default();
         let ret_tuple = unsafe { build_string_tuple_variant(c_rep.as_ptr()) };
         unsafe {
@@ -84,8 +86,10 @@ pub unsafe extern "C" fn on_bridge_method_call(
         return;
     }
 
-    let err_msg = CString::new(format!("Unknown method '{m_name}' on org.genubar.Gtk4Bridge"))
-        .unwrap_or_default();
+    let err_msg = CString::new(format!(
+        "Unknown method '{m_name}' on org.genubar.Gtk4Bridge"
+    ))
+    .unwrap_or_default();
     unsafe {
         let _ = g_dbus_method_invocation_return_dbus_error(
             invocation,
@@ -109,11 +113,12 @@ unsafe fn handle_activate_call(connection: *mut GDBusConnection, parameters: *mu
     );
     if !unsafe { try_handle_adwaita_theme(connection, act_str) }
         && !unsafe { try_handle_universal_zoom(connection, act_str) }
-        && unsafe { dispatch_widget_or_app_action(act_str, args.target_param) } {
-            // Notify WindowTracker so toggle states (e.g. Show Hidden Files, Sort)
-            // and dynamic items (e.g. Star/Unstar) refresh immediately in the top panel.
-            unsafe {
-                DbusExporter::notify_daemon_refresh(connection);
-            }
+        && unsafe { dispatch_widget_or_app_action(act_str, args.target_param) }
+    {
+        // Notify WindowTracker so toggle states (e.g. Show Hidden Files, Sort)
+        // and dynamic items (e.g. Star/Unstar) refresh immediately in the top panel.
+        unsafe {
+            DbusExporter::notify_daemon_refresh(connection);
         }
+    }
 }

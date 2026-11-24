@@ -69,7 +69,7 @@ pub fn revert(
             .output(),
         None => return Ok(()),
     }
-        .map_err(|e| MenuError::IoPermission(format!("Failed to execute gsettings revert: {e}")))?;
+    .map_err(|e| MenuError::IoPermission(format!("Failed to execute gsettings revert: {e}")))?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);

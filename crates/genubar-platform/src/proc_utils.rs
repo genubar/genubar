@@ -134,18 +134,19 @@ pub fn terminate_unhooked_processes(app_id: &str, exec_bin: &str) {
         let cmdline = read_proc_cmdline(pid);
 
         let prefix_len = exec_bin.len().min(15);
-        let comm_matches = !comm.is_empty()
-            && exec_bin != "gapplication"
-            && comm == exec_bin[..prefix_len];
+        let comm_matches =
+            !comm.is_empty() && exec_bin != "gapplication" && comm == exec_bin[..prefix_len];
         let script_matches = !app_id.is_empty()
             && cmdline.contains(app_id)
             && !cmdline.contains("BackgroundService")
             && !cmdline.contains("/usr/bin/gnome-shell ");
 
-        if (comm_matches || script_matches) && try_check_pid_gtk4_hooked(pid) == Some(false)
-            && let Err(err) = terminate_pid(pid) {
-                tracing::debug!(pid, error = %err, "Failed terminating unhooked process");
-            }
+        if (comm_matches || script_matches)
+            && try_check_pid_gtk4_hooked(pid) == Some(false)
+            && let Err(err) = terminate_pid(pid)
+        {
+            tracing::debug!(pid, error = %err, "Failed terminating unhooked process");
+        }
     }
 }
 
@@ -158,9 +159,6 @@ mod tests {
         assert!(!is_pid_gtk4_hooked(0));
         assert_eq!(try_check_pid_gtk4_hooked(0), Some(false));
         assert!(terminate_pid(0).is_err());
-        assert_eq!(
-            parse_stat_ppid("1234 (my (app)) S 42 100 200"),
-            Some(42)
-        );
+        assert_eq!(parse_stat_ppid("1234 (my (app)) S 42 100 200"), Some(42));
     }
 }

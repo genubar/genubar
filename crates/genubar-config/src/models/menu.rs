@@ -214,9 +214,7 @@ impl<'de> Deserialize<'de> for MenuNodeDef {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::{
-        bundle::BundleManifest, profile::AppProfile, settings::GlobalSettings,
-    };
+    use crate::models::{bundle::BundleManifest, profile::AppProfile, settings::GlobalSettings};
 
     #[test]
     fn forward_compatible_config_models_ignore_unknown_fields_and_future_variants() {

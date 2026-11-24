@@ -14,8 +14,8 @@ pub use coordinator::FocusCoordinator;
 pub use models::{MenuPayload, UiRenderConfig};
 pub use state::DaemonCaches;
 
-use genubar_dbus::server::{AppMenuRegistrar, WindowTrackerService};
 use genubar_dbus::UnifiedMenuService;
+use genubar_dbus::server::{AppMenuRegistrar, WindowTrackerService};
 use genubar_protocol::{
     REGISTRAR_BUS_NAME, REGISTRAR_OBJECT_PATH, TRACKER_BUS_NAME, TRACKER_OBJECT_PATH,
 };
@@ -65,7 +65,9 @@ pub async fn run_daemon_with_service(service: &UnifiedMenuService) -> Result<(),
     let mut sigint = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())?;
 
     let lost_our_name = async {
-        while let Some(sig) = std::future::poll_fn(|cx| Pin::new(&mut name_lost_stream).poll_next(cx)).await {
+        while let Some(sig) =
+            std::future::poll_fn(|cx| Pin::new(&mut name_lost_stream).poll_next(cx)).await
+        {
             if let Ok(args) = sig.args() {
                 let name = args.name();
                 if name == TRACKER_BUS_NAME || name == REGISTRAR_BUS_NAME {

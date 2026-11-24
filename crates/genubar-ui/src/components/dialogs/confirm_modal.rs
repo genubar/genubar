@@ -1,5 +1,5 @@
-use gtk4 as gtk;
 use gtk::prelude::*;
+use gtk4 as gtk;
 
 /// Displays a modal confirmation dialog for destructive resets and bulk disable/revert actions.
 pub fn show_confirm_modal(

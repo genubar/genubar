@@ -32,11 +32,7 @@ impl DbusIntrospector {
                 continue;
             };
 
-            for iface in [
-                "com.canonical.dbusmenu",
-                "org.gtk.Menus",
-                "org.gtk.Actions",
-            ] {
+            for iface in ["com.canonical.dbusmenu", "org.gtk.Menus", "org.gtk.Actions"] {
                 if xml.contains(iface) {
                     found.push((current_path.clone(), iface.to_string()));
                 }
@@ -59,12 +55,13 @@ impl DbusIntrospector {
         let mut out = Vec::new();
         for line in xml.lines() {
             if let Some(rest) = line.trim().strip_prefix("<node name=\"")
-                && let Some(end_idx) = rest.find('"') {
-                    let child_name = &rest[..end_idx];
-                    if !child_name.is_empty() && !child_name.starts_with('/') {
-                        out.push(child_name);
-                    }
+                && let Some(end_idx) = rest.find('"')
+            {
+                let child_name = &rest[..end_idx];
+                if !child_name.is_empty() && !child_name.starts_with('/') {
+                    out.push(child_name);
                 }
+            }
         }
         out
     }
@@ -91,9 +88,10 @@ impl DbusIntrospector {
                 continue;
             };
             if pids_match(target_pid, pid)
-                && let Some(target) = Self::inspect_peer_paths(connection, name_str).await {
-                    return Some(target);
-                }
+                && let Some(target) = Self::inspect_peer_paths(connection, name_str).await
+            {
+                return Some(target);
+            }
         }
         None
     }

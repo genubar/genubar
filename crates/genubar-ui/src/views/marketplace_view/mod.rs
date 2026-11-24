@@ -2,17 +2,14 @@ mod package_row;
 mod pagination;
 mod sources_section;
 
-use crate::components::controls::{
-    build_scrolled_container, build_toolbar_dropdown, clear_box,
-};
+use crate::components::controls::{build_scrolled_container, build_toolbar_dropdown, clear_box};
 use crate::components::rows::build_action_row;
 use crate::models::package_ui::category_filter_from_index;
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_packages::{RegistryPackageInstaller, UpdateService};
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 use package_row::{build_remote_package_row, build_search_result_row};
 use pagination::{PAGE_SIZE, build_pagination_controls};
 use sources_section::build_registry_sources_group;
@@ -136,7 +133,13 @@ pub fn build_marketplace_view(state: &AppState) -> gtk::Widget {
                     for item in &items[start..end] {
                         results_group.add(&build_search_result_row(&state, item));
                     }
-                    attach_pagination(&results_group, &state, &reload_handle_inner, page_idx, total);
+                    attach_pagination(
+                        &results_group,
+                        &state,
+                        &reload_handle_inner,
+                        page_idx,
+                        total,
+                    );
                 }
 
                 page.add(&results_group);

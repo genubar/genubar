@@ -48,12 +48,13 @@ pub async fn find_direct_child_info(
 
         if depth > 0
             && let Ok(name) = proxy.name().await
-                && clean_label(&name) == clean_label(target_label) {
-                    let role = proxy.get_role_name().await.unwrap_or_default();
-                    let state = proxy.get_state().await.unwrap_or_default();
-                    let showing = AtspiMenuParser::is_showing(&state);
-                    return Some((curr_path, showing, role, state));
-                }
+            && clean_label(&name) == clean_label(target_label)
+        {
+            let role = proxy.get_role_name().await.unwrap_or_default();
+            let state = proxy.get_state().await.unwrap_or_default();
+            let showing = AtspiMenuParser::is_showing(&state);
+            return Some((curr_path, showing, role, state));
+        }
 
         if let Ok(children) = proxy.get_children().await {
             for (c_bus, c_path) in children {
@@ -149,8 +150,13 @@ pub async fn build_subtree(
     for (c_bus, c_path) in raw_children {
         if c_bus == ctx.bus_name {
             let mut child_budget = if depth == 0 { 90usize } else { *branch_budget };
-            if let Some(child_node) =
-                Box::pin(build_subtree(ctx, c_path.as_str(), depth + 1, &mut child_budget)).await
+            if let Some(child_node) = Box::pin(build_subtree(
+                ctx,
+                c_path.as_str(),
+                depth + 1,
+                &mut child_budget,
+            ))
+            .await
             {
                 if depth > 0 {
                     *branch_budget = child_budget;
@@ -194,9 +200,9 @@ pub async fn build_subtree(
                     &mut ctx.paths_map,
                 )
                 .await
-            {
-                children = restored;
-            }
+        {
+            children = restored;
+        }
     }
 
     ctx.action_cache.insert(

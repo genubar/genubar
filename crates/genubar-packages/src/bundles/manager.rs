@@ -78,7 +78,13 @@ impl BundleManager {
             }
         }
         for ic in &m.icon_packs {
-            if self.base_dir.join("icons").join(ic).join("pack.toml").exists() {
+            if self
+                .base_dir
+                .join("icons")
+                .join(ic)
+                .join("pack.toml")
+                .exists()
+            {
                 installed += 1;
             }
         }
@@ -139,32 +145,33 @@ impl BundleManager {
         let record_dir = self.bundles_dir.join(bundle_id);
         let manifest_path = record_dir.join("bundle.toml");
         if manifest_path.is_file()
-            && let Ok(manifest) = Self::read_manifest(&manifest_path) {
-                for p in &manifest.patches {
-                    let target = self.base_dir.join("patches").join(p);
-                    if let Err(err) = remove_file_if_exists(&target) {
-                        tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle patch");
-                    }
-                }
-                for pr in &manifest.profiles {
-                    let target = self.base_dir.join("profiles").join(pr);
-                    if let Err(err) = remove_file_if_exists(&target) {
-                        tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle profile");
-                    }
-                }
-                for st in &manifest.styles {
-                    let target = self.base_dir.join("styles").join(st);
-                    if let Err(err) = remove_file_if_exists(&target) {
-                        tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle style");
-                    }
-                }
-                for ic in &manifest.icon_packs {
-                    let target = self.base_dir.join("icons").join(ic);
-                    if let Err(err) = remove_dir_if_exists(&target) {
-                        tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle icon pack");
-                    }
+            && let Ok(manifest) = Self::read_manifest(&manifest_path)
+        {
+            for p in &manifest.patches {
+                let target = self.base_dir.join("patches").join(p);
+                if let Err(err) = remove_file_if_exists(&target) {
+                    tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle patch");
                 }
             }
+            for pr in &manifest.profiles {
+                let target = self.base_dir.join("profiles").join(pr);
+                if let Err(err) = remove_file_if_exists(&target) {
+                    tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle profile");
+                }
+            }
+            for st in &manifest.styles {
+                let target = self.base_dir.join("styles").join(st);
+                if let Err(err) = remove_file_if_exists(&target) {
+                    tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle style");
+                }
+            }
+            for ic in &manifest.icon_packs {
+                let target = self.base_dir.join("icons").join(ic);
+                if let Err(err) = remove_dir_if_exists(&target) {
+                    tracing::warn!(path = %target.display(), error = %err, "Failed removing bundle icon pack");
+                }
+            }
+        }
         remove_dir_if_exists(&record_dir)
     }
 }

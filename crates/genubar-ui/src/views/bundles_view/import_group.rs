@@ -1,11 +1,10 @@
 use crate::components::rows::build_two_row_entry;
 use crate::services::bundle_service::BundleService;
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_platform::expand_tilde;
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 
 pub(super) fn build_import_bundle_group(state: &AppState) -> adw::PreferencesGroup {
     let import_group = adw::PreferencesGroup::builder()

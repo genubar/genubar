@@ -1,12 +1,11 @@
 use crate::components::rows::build_action_row;
-use genubar_packages::UpdateService;
 use crate::state::AppState;
 use crate::utils::system::open_external;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
 use genubar_core::{EXPECTED_EXTENSION_VERSION, EXTENSION_UUID};
+use genubar_packages::UpdateService;
+use gtk4 as gtk;
+use libadwaita as adw;
 use std::cell::RefCell;
 use std::rc::Rc;
 

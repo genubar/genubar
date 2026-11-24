@@ -18,12 +18,12 @@ impl MenuSignalSink for ConnectionTrackerSignalSink {
             && let Err(err) =
                 super::tracker::WindowTrackerService::active_menu_changed(&emitter, payload_json)
                     .await
-            {
-                tracing::warn!(
-                    error = %err,
-                    "Failed emitting ActiveMenuChanged after canonical window registration"
-                );
-            }
+        {
+            tracing::warn!(
+                error = %err,
+                "Failed emitting ActiveMenuChanged after canonical window registration"
+            );
+        }
     }
 }
 

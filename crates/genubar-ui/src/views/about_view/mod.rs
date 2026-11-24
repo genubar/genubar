@@ -2,15 +2,14 @@ mod extension_group;
 
 use crate::components::controls::build_icon_button;
 use crate::components::rows::build_action_row;
-use genubar_packages::{ExtensionReleaseManifest, UpdateCheckStatus, UpdateService};
 use crate::state::AppState;
 use crate::utils::system::open_external;
+use adw::prelude::*;
 use extension_group::build_extension_group;
 use genubar_core::{CURRENT_APP_VERSION, is_version_compatible};
+use genubar_packages::{ExtensionReleaseManifest, UpdateCheckStatus, UpdateService};
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -33,9 +32,9 @@ pub fn build_about_view(state: &AppState) -> gtk::Widget {
         &format!("Checking Daemon Status... (Settings UI: v{CURRENT_APP_VERSION})"),
         "Querying installed binary and systemd service",
     );
-    let brand_icon = if let Ok(pb) = gtk::gdk::gdk_pixbuf::Pixbuf::from_read(
-        std::io::Cursor::new(genubar_platform::EMBEDDED_APP_ICON_SVG.as_bytes()),
-    ) {
+    let brand_icon = if let Ok(pb) = gtk::gdk::gdk_pixbuf::Pixbuf::from_read(std::io::Cursor::new(
+        genubar_platform::EMBEDDED_APP_ICON_SVG.as_bytes(),
+    )) {
         gtk::Image::from_paintable(Some(&gtk::gdk::Texture::for_pixbuf(&pb)))
     } else {
         gtk::Image::from_icon_name(genubar_platform::APP_ICON_NAME)

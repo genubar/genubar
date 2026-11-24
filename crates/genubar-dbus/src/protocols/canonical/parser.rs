@@ -79,13 +79,12 @@ impl CanonicalMenuParser {
                 .try_to_owned()
                 .map_err(|e| MenuError::ParseError(format!("Failed to clone props: {e}")))?,
         )
-            .map_err(|e| MenuError::ParseError(format!("Invalid props map: {e}")))?;
+        .map_err(|e| MenuError::ParseError(format!("Invalid props map: {e}")))?;
 
-        let child_sub_array: Vec<OwnedVariant> = Vec::try_from(
-            fields[2].try_to_owned().map_err(|e| {
+        let child_sub_array: Vec<OwnedVariant> =
+            Vec::try_from(fields[2].try_to_owned().map_err(|e| {
                 MenuError::ParseError(format!("Failed to clone children array: {e}"))
-            })?,
-        )
+            })?)
             .map_err(|e| MenuError::ParseError(format!("Invalid children vec: {e}")))?;
 
         let node = Self::parse_node(child_id, next_depth, &child_props, &child_sub_array)?;

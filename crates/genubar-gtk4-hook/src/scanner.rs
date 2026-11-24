@@ -4,9 +4,9 @@ use crate::exporter::DbusExporter;
 use crate::ffi::{
     GApplication, GtkWidget, g_action_group_get_type, g_application_get_default, g_object_unref,
     g_signal_connect_data, g_timeout_add_full, g_type_check_instance_is_a,
-    gtk_menu_button_get_type, gtk_widget_get_mapped, gtk_widget_get_root,
-    gtk_widget_get_toplevel, gtk_widget_get_visible, gtk_window_get_application,
-    gtk_window_get_type, gtk_window_is_active, widget_type_name,
+    gtk_menu_button_get_type, gtk_widget_get_mapped, gtk_widget_get_root, gtk_widget_get_toplevel,
+    gtk_widget_get_visible, gtk_window_get_application, gtk_window_get_type, gtk_window_is_active,
+    widget_type_name,
 };
 use crate::hook_log;
 use crate::menu_extractor::MenuExtractor;
@@ -252,10 +252,9 @@ pub unsafe fn schedule_window_scan(window: *mut GtkWidget, app_hint: *mut GAppli
 }
 
 unsafe extern "C" fn on_window_mapped(window: *mut GtkWidget, app: *mut GApplication) {
-    hook_log!(
-        "Window mapped: class={} ptr={window:?}",
-        unsafe { widget_type_name(window) }
-    );
+    hook_log!("Window mapped: class={} ptr={window:?}", unsafe {
+        widget_type_name(window)
+    });
     unsafe {
         schedule_window_scan(window, app);
     }
@@ -338,20 +337,21 @@ pub unsafe fn maybe_rescan_from_menu_button(menu_button: *mut GtkWidget) {
         let root_cand = unsafe { gtk_widget_get_root(menu_button) }
             .or_else(|| unsafe { gtk_widget_get_toplevel(menu_button) });
         if let Some(root) = root_cand
-            && !root.is_null() {
-                let win_type = unsafe { gtk_window_get_type() }.unwrap_or(0);
-                let is_win = win_type != 0
-                    && unsafe { g_type_check_instance_is_a(root, win_type) }
-                        .map(|r| r != 0)
-                        .unwrap_or(false);
-                if is_win {
-                    win = root;
-                    let app = unsafe { resolve_app_for_window(win, ptr::null_mut()) };
-                    if !app.is_null() {
-                        HookState::set_active_context(win, app);
-                    }
+            && !root.is_null()
+        {
+            let win_type = unsafe { gtk_window_get_type() }.unwrap_or(0);
+            let is_win = win_type != 0
+                && unsafe { g_type_check_instance_is_a(root, win_type) }
+                    .map(|r| r != 0)
+                    .unwrap_or(false);
+            if is_win {
+                win = root;
+                let app = unsafe { resolve_app_for_window(win, ptr::null_mut()) };
+                if !app.is_null() {
+                    HookState::set_active_context(win, app);
                 }
             }
+        }
     }
 
     if !win.is_null() && !HookState::active_app().is_null() {

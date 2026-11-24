@@ -9,7 +9,9 @@ use genubar_config::ConfigManager;
 use genubar_core::{
     ActiveWindowInfo, CustomAction, MenuError, MenuNode, MenuSourceTier, MenuTarget, SystemCommand,
 };
-use genubar_dbus::{MenuSignalSink, RegisteredWindow, RegistrarBackend, TrackerBackend, UnifiedMenuService};
+use genubar_dbus::{
+    MenuSignalSink, RegisteredWindow, RegistrarBackend, TrackerBackend, UnifiedMenuService,
+};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::sync::RwLock;
@@ -166,7 +168,11 @@ impl RegistrarBackend for FocusCoordinator {
     }
 
     async fn unregister_window(&self, window_id: u32) -> bool {
-        self.caches.windows.remove_canonical(window_id).await.is_some()
+        self.caches
+            .windows
+            .remove_canonical(window_id)
+            .await
+            .is_some()
     }
 
     async fn resolve_canonical(&self, window_id: u32) -> Option<MenuTarget> {
@@ -233,7 +239,11 @@ impl TrackerBackend for FocusCoordinator {
         }
         if clear_l1 || clear_l2 {
             self.last_published_json.write().await.clear();
-            tracing::info!(clear_l1, clear_l2, "Cleared daemon menu caches (RAM + disk)");
+            tracing::info!(
+                clear_l1,
+                clear_l2,
+                "Cleared daemon menu caches (RAM + disk)"
+            );
         }
         true
     }
@@ -306,15 +316,9 @@ impl TrackerBackend for FocusCoordinator {
         }
     }
 
-    async fn refresh_canonical_window(
-        &self,
-        window_id: u32,
-        pid: u32,
-        sink: &dyn MenuSignalSink,
-    ) {
+    async fn refresh_canonical_window(&self, window_id: u32, pid: u32, sink: &dyn MenuSignalSink) {
         let info = self.last_window.read().await.clone();
-        let is_active =
-            (window_id != 0 && info.xid == window_id) || (pid != 0 && info.pid == pid);
+        let is_active = (window_id != 0 && info.xid == window_id) || (pid != 0 && info.pid == pid);
 
         if is_active {
             self.focus_seq.fetch_add(1, Ordering::SeqCst);
@@ -461,10 +465,22 @@ mod tests {
         };
 
         let first = coord
-            .publish_state(&info, None, root.clone(), MenuSourceTier::AppFallback, &sink)
+            .publish_state(
+                &info,
+                None,
+                root.clone(),
+                MenuSourceTier::AppFallback,
+                &sink,
+            )
             .await;
         let second = coord
-            .publish_state(&info, None, root.clone(), MenuSourceTier::AppFallback, &sink)
+            .publish_state(
+                &info,
+                None,
+                root.clone(),
+                MenuSourceTier::AppFallback,
+                &sink,
+            )
             .await;
         assert_eq!(first, second);
         assert_eq!(sink.emitted.lock().await.len(), 1);
@@ -482,7 +498,12 @@ mod tests {
         let desktop_json: serde_json::Value =
             serde_json::from_str(&coord.get_active_menu_json().await).unwrap();
         assert_eq!(desktop_json["source"], "Desktop-Idle");
-        assert!(!desktop_json["root"]["children"].as_array().unwrap().is_empty());
+        assert!(
+            !desktop_json["root"]["children"]
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
 
         let _ = fs::remove_dir_all(&tmp_base);
     }

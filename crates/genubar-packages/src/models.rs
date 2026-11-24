@@ -22,13 +22,15 @@ pub struct ExtensionReleaseManifest {
 impl ExtensionReleaseManifest {
     pub fn is_compatible_with_current_daemon(&self) -> bool {
         if let Some(ipc) = self.ipc_protocol_version
-            && ipc != IPC_PROTOCOL_VERSION {
-                return false;
-            }
+            && ipc != IPC_PROTOCOL_VERSION
+        {
+            return false;
+        }
         if let Some(ref min_d) = self.min_daemon_version
-            && !is_version_compatible(min_d, CURRENT_APP_VERSION) {
-                return false;
-            }
+            && !is_version_compatible(min_d, CURRENT_APP_VERSION)
+        {
+            return false;
+        }
         true
     }
 }
@@ -108,12 +110,7 @@ pub struct RemotePackageEntry {
 
 impl RemotePackageEntry {
     pub fn version_req_badge(compat: bool, min_app_version: Option<&str>) -> Option<String> {
-        (!compat).then(|| {
-            format!(
-                "Requires Genubar v{}",
-                min_app_version.unwrap_or("newer")
-            )
-        })
+        (!compat).then(|| format!("Requires Genubar v{}", min_app_version.unwrap_or("newer")))
     }
 
     pub fn is_compatible(&self) -> bool {
@@ -121,16 +118,18 @@ impl RemotePackageEntry {
             return false;
         }
         if let Some(ref req) = self.min_app_version
-            && !is_version_compatible(req, CURRENT_APP_VERSION) {
+            && !is_version_compatible(req, CURRENT_APP_VERSION)
+        {
+            return false;
+        }
+        if self.kind == PackageKind::Patch
+            && let Some(ref raw_toml) = self.content
+        {
+            let manifests = PatchRepository::parse_patch_file_contents(raw_toml);
+            if !manifests.is_empty() && !manifests.iter().all(|m| m.is_fully_compatible()) {
                 return false;
             }
-        if self.kind == PackageKind::Patch
-            && let Some(ref raw_toml) = self.content {
-                let manifests = PatchRepository::parse_patch_file_contents(raw_toml);
-                if !manifests.is_empty() && !manifests.iter().all(|m| m.is_fully_compatible()) {
-                    return false;
-                }
-            }
+        }
         true
     }
 
@@ -139,17 +138,19 @@ impl RemotePackageEntry {
             return Some(String::from("Requires Update (Unknown Package Type)"));
         }
         if let Some(ref req) = self.min_app_version
-            && !is_version_compatible(req, CURRENT_APP_VERSION) {
-                return Some(format!("Requires Genubar v{req}"));
-            }
+            && !is_version_compatible(req, CURRENT_APP_VERSION)
+        {
+            return Some(format!("Requires Genubar v{req}"));
+        }
         if self.kind == PackageKind::Patch
-            && let Some(ref raw_toml) = self.content {
-                for m in PatchRepository::parse_patch_file_contents(raw_toml) {
-                    if let Some(reason) = m.incompatibility_reason() {
-                        return Some(reason);
-                    }
+            && let Some(ref raw_toml) = self.content
+        {
+            for m in PatchRepository::parse_patch_file_contents(raw_toml) {
+                if let Some(reason) = m.incompatibility_reason() {
+                    return Some(reason);
                 }
             }
+        }
         None
     }
 }
@@ -280,12 +281,17 @@ mod tests {
             r#"{"uuid":"genubar@github.com","genubar-version":"0.2.0","min-daemon-version":"0.2.0","ipc-protocol-version":1}"#,
         ));
         assert!(!too_new_ext.is_compatible);
-        assert!(too_new_ext.status_summary.contains("requires Daemon v0.2.0+"));
+        assert!(
+            too_new_ext
+                .status_summary
+                .contains("requires Daemon v0.2.0+")
+        );
     }
 
     #[test]
     fn empty_registry_stub_default_patch_catalog_and_workspace_registry_validate() {
-        let empty_stub: RemoteRegistryCatalog = serde_json::from_str(r#"{ "entries": [] }"#).unwrap();
+        let empty_stub: RemoteRegistryCatalog =
+            serde_json::from_str(r#"{ "entries": [] }"#).unwrap();
         assert!(empty_stub.entries.is_empty());
 
         let gnome_patches = genubar_patcher::PatchRepository::try_parse_patch_file_contents(
@@ -294,14 +300,19 @@ mod tests {
         .expect("default gnome_core_apps patch catalog should parse cleanly");
         assert!(!gnome_patches.is_empty());
 
-        let registry_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../../genubar-registry");
+        let registry_dir =
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../genubar-registry");
         if registry_dir.is_dir() {
             let app_raw = std::fs::read_to_string(registry_dir.join("app.json")).unwrap();
             let app_rel: AppReleaseManifest = serde_json::from_str(&app_raw).unwrap();
             assert_eq!(app_rel.latest_app_version, CURRENT_APP_VERSION);
-            let ext = app_rel.extension.expect("app.json should publish extension block");
-            assert_eq!(ext.ipc_protocol_version, Some(genubar_core::IPC_PROTOCOL_VERSION));
+            let ext = app_rel
+                .extension
+                .expect("app.json should publish extension block");
+            assert_eq!(
+                ext.ipc_protocol_version,
+                Some(genubar_core::IPC_PROTOCOL_VERSION)
+            );
             assert!(ext.is_compatible_with_current_daemon());
 
             let reg_raw = std::fs::read_to_string(registry_dir.join("registry.json")).unwrap();

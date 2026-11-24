@@ -33,12 +33,16 @@ mod tests {
 
     #[test]
     fn condition_evaluator_checks_binaries_paths_and_file_contents() {
-        assert!(ConditionEvaluator::evaluate(&PatchCondition::BinaryExists {
-            binary: String::from("sh"),
-        }));
-        assert!(!ConditionEvaluator::evaluate(&PatchCondition::BinaryExists {
-            binary: String::from("genubar-definitely-nonexistent-bin-12345"),
-        }));
+        assert!(ConditionEvaluator::evaluate(
+            &PatchCondition::BinaryExists {
+                binary: String::from("sh"),
+            }
+        ));
+        assert!(!ConditionEvaluator::evaluate(
+            &PatchCondition::BinaryExists {
+                binary: String::from("genubar-definitely-nonexistent-bin-12345"),
+            }
+        ));
 
         let tmp = std::env::temp_dir().join("genubar_condition_eval_test.txt");
         std::fs::write(&tmp, "enable_menu=true\n").unwrap();
@@ -46,14 +50,18 @@ mod tests {
         assert!(ConditionEvaluator::evaluate(&PatchCondition::PathExists {
             path: tmp.clone(),
         }));
-        assert!(ConditionEvaluator::evaluate(&PatchCondition::FileContains {
-            file: tmp.clone(),
-            substring: String::from("enable_menu=true"),
-        }));
-        assert!(!ConditionEvaluator::evaluate(&PatchCondition::FileContains {
-            file: tmp.clone(),
-            substring: String::from("missing-token"),
-        }));
+        assert!(ConditionEvaluator::evaluate(
+            &PatchCondition::FileContains {
+                file: tmp.clone(),
+                substring: String::from("enable_menu=true"),
+            }
+        ));
+        assert!(!ConditionEvaluator::evaluate(
+            &PatchCondition::FileContains {
+                file: tmp.clone(),
+                substring: String::from("missing-token"),
+            }
+        ));
         let _ = std::fs::remove_file(&tmp);
 
         assert!(!ConditionEvaluator::evaluate(&PatchCondition::PathExists {

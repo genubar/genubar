@@ -80,7 +80,9 @@ impl InheritanceEngine {
                     for live in live_nodes {
                         let live_clean = live.clean_label();
                         let hit = (!from.is_empty() && wildcard_match(from, &live_clean))
-                            || match_labels.iter().any(|pat| wildcard_match(pat, &live_clean));
+                            || match_labels
+                                .iter()
+                                .any(|pat| wildcard_match(pat, &live_clean));
                         if hit {
                             claimed.insert(live_clean.to_lowercase());
                         }
@@ -330,7 +332,13 @@ impl InheritanceEngine {
 mod tests {
     use super::*;
 
-    fn node(id: i32, label: &str, item_type: MenuItemType, action: Option<&str>, children: Vec<MenuNode>) -> MenuNode {
+    fn node(
+        id: i32,
+        label: &str,
+        item_type: MenuItemType,
+        action: Option<&str>,
+        children: Vec<MenuNode>,
+    ) -> MenuNode {
         MenuNode {
             id,
             label: label.to_string(),
@@ -354,8 +362,20 @@ mod tests {
                 MenuItemType::Submenu,
                 None,
                 vec![
-                    node(11, "_Zoom In", MenuItemType::Standard, Some("win.zoom-in"), vec![]),
-                    node(12, "_Hidden Secret", MenuItemType::Standard, Some("win.secret"), vec![]),
+                    node(
+                        11,
+                        "_Zoom In",
+                        MenuItemType::Standard,
+                        Some("win.zoom-in"),
+                        vec![],
+                    ),
+                    node(
+                        12,
+                        "_Hidden Secret",
+                        MenuItemType::Standard,
+                        Some("win.secret"),
+                        vec![],
+                    ),
                 ],
             ),
             node(20, "_Help", MenuItemType::Submenu, None, vec![]),

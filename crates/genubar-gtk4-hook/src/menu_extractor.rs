@@ -27,8 +27,7 @@ impl MenuExtractor {
         if window.is_null() || app.is_null() || !should_hide_original_button() {
             return;
         }
-        let app_menubar =
-            unsafe { gtk_application_get_menubar(app) }.unwrap_or(ptr::null_mut());
+        let app_menubar = unsafe { gtk_application_get_menubar(app) }.unwrap_or(ptr::null_mut());
         if app_menubar.is_null() {
             return;
         }
@@ -113,13 +112,14 @@ impl MenuExtractor {
                     let g_model = model_ptr as *mut GMenuModel;
                     let n_items = unsafe { g_menu_model_get_n_items(g_model) }.unwrap_or(0);
                     if n_items > 0
-                        && let Ok(c_title) = CString::new(title.clone()) {
-                            unsafe {
-                                let _ = g_menu_append_submenu(master_menu, c_title.as_ptr(), g_model);
-                            }
-                            found_count += 1;
-                            signature.push((title, n_items, model_addr));
+                        && let Ok(c_title) = CString::new(title.clone())
+                    {
+                        unsafe {
+                            let _ = g_menu_append_submenu(master_menu, c_title.as_ptr(), g_model);
                         }
+                        found_count += 1;
+                        signature.push((title, n_items, model_addr));
+                    }
                 }
             }
         }
@@ -163,8 +163,8 @@ impl MenuExtractor {
 
         if depth > 0 {
             let is_vis = unsafe { gtk_widget_get_visible(widget) }.unwrap_or(1) != 0;
-            let is_map = !window_mapped
-                || unsafe { gtk_widget_get_mapped(widget) }.unwrap_or(1) != 0;
+            let is_map =
+                !window_mapped || unsafe { gtk_widget_get_mapped(widget) }.unwrap_or(1) != 0;
 
             if (!is_vis || !is_map) && !(is_menu_btn && HookState::was_hidden_by_hook(widget)) {
                 return;
@@ -224,20 +224,20 @@ impl MenuExtractor {
 
         if model.is_null()
             && let Some(popover) = unsafe { gtk_menu_button_get_popover(widget) }
-                && !popover.is_null() {
-                    model = HookState::get_popover_menu_model(popover);
+            && !popover.is_null()
+        {
+            model = HookState::get_popover_menu_model(popover);
 
-                    if model.is_null() && popover_menu_type != 0 {
-                        let is_pop =
-                            unsafe { g_type_check_instance_is_a(popover, popover_menu_type) }
-                                .map(|r| r != 0)
-                                .unwrap_or(false);
-                        if is_pop {
-                            model = unsafe { gtk_popover_menu_get_menu_model(popover) }
-                                .unwrap_or(ptr::null_mut());
-                        }
-                    }
+            if model.is_null() && popover_menu_type != 0 {
+                let is_pop = unsafe { g_type_check_instance_is_a(popover, popover_menu_type) }
+                    .map(|r| r != 0)
+                    .unwrap_or(false);
+                if is_pop {
+                    model = unsafe { gtk_popover_menu_get_menu_model(popover) }
+                        .unwrap_or(ptr::null_mut());
                 }
+            }
+        }
 
         if model.is_null() || !seen_models.insert(model as usize) {
             return;

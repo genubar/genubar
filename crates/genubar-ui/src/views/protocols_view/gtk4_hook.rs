@@ -3,11 +3,10 @@ use crate::components::rows::{
     build_action_row, build_script_selector_row, build_switch_row, build_two_row_entry,
 };
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
 use genubar_config::Gtk4LayoutAlgorithm;
+use gtk4 as gtk;
+use libadwaita as adw;
 use std::path::PathBuf;
 
 pub fn build_gtk4_hook_group(state: &AppState) -> adw::PreferencesGroup {
@@ -137,9 +136,9 @@ pub fn build_gtk4_hook_group(state: &AppState) -> adw::PreferencesGroup {
         && let Some(input_box) = outer_box
             .last_child()
             .and_then(|w| w.downcast::<gtk::Box>().ok())
-        {
-            input_box.append(&reset_so_btn);
-        }
+    {
+        input_box.append(&reset_so_btn);
+    }
 
     {
         let st = state.clone();

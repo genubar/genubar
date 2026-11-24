@@ -1,6 +1,6 @@
 use crate::error::UiError;
 use genubar_config::{
-    AppMenuTemplateConfig, AppMatcher, AppProfile, ConfigManager, DesktopMenuConfig,
+    AppMatcher, AppMenuTemplateConfig, AppProfile, ConfigManager, DesktopMenuConfig,
     IconPackManifest, MatchField, MenuNodeDef,
 };
 use genubar_patcher::PatchManager;
@@ -318,11 +318,8 @@ impl ConfigService {
     pub fn list_snapshot_files(cfg: &ConfigManager) -> Vec<(String, PathBuf, bool)> {
         let mut out = Vec::new();
         let snaps_dir = cfg.base_dir().join("snapshots");
-        let profile_ids: HashSet<String> = cfg
-            .profiles
-            .iter()
-            .map(|p| p.id.to_lowercase())
-            .collect();
+        let profile_ids: HashSet<String> =
+            cfg.profiles.iter().map(|p| p.id.to_lowercase()).collect();
 
         if let Ok(entries) = fs::read_dir(snaps_dir) {
             for entry in entries.flatten() {
@@ -377,9 +374,10 @@ impl ConfigService {
                 let p = entry.path();
                 if p.extension().and_then(|e| e.to_str()) == Some("py")
                     && PythonRunner::parse_and_validate_header(&p).is_some()
-                    && let Some(fname) = p.file_name().and_then(|n| n.to_str()) {
-                        scripts.push(format!("scripts/{fname}"));
-                    }
+                    && let Some(fname) = p.file_name().and_then(|n| n.to_str())
+                {
+                    scripts.push(format!("scripts/{fname}"));
+                }
             }
         }
         scripts.sort();
@@ -401,7 +399,10 @@ mod tests {
     #[test]
     fn stable_id_and_pattern_mutations_preserve_identity() {
         let mut cfg = temp_cfg("stable_ids");
-        assert!(ConfigService::add_exclusion_pattern(&mut cfg, "org.gnome.Calculator"));
+        assert!(ConfigService::add_exclusion_pattern(
+            &mut cfg,
+            "org.gnome.Calculator"
+        ));
         assert!(ConfigService::add_exclusion_pattern(&mut cfg, "*spotify*"));
         assert!(!ConfigService::add_exclusion_pattern(&mut cfg, "*spotify*"));
         assert!(ConfigService::update_exclusion_pattern(
@@ -409,7 +410,10 @@ mod tests {
             "*spotify*",
             "*Spotify*"
         ));
-        assert!(ConfigService::remove_exclusion_pattern(&mut cfg, "org.gnome.Calculator"));
+        assert!(ConfigService::remove_exclusion_pattern(
+            &mut cfg,
+            "org.gnome.Calculator"
+        ));
         assert_eq!(
             cfg.settings.root_sorting.exclude_apps,
             vec![String::from("*Spotify*")]

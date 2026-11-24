@@ -11,9 +11,10 @@ pub fn ensure_dir(dir: impl AsRef<Path>) -> Result<(), MenuError> {
 pub fn ensure_parent_dir(file_path: impl AsRef<Path>) -> Result<(), MenuError> {
     let file_path = file_path.as_ref();
     if let Some(parent) = file_path.parent()
-        && !parent.as_os_str().is_empty() {
-            ensure_dir(parent)?;
-        }
+        && !parent.as_os_str().is_empty()
+    {
+        ensure_dir(parent)?;
+    }
     Ok(())
 }
 
@@ -100,9 +101,10 @@ pub fn replace_with_atomic_copy_or_symlink(
     let link_path = link_path.as_ref();
     ensure_parent_dir(link_path)?;
     if let Ok(meta) = fs::symlink_metadata(link_path)
-        && (meta.file_type().is_symlink() || meta.is_file()) {
-            let _ = fs::remove_file(link_path);
-        }
+        && (meta.file_type().is_symlink() || meta.is_file())
+    {
+        let _ = fs::remove_file(link_path);
+    }
 
     #[cfg(unix)]
     {
