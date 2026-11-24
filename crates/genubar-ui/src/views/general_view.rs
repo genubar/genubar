@@ -1,5 +1,5 @@
 use crate::components::controls::build_spin_button;
-use crate::components::rows::{build_action_row, build_two_row_entry};
+use crate::components::rows::{build_action_row, build_switch_row, build_two_row_entry};
 use crate::state::AppState;
 use adw::prelude::*;
 use gtk4 as gtk;
@@ -81,7 +81,25 @@ pub fn build_general_view(state: &AppState) -> gtk::Widget {
     bar_group.add(&more_row);
     page.add(&bar_group);
 
-    // 2. Python Scripting Engine Settings (bound to `python_binary` and `script_timeout_ms`)
+    // 2. Menu Display (bound to GeneralConfig dropdown display switches)
+    let display_group = adw::PreferencesGroup::builder()
+        .title("Menu Display")
+        .description("Controls optional elements shown inside dropdown menus")
+        .build();
+
+    let show_shortcuts = state.config.borrow().settings.general.show_menu_shortcuts;
+    display_group.add(&build_switch_row(
+        state,
+        "Show Keyboard Shortcuts",
+        "Display shortcut hints alongside menu item labels",
+        show_shortcuts,
+        |st, active| {
+            st.config.borrow_mut().settings.general.show_menu_shortcuts = active;
+        },
+    ));
+    page.add(&display_group);
+
+    // 3. Python Scripting Engine Settings (bound to `python_binary` and `script_timeout_ms`)
     let eng_group = adw::PreferencesGroup::builder()
         .title("Python Scripting Engine")
         .description(
@@ -131,7 +149,7 @@ pub fn build_general_view(state: &AppState) -> gtk::Widget {
     eng_group.add(&timeout_row);
     page.add(&eng_group);
 
-    // 3. Factory Reset Actions (General settings reset or full configuration reset)
+    // 4. Factory Reset Actions (General settings reset or full configuration reset)
     let reset_group = adw::PreferencesGroup::builder()
         .title("Reset Configuration")
         .description("Restore either General settings or overwrite all Genubar configuration files to factory state")
