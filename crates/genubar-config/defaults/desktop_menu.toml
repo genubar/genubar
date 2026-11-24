@@ -25,7 +25,10 @@
 #                                         move_workspace_right, center_window, capture_menu_snapshot,
 #                                         refresh_menu, transform_upper, transform_lower, transform_capitalize
 #   "key:<Ctrl+Shift+Key>"              - synthesizes keyboard shortcut against focused window
+#   "copy:<text>"                       - copies literal text into the Wayland/GNOME clipboard
+#   "insert:<text>"                     - copies text to clipboard and pastes into focused window
 #   "dbus:<dest>|<path>|<iface>|<meth>" - invokes a session D-Bus method (no arguments)
+#   "gtk:<action_chain>"                - activates a GTK GAction on the focused window (e.g. win.close)
 
 mode = "static"
 
@@ -53,7 +56,6 @@ type = "submenu"
 label = "Places"
 items = [
     { type = "action", label = "Home", action = "uri:~/" },
-    { type = "action", label = "Projects", action = "uri:~/Projects" },
     { type = "action", label = "Downloads", action = "uri:~/Downloads" },
     { type = "action", label = "Documents", action = "uri:~/Documents" },
     { type = "separator" },
@@ -64,7 +66,7 @@ items = [
 type = "submenu"
 label = "Tools"
 items = [
-    { type = "action", label = "New Terminal", action = "cmd:ptyxis --new-window", shortcut = ["Ctrl", "Alt", "T"] },
+    { type = "action", label = "New Terminal", action = "sh:ptyxis --new-window || kgx || gnome-terminal", shortcut = ["Ctrl", "Alt", "T"] },
     { type = "action", label = "New File Manager", action = "cmd:nautilus --new-window" },
     { type = "action", label = "Text Editor", action = "cmd:gnome-text-editor --standalone" },
 ]

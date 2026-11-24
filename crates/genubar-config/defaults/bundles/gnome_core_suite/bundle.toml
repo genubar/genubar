@@ -11,7 +11,7 @@ id = "gnome_core_suite"
 name = "GNOME Core Applications Suite"
 version = "1.0.0"
 author = "genubar"
-description = "Complete out-of-the-box integration for 27 standard GNOME applications (Files, Ptyxis, Text Editor, Software, Settings, System Monitor, Calculator, Calendar, Clocks, Loupe, Papers, Camera, Disks, Weather, Maps) with native GTK4 hooks and Finder/Terminal profiles."
+description = "Complete out-of-the-box integration for 29 native desktop and 3 Flatpak GNOME applications (Files, Ptyxis, Text Editor, Software, Settings, System Monitor, Calculator, Calendar, Clocks, Loupe, Papers, Camera, Disks, Weather, Maps) with native GTK4 hooks and Finder/Terminal profiles."
 min_app_version = "0.1.0"
 tags = ["gnome", "gtk4", "official", "suite"]
 

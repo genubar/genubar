@@ -163,8 +163,28 @@ mod tests {
 
     #[test]
     fn embedded_defaults_and_bootstrapper_validate_end_to_end() {
+        let settings: crate::GlobalSettings = toml::from_str(DEFAULT_SETTINGS_TOML).unwrap();
+        let default_settings = crate::GlobalSettings::default();
+        assert!(!settings.api_tiers.gtk4_hook.hide_original_buttons);
+        assert_eq!(
+            settings.api_tiers.gtk4_hook.hide_original_buttons,
+            default_settings.api_tiers.gtk4_hook.hide_original_buttons
+        );
+        assert!(
+            !settings
+                .general
+                .registry_urls
+                .iter()
+                .any(|u| u.contains("example_registry.json"))
+        );
+        assert_eq!(
+            settings.general.registry_urls,
+            default_settings.general.registry_urls
+        );
+
         let icons: IconsConfig = toml::from_str(DEFAULT_ICONS_TOML).unwrap();
         assert!(icons.general.show_menu_icons);
+        assert_eq!(icons.general, IconsConfig::default().general);
         assert!(!icons.system_rules.is_empty());
 
         let pack: IconPackManifest = toml::from_str(DEFAULT_SAMPLE_PACK_TOML).unwrap();

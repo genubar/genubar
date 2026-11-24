@@ -6,10 +6,9 @@ fn default_app_update_url() -> String {
     String::from("https://raw.githubusercontent.com/genubar/genubar-registry/main/app.json")
 }
 fn default_registry_urls() -> Vec<String> {
-    vec![
-        String::from("~/.config/genubar/example_registry.json"),
-        String::from("https://raw.githubusercontent.com/genubar/genubar-registry/main/registry.json"),
-    ]
+    vec![String::from(
+        "https://raw.githubusercontent.com/genubar/genubar-registry/main/registry.json",
+    )]
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -163,8 +162,8 @@ impl Default for StyleFileConfig {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ApiTiersConfig {
-    pub gtk_native: GtkNativeTierConfig,
     pub gtk4_hook: Gtk4HookTierConfig,
+    pub gtk_native: GtkNativeTierConfig,
     pub canonical_dbus: CanonicalDbusTierConfig,
     pub atspi: AtspiTierConfig,
 }
@@ -213,7 +212,7 @@ impl Default for Gtk4HookTierConfig {
             enabled: true,
             layout_algorithm: Gtk4LayoutAlgorithm::Standard,
             expose_unknown_custom_widgets: true,
-            hide_original_buttons: true,
+            hide_original_buttons: false,
             custom_hook_so_path: None,
             python_script: None,
         }

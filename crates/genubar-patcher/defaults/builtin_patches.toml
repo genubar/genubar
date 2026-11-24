@@ -9,7 +9,6 @@ version = "1.0.0"
 author = "genubar"
 description = "Sets window.titleBarStyle to native and scopes XDG_CURRENT_DESKTOP=Unity:GNOME + X11 backend exclusively to VS Code."
 tags = ["official", "electron", "x11", "dbusmenu"]
-part_of_bundles = ["developer_ide_pack"]
 restart_hint = "Restart Visual Studio Code for changes to take effect."
 origin = "built_in"
 
@@ -61,7 +60,6 @@ version = "1.0.0"
 author = "genubar"
 description = "Appends -Dawt.toolkit.name=XToolkit and -DjbScreenMenuBar.enabled=true to RustRover VM options."
 tags = ["official", "jetbrains", "java", "dbusmenu"]
-part_of_bundles = ["developer_ide_pack"]
 restart_hint = "Restart RustRover for VM options to take effect."
 origin = "built_in"
 
@@ -95,7 +93,6 @@ version = "1.0.0"
 author = "genubar"
 description = "Scopes LD_PRELOAD=libgenubar_gtk4_hook.so exclusively to GNOME Text Editor and disables DBusActivatable bypass."
 tags = ["official", "gtk4", "ld_preload", "gnome"]
-part_of_bundles = ["gnome_gtk4_core_pack"]
 restart_hint = "Close all GNOME Text Editor windows and launch it again."
 origin = "built_in"
 

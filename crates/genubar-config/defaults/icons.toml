@@ -8,7 +8,7 @@
 # Master switch for displaying icons inside menu rows
 show_menu_icons = true
 # Legacy flag kept compatible alongside `icon_column_policy`
-reserve_icon_column = false
+reserve_icon_column = true
 # Controls icon slot width alignment per column:
 #   "always" - always reserve leading icon space even when no items have icons
 #   "auto"   - reserve space only if at least one visible item in that column has an icon
@@ -198,7 +198,7 @@ match_labels = ["*about*", "*help*"]
 
 [[system_rules]]
 icon = "folder-symbolic"
-match_labels = ["home", "projects", "downloads", "documents", "*folder*", "*config*"]
+match_labels = ["home", "downloads", "documents", "*folder*", "*config*"]
 match_actions = ["uri:*"]
 
 [[system_rules]]
