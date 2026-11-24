@@ -15,7 +15,9 @@ pub mod process_timeout;
 pub use compat_probe::{
     inspect_installed_extension, query_binary_version, query_installed_daemon_version,
 };
-pub use css_sync::{CssMetrics, CssSyncModeKind, CssSyncOptions, CssSynchronizer};
+pub use css_sync::{
+    CssMetrics, CssSyncModeKind, CssSyncOptions, CssSynchronizer, css_content_fingerprint,
+};
 pub use desktop_probe::{
     any_binary_in_path, any_flatpak_app, has_any_desktop_file, has_binary_in_path, has_flatpak_app,
     locate_desktop_file, parse_desktop_exec_bin, read_dbus_service_exec, read_desktop_exec_bin,

@@ -66,14 +66,14 @@ impl ConfigManager {
         self.sync_gtk4_hook_environment();
     }
 
-    pub fn sync_stylesheet(&self) {
+    fn build_css_sync_options(&self) -> CssSyncOptions<'_> {
         let style = &self.settings.style;
         let sync_mode = match style.sync_mode {
             CssSyncMode::SymlinkToExtension => CssSyncModeKind::SymlinkToExtension,
             CssSyncMode::CopyToExtension => CssSyncModeKind::CopyToExtension,
             CssSyncMode::DirectExtensionFile => CssSyncModeKind::DirectExtensionFile,
         };
-        let opts = CssSyncOptions {
+        CssSyncOptions {
             sync_mode,
             active_style: &style.active_style,
             custom_css_path: &style.custom_css_path,
@@ -89,8 +89,17 @@ impl ConfigManager {
                 item_border_radius_px: style.item_border_radius_px,
                 font_size_px: style.font_size_px,
             },
-        };
+        }
+    }
+
+    pub fn sync_stylesheet(&self) {
+        let opts = self.build_css_sync_options();
         CssSynchronizer::sync(&self.base_dir, &opts);
+    }
+
+    pub fn stylesheet_fingerprint(&self) -> u64 {
+        let opts = self.build_css_sync_options();
+        CssSynchronizer::fingerprint(&self.base_dir, &opts)
     }
 
     pub fn sync_gtk4_hook_environment(&self) {
@@ -193,5 +202,34 @@ impl ConfigManager {
         *self = Self::load_from_base_dir(self.base_dir.clone())?;
         self.sync_platform_env();
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn stylesheet_fingerprint_stays_stable_until_css_actually_changes() {
+        let tmp = std::env::temp_dir().join("genubar_test_css_fingerprint");
+        let _ = fs::remove_dir_all(&tmp);
+        let mut cfg = ConfigManager::load_from_base_dir(tmp.clone()).unwrap();
+        cfg.settings.style.extension_css_path = tmp.join("ext_stylesheet.css");
+
+        cfg.sync_stylesheet();
+        let fp_initial = cfg.stylesheet_fingerprint();
+
+        // Non-CSS changes + re-sync must produce the exact same fingerprint.
+        cfg.settings.general.show_menu_shortcuts = false;
+        cfg.sync_stylesheet();
+        assert_eq!(cfg.stylesheet_fingerprint(), fp_initial);
+
+        // Metric changes alter synced CSS bytes and must change the fingerprint.
+        cfg.settings.style.font_size_px += 2;
+        cfg.sync_stylesheet();
+        assert_ne!(cfg.stylesheet_fingerprint(), fp_initial);
+
+        let _ = fs::remove_dir_all(&tmp);
     }
 }

@@ -101,12 +101,15 @@ impl ActionDispatcher {
                 .flatten();
 
                 if let Some(new_cfg) = reloaded {
+                    let next_css_rev = new_cfg.stylesheet_fingerprint();
                     coordinator
                         .service
                         .atspi()
                         .set_disk_cache_enabled(new_cfg.settings.api_tiers.atspi.enable_disk_cache);
                     *coordinator.config.write().await = Arc::new(new_cfg);
-                    coordinator.css_revision.fetch_add(1, Ordering::SeqCst);
+                    coordinator
+                        .css_revision
+                        .store(next_css_rev, Ordering::SeqCst);
                     let (target, root, tier) = coordinator.resolve_with_config(info).await;
                     let _ = coordinator
                         .publish_state(info, target, root, tier, sink)
