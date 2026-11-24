@@ -1,0 +1,94 @@
+name: CI & Release Draft
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    tags: ['v*.*.*']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Rust CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install GTK4 and Libadwaita development headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-4-dev libadwaita-1-dev pkg-config
+
+      - name: Install Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo dependencies and build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Run unit tests
+        run: cargo test --workspace
+
+  release:
+    name: Build & Draft Release
+    needs: ci
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Verify tag matches workspace version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          CARGO_VERSION="$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -n1)"
+          if [ "${TAG_VERSION}" != "${CARGO_VERSION}" ]; then
+            echo "Tag version (${TAG_VERSION}) does not match Cargo.toml workspace version (${CARGO_VERSION})"
+            exit 1
+          fi
+
+      - name: Install GTK4 and Libadwaita development headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-4-dev libadwaita-1-dev pkg-config
+
+      - name: Install Rust stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies and build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Package release archive and SHA-256 checksum
+        run: |
+          ./scripts/package-release.sh
+          (cd dist && sha256sum -c genubar-v*.tar.gz.sha256)
+
+      - name: Create GitHub Draft Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Genubar ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            dist/genubar-v*-linux-*.tar.gz
+            dist/genubar-v*-linux-*.tar.gz.sha256
