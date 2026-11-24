@@ -26,6 +26,7 @@ patch_error_policy = "strict"
 # Global switches reflected in popup menus and top bar:
 enable_menu_search = true
 show_menu_icons = true
+show_menu_shortcuts = true
 auto_map_standard_icons = true
 
 # Optional top-level column sorting section (uncomment to customize):
