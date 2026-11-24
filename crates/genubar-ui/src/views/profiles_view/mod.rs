@@ -8,11 +8,10 @@ use crate::components::controls::{
 use crate::components::dialogs::{show_confirm_modal, show_text_prompt_modal};
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_platform::expand_tilde;
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 use profile_editor::open_profile_dual_editor;
 use profile_row::build_profile_row;
 use snapshots_group::build_snapshots_group;
@@ -215,9 +214,9 @@ pub fn build_profiles_view(state: &AppState) -> gtk::Widget {
                         "Are you sure you want to disable all application and plugin profiles?",
                         "Disable All",
                         move || {
-                            if let Err(e) = ConfigService::disable_all_profiles(
-                                &mut st_in.config.borrow_mut(),
-                            ) {
+                            if let Err(e) =
+                                ConfigService::disable_all_profiles(&mut st_in.config.borrow_mut())
+                            {
                                 st_in.notify(&format!("Error disabling profiles: {e}"));
                             }
                             st_in.save_and_reload();

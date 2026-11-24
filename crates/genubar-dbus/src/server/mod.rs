@@ -1,9 +1,9 @@
 pub mod registrar;
 pub mod tracker;
 
+use crate::models::RegisteredWindow;
 use async_trait::async_trait;
 use genubar_core::{ActiveWindowInfo, MenuTarget};
-use crate::models::RegisteredWindow;
 
 /// Port implemented by the daemon registry for `com.canonical.AppMenu.Registrar`.
 #[async_trait]
@@ -43,12 +43,7 @@ pub trait TrackerBackend: Send + Sync {
         win_path: String,
         sink: &dyn MenuSignalSink,
     );
-    async fn refresh_canonical_window(
-        &self,
-        window_id: u32,
-        pid: u32,
-        sink: &dyn MenuSignalSink,
-    );
+    async fn refresh_canonical_window(&self, window_id: u32, pid: u32, sink: &dyn MenuSignalSink);
     async fn notify_focus_changed(
         &self,
         info: ActiveWindowInfo,

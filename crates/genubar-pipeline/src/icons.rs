@@ -119,9 +119,7 @@ impl IconResolver {
         if node.icon.is_some()
             || matches!(
                 node.item_type,
-                MenuItemType::Separator
-                    | MenuItemType::SearchBar
-                    | MenuItemType::WindowList { .. }
+                MenuItemType::Separator | MenuItemType::SearchBar | MenuItemType::WindowList { .. }
             )
         {
             return node.icon.clone();
@@ -133,10 +131,12 @@ impl IconResolver {
             }
         }
 
-        if allow_system_fallback && icons_cfg.general.use_system_fallback
-            && let Some(rule) = icons_cfg.system_rules.iter().find(|r| r.matches(ctx)) {
-                return rule.resolve_icon_value(None);
-            }
+        if allow_system_fallback
+            && icons_cfg.general.use_system_fallback
+            && let Some(rule) = icons_cfg.system_rules.iter().find(|r| r.matches(ctx))
+        {
+            return rule.resolve_icon_value(None);
+        }
 
         None
     }

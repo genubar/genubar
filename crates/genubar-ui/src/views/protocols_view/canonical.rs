@@ -1,7 +1,7 @@
 use crate::components::rows::{build_script_selector_row, build_spin_row, build_switch_row};
 use crate::state::AppState;
-use libadwaita as adw;
 use adw::prelude::*;
+use libadwaita as adw;
 
 pub fn build_canonical_group(state: &AppState) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()

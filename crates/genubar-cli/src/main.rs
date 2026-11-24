@@ -68,9 +68,7 @@ async fn run_dbus_command(command: Commands) -> Result<(), Box<dyn std::error::E
             )
             .await?
         }
-        Commands::InspectAtspi { pid } => {
-            commands::inspect::inspect_atspi(&service, pid).await?
-        }
+        Commands::InspectAtspi { pid } => commands::inspect::inspect_atspi(&service, pid).await?,
         Commands::DumpAtspi {
             pid,
             depth,

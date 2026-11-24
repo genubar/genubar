@@ -4,17 +4,14 @@ use crate::components::controls::{
 use crate::components::dialogs::show_info_modal;
 use crate::components::rows::build_action_row;
 use crate::models::info_item::InfoField;
-use crate::models::package_ui::{
-    package_kind_badge, package_kind_tab_id, package_kind_tab_title,
-};
+use crate::models::package_ui::{package_kind_badge, package_kind_tab_id, package_kind_tab_title};
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_packages::{
     CatalogSearchItem, RegistryPackageInstaller, RemotePackageEntry, UpdateService,
 };
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 
 fn build_package_info_button(pkg: &RemotePackageEntry) -> gtk::Button {
     let info_btn = build_icon_button("dialog-information-symbolic", "Package Details", &[]);
@@ -217,9 +214,7 @@ pub fn build_remote_package_row(state: &AppState, pkg: &RemotePackageEntry) -> a
         let force_dl_btn = gtk::Button::builder()
             .label("Download & Save Anyway")
             .css_classes(["flat"])
-            .tooltip_text(
-                "Saves the raw file/manifest locally without enabling incompatible items",
-            )
+            .tooltip_text("Saves the raw file/manifest locally without enabling incompatible items")
             .build();
 
         pop_box.append(&warn_lbl);

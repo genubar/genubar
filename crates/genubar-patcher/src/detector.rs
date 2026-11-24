@@ -33,18 +33,19 @@ impl SystemDetector {
             }
             if let (Some(parent), Some(file_prefix)) =
                 (full.parent(), full.file_name().and_then(|n| n.to_str()))
-                && let Ok(entries) = fs::read_dir(parent) {
-                    let matched = entries.flatten().any(|entry| {
-                        entry
-                            .file_name()
-                            .to_str()
-                            .map(|s| s.starts_with(file_prefix))
-                            .unwrap_or(false)
-                    });
-                    if matched {
-                        return true;
-                    }
+                && let Ok(entries) = fs::read_dir(parent)
+            {
+                let matched = entries.flatten().any(|entry| {
+                    entry
+                        .file_name()
+                        .to_str()
+                        .map(|s| s.starts_with(file_prefix))
+                        .unwrap_or(false)
+                });
+                if matched {
+                    return true;
                 }
+            }
         }
         false
     }

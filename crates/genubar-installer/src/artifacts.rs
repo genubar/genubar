@@ -11,7 +11,10 @@ pub fn host_platform_tag() -> String {
 }
 
 pub fn release_archive_filename() -> String {
-    format!("genubar-v{CURRENT_APP_VERSION}-{}.tar.gz", host_platform_tag())
+    format!(
+        "genubar-v{CURRENT_APP_VERSION}-{}.tar.gz",
+        host_platform_tag()
+    )
 }
 
 pub fn cache_dir_for_version() -> PathBuf {
@@ -28,8 +31,7 @@ pub fn release_archive_url() -> String {
 }
 
 pub fn check_bundled_extension_compatibility() -> Result<String, InstallerError> {
-    check_embedded_extension_compatibility()
-        .map_err(|e| InstallerError::Extension(e.to_string()))
+    check_embedded_extension_compatibility().map_err(|e| InstallerError::Extension(e.to_string()))
 }
 
 fn find_file_recursive(root: &Path, target_name: &str, depth: usize) -> Option<PathBuf> {
@@ -44,9 +46,10 @@ fn find_file_recursive(root: &Path, target_name: &str, depth: usize) -> Option<P
     for entry in entries.flatten() {
         let p = entry.path();
         if p.is_dir()
-            && let Some(found) = find_file_recursive(&p, target_name, depth - 1) {
-                return Some(found);
-            }
+            && let Some(found) = find_file_recursive(&p, target_name, depth - 1)
+        {
+            return Some(found);
+        }
     }
     None
 }

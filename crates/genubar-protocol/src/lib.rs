@@ -71,15 +71,9 @@ pub const EXTENSION_FILES: &[&str] = &[
 pub const GTK4_HOOK_ACTIVE_SO_NAME: &str = "active_gtk4_hook.so";
 pub const GTK4_HOOK_CANONICAL_SO_NAME: &str = "libgenubar_gtk4_hook.so";
 
-pub const GTK4_HOOK_SO_NAMES: [&str; 2] = [
-    GTK4_HOOK_ACTIVE_SO_NAME,
-    GTK4_HOOK_CANONICAL_SO_NAME,
-];
+pub const GTK4_HOOK_SO_NAMES: [&str; 2] = [GTK4_HOOK_ACTIVE_SO_NAME, GTK4_HOOK_CANONICAL_SO_NAME];
 
-pub const GTK4_HOOK_MAP_MARKERS: [&str; 2] = [
-    "genubar_gtk4_hook",
-    "active_gtk4_hook",
-];
+pub const GTK4_HOOK_MAP_MARKERS: [&str; 2] = ["genubar_gtk4_hook", "active_gtk4_hook"];
 
 pub const PROTECTED_SHELL_BINARIES: [&str; 7] = [
     "ptyxis",
@@ -161,9 +155,9 @@ pub fn is_protected_from_gtk4_hook(cmd_or_bin: &str) -> bool {
                 || PROTECTED_HOOK_LAUNCHERS.contains(&base.as_str())
                 || base == "genubar"
                 || base.starts_with("genubar-"))
-            {
-                return true;
-            }
+        {
+            return true;
+        }
     }
 
     false
@@ -177,7 +171,10 @@ mod tests {
     fn protocol_cstrs_match_utf8_constants() {
         assert_eq!(TRACKER_BUS_NAME_C.to_str().unwrap(), TRACKER_BUS_NAME);
         assert_eq!(TRACKER_OBJECT_PATH_C.to_str().unwrap(), TRACKER_OBJECT_PATH);
-        assert_eq!(GTK4_BRIDGE_INTERFACE_C.to_str().unwrap(), GTK4_BRIDGE_INTERFACE);
+        assert_eq!(
+            GTK4_BRIDGE_INTERFACE_C.to_str().unwrap(),
+            GTK4_BRIDGE_INTERFACE
+        );
         assert_eq!(GTK4_BRIDGE_PATH_C.to_str().unwrap(), GTK4_BRIDGE_PATH);
         assert_eq!(GTK4_MENU_PATH_C.to_str().unwrap(), GTK4_MENU_PATH);
         assert_eq!(GTK4_APP_PATH_C.to_str().unwrap(), GTK4_APP_PATH);
@@ -187,7 +184,9 @@ mod tests {
 
     #[test]
     fn hook_markers_and_protected_binaries_work() {
-        assert!(maps_contain_gtk4_hook("7f00-7f01 r-xp /home/u/.local/lib/genubar/active_gtk4_hook.so"));
+        assert!(maps_contain_gtk4_hook(
+            "7f00-7f01 r-xp /home/u/.local/lib/genubar/active_gtk4_hook.so"
+        ));
         assert!(maps_contain_gtk4_hook("libgenubar_gtk4_hook.so"));
         assert!(!maps_contain_gtk4_hook("libgtk-4.so.1"));
 
@@ -198,11 +197,15 @@ mod tests {
         assert!(!is_protected_for_hook_guard("gnome-calendar"));
 
         assert!(is_protected_from_gtk4_hook("ptyxis --new-window"));
-        assert!(is_protected_from_gtk4_hook("/usr/bin/env FOO=1 bash -lc id"));
+        assert!(is_protected_from_gtk4_hook(
+            "/usr/bin/env FOO=1 bash -lc id"
+        ));
         assert!(is_protected_from_gtk4_hook("flatpak run org.gnome.Loupe"));
         assert!(is_protected_from_gtk4_hook("/usr/bin/code --new-window"));
         assert!(is_protected_from_gtk4_hook("genubar-settings"));
-        assert!(!is_protected_from_gtk4_hook("gnome-text-editor ~/genubar/readme.md"));
+        assert!(!is_protected_from_gtk4_hook(
+            "gnome-text-editor ~/genubar/readme.md"
+        ));
         assert!(!is_protected_from_gtk4_hook("nautilus"));
     }
 }

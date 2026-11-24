@@ -2,12 +2,11 @@ use crate::components::controls::build_icon_button;
 use crate::components::dialogs::show_text_prompt_modal;
 use crate::components::rows::{build_action_row, build_two_row_entry};
 use crate::services::config_service::ConfigService;
-use genubar_packages::RegistrySourceStatus;
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use genubar_packages::RegistrySourceStatus;
+use gtk4 as gtk;
+use libadwaita as adw;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -38,13 +37,13 @@ pub fn build_registry_sources_group(
             })
             .unwrap_or_default();
 
-        let row = build_action_row(&format!("Source #{}", idx + 1), &format!("{url}{status_note}"));
-        let edit_btn = build_icon_button("document-edit-symbolic", "Edit URL", &[]);
-        let del_btn = build_icon_button(
-            "user-trash-symbolic",
-            "Remove URL",
-            &["destructive-action"],
+        let row = build_action_row(
+            &format!("Source #{}", idx + 1),
+            &format!("{url}{status_note}"),
         );
+        let edit_btn = build_icon_button("document-edit-symbolic", "Edit URL", &[]);
+        let del_btn =
+            build_icon_button("user-trash-symbolic", "Remove URL", &["destructive-action"]);
 
         {
             let st = state.clone();
@@ -60,23 +59,21 @@ pub fn build_registry_sources_group(
                     &old_u,
                     "https://raw.githubusercontent.com/...",
                     "Save URL",
-                    move |new_u| {
-                        match ConfigService::update_registry_url(
-                            &mut st_in.config.borrow_mut(),
-                            &old_in,
-                            &new_u,
-                        ) {
-                            Ok(true) => {
-                                if let Some(ref cb) = *rh_in.borrow() {
-                                    cb();
-                                }
-                                true
+                    move |new_u| match ConfigService::update_registry_url(
+                        &mut st_in.config.borrow_mut(),
+                        &old_in,
+                        &new_u,
+                    ) {
+                        Ok(true) => {
+                            if let Some(ref cb) = *rh_in.borrow() {
+                                cb();
                             }
-                            Ok(false) => false,
-                            Err(e) => {
-                                st_in.notify(&format!("Failed saving URL: {e}"));
-                                false
-                            }
+                            true
+                        }
+                        Ok(false) => false,
+                        Err(e) => {
+                            st_in.notify(&format!("Failed saving URL: {e}"));
+                            false
                         }
                     },
                 );

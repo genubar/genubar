@@ -1,9 +1,8 @@
 use crate::state::AppState;
 use crate::utils::text::escape_markup;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 
 pub fn build_action_row(title: &str, subtitle: &str) -> adw::ActionRow {
     let safe_title = escape_markup(title);

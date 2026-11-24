@@ -14,11 +14,23 @@ pub enum ConditionFailAction {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(remote = "Self", tag = "check_type", rename_all = "snake_case")]
 pub enum PatchCondition {
-    BinaryExists { binary: String },
-    PathExists { path: PathBuf },
-    FlatpakInstalled { app_id: String },
-    EnvEquals { var: String, value: String },
-    FileContains { file: PathBuf, substring: String },
+    BinaryExists {
+        binary: String,
+    },
+    PathExists {
+        path: PathBuf,
+    },
+    FlatpakInstalled {
+        app_id: String,
+    },
+    EnvEquals {
+        var: String,
+        value: String,
+    },
+    FileContains {
+        file: PathBuf,
+        substring: String,
+    },
     #[serde(skip_deserializing)]
     Unknown,
 }

@@ -102,16 +102,16 @@ impl CssSynchronizer {
         if let (Some(start), Some(end)) = (
             raw_css.find(METRICS_START_MARKER),
             raw_css.find(METRICS_END_MARKER),
-        )
-            && end > start {
-                let end_full = end + METRICS_END_MARKER.len();
-                return format!(
-                    "{}{}{}",
-                    &raw_css[..start],
-                    metrics_block,
-                    &raw_css[end_full..]
-                );
-            }
+        ) && end > start
+        {
+            let end_full = end + METRICS_END_MARKER.len();
+            return format!(
+                "{}{}{}",
+                &raw_css[..start],
+                metrics_block,
+                &raw_css[end_full..]
+            );
+        }
 
         format!("{raw_css}\n\n{metrics_block}\n")
     }

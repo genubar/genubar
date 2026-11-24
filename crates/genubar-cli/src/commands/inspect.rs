@@ -106,8 +106,7 @@ pub async fn click_gtk(
 }
 
 pub async fn dump_gtk4(service: &UnifiedMenuService, pid: u32) -> Result<(), Box<dyn Error>> {
-    if let Some(MenuTarget::Gtk { bus_name, .. }) = service.discover_dbus_target_by_pid(pid).await
-    {
+    if let Some(MenuTarget::Gtk { bus_name, .. }) = service.discover_dbus_target_by_pid(pid).await {
         let report = service.gtk().dump_gtk4_introspection(&bus_name).await?;
         println!("{report}");
     } else {

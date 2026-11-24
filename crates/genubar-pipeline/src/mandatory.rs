@@ -74,13 +74,13 @@ impl MandatoryMerger {
 
         if let Some(live_col) = live_col_opt
             && live_col.item_type == MenuItemType::Submenu
-                && live_col.children.is_empty()
-                && live_col.id > 0
-                && matches!(tier, MenuSourceTier::Atspi | MenuSourceTier::CanonicalDbus)
-            {
-                out_columns.push(live_col.clone());
-                return;
-            }
+            && live_col.children.is_empty()
+            && live_col.id > 0
+            && matches!(tier, MenuSourceTier::Atspi | MenuSourceTier::CanonicalDbus)
+        {
+            out_columns.push(live_col.clone());
+            return;
+        }
 
         let live_col_children = live_col_opt.map(|c| c.children.as_slice()).unwrap_or(&[]);
 
@@ -174,7 +174,8 @@ impl MandatoryMerger {
                 next_id,
             );
         } else {
-            let built = StaticMenuBuilder::build_static_list(filtered_defs, app_name, tier, next_id);
+            let built =
+                StaticMenuBuilder::build_static_list(filtered_defs, app_name, tier, next_id);
             if !built.is_empty() {
                 if !existing_col.children.is_empty() {
                     let sep_id = *next_id;

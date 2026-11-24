@@ -52,19 +52,21 @@ impl AtspiSubmenuCache {
 
     fn load_from_disk(path: &PathBuf) -> PersistentSubmenuMap {
         if let Ok(data) = fs::read_to_string(path)
-            && let Ok(map) = serde_json::from_str::<PersistentSubmenuMap>(&data) {
-                tracing::debug!(count = map.len(), path = %path.display(), "Loaded AT-SPI2 cached submenus from disk");
-                return map;
-            }
+            && let Ok(map) = serde_json::from_str::<PersistentSubmenuMap>(&data)
+        {
+            tracing::debug!(count = map.len(), path = %path.display(), "Loaded AT-SPI2 cached submenus from disk");
+            return map;
+        }
         HashMap::new()
     }
 
     fn write_snapshot_to_disk(path: &PathBuf, map: &PersistentSubmenuMap) {
         if let Some(parent) = path.parent()
-            && let Err(err) = fs::create_dir_all(parent) {
-                tracing::warn!(error = %err, path = %parent.display(), "Failed to create AT-SPI2 cache directory");
-                return;
-            }
+            && let Err(err) = fs::create_dir_all(parent)
+        {
+            tracing::warn!(error = %err, path = %parent.display(), "Failed to create AT-SPI2 cache directory");
+            return;
+        }
         match serde_json::to_string_pretty(map) {
             Ok(json) => {
                 if let Err(err) = fs::write(path, json) {
@@ -296,7 +298,11 @@ mod tests {
 
         let ram_only = AtspiSubmenuCache::load_with_options(cache_file.clone(), false);
         ram_only
-            .store_submenu("firefox", &[String::from("File")], vec![sample_leaf("New Tab")])
+            .store_submenu(
+                "firefox",
+                &[String::from("File")],
+                vec![sample_leaf("New Tab")],
+            )
             .await;
         tokio::time::sleep(Duration::from_millis(300)).await;
         assert!(!cache_file.exists());
@@ -304,7 +310,11 @@ mod tests {
 
         let disk_cache = AtspiSubmenuCache::load_with_options(cache_file.clone(), true);
         disk_cache
-            .store_submenu("firefox", &[String::from("History")], vec![sample_leaf("Home")])
+            .store_submenu(
+                "firefox",
+                &[String::from("History")],
+                vec![sample_leaf("Home")],
+            )
             .await;
         tokio::time::sleep(Duration::from_millis(350)).await;
         assert!(cache_file.is_file());

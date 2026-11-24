@@ -1,10 +1,9 @@
 use crate::components::rows::build_action_row;
 use crate::services::cache_service::CacheService;
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 
 pub fn build_cache_group(state: &AppState) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()

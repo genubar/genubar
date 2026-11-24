@@ -1,9 +1,9 @@
 use crate::components::controls::build_compact_dropdown;
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
 use genubar_config::AppProfile;
+use gtk::prelude::*;
+use gtk4 as gtk;
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;

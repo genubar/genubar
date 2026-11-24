@@ -53,19 +53,17 @@ impl Gtk4LayoutOrganizer {
                         MenuSourceTier::Gtk4Hook,
                         &root,
                         timeout_ms,
-                    ) {
-                        return transformed;
-                    }
+                    )
+                {
+                    return transformed;
+                }
                 root
             }
         }
     }
 
     fn normalize_col_label(label: &str) -> String {
-        label
-            .replace(['&', '_'], "")
-            .trim()
-            .to_ascii_lowercase()
+        label.replace(['&', '_'], "").trim().to_ascii_lowercase()
     }
 
     fn is_already_structured_menubar(root: &MenuNode) -> bool {
@@ -234,21 +232,22 @@ impl Gtk4LayoutOrganizer {
             }
             let kind = Self::item_group_kind(&item);
             if let Some(pk) = prev_kind
-                && pk != kind {
-                    out.push(MenuNode {
-                        id: *next_sep_id,
-                        label: String::new(),
-                        enabled: true,
-                        visible: true,
-                        item_type: MenuItemType::Separator,
-                        shortcut: None,
-                        action: None,
-                        icon: None,
-                        origin_path: None,
-                        children: Vec::new(),
-                    });
-                    *next_sep_id -= 1;
-                }
+                && pk != kind
+            {
+                out.push(MenuNode {
+                    id: *next_sep_id,
+                    label: String::new(),
+                    enabled: true,
+                    visible: true,
+                    item_type: MenuItemType::Separator,
+                    shortcut: None,
+                    action: None,
+                    icon: None,
+                    origin_path: None,
+                    children: Vec::new(),
+                });
+                *next_sep_id -= 1;
+            }
             prev_kind = Some(kind);
             out.push(item);
         }
@@ -299,9 +298,24 @@ mod tests {
                 icon: None,
                 origin_path: None,
                 children: vec![
-                    item(2, "Copy Location", "view.copy-current-location", MenuItemType::Standard),
-                    item(3, "Show Hidden Files", "view.show-hidden", MenuItemType::Check(false)),
-                    item(4, "Show Hidden Files", "view.show-hidden", MenuItemType::Check(false)),
+                    item(
+                        2,
+                        "Copy Location",
+                        "view.copy-current-location",
+                        MenuItemType::Standard,
+                    ),
+                    item(
+                        3,
+                        "Show Hidden Files",
+                        "view.show-hidden",
+                        MenuItemType::Check(false),
+                    ),
+                    item(
+                        4,
+                        "Show Hidden Files",
+                        "view.show-hidden",
+                        MenuItemType::Check(false),
+                    ),
                     item(5, "About Files", "app.about", MenuItemType::Standard),
                 ],
             }],
@@ -317,7 +331,11 @@ mod tests {
             &ActiveWindowInfo::default(),
         );
 
-        let col_labels: Vec<&str> = organized.children.iter().map(|c| c.label.as_str()).collect();
+        let col_labels: Vec<&str> = organized
+            .children
+            .iter()
+            .map(|c| c.label.as_str())
+            .collect();
         assert_eq!(col_labels, vec!["File", "View", "Help"]);
         assert_eq!(organized.children[0].children[0].label, "Copy Location");
         assert_eq!(organized.children[1].children.len(), 1);
@@ -336,7 +354,12 @@ mod tests {
             action: None,
             icon: None,
             origin_path: None,
-            children: vec![item(id * 10, child_label, "doc.action", MenuItemType::Standard)],
+            children: vec![item(
+                id * 10,
+                child_label,
+                "doc.action",
+                MenuItemType::Standard,
+            )],
         };
 
         let root = MenuNode {
@@ -369,7 +392,11 @@ mod tests {
             &ActiveWindowInfo::default(),
         );
 
-        let col_labels: Vec<&str> = organized.children.iter().map(|c| c.label.as_str()).collect();
+        let col_labels: Vec<&str> = organized
+            .children
+            .iter()
+            .map(|c| c.label.as_str())
+            .collect();
         assert_eq!(
             col_labels,
             vec!["_File", "_Edit", "_View", "_Layer", "_Object", "_Help"]

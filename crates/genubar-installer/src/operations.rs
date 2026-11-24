@@ -153,14 +153,12 @@ pub fn perform_install_or_update() -> Result<String, InstallerError> {
 
     if let Some(cli_src) = search_local_artifact(&["genubar-cli"]) {
         copy_executable(&cli_src, &bin_dir.join("genubar-cli"))?;
-    } else if daemon_src
-        .file_name()
-        .and_then(|n| n.to_str())
-        == Some("genubar-cli")
-    {
+    } else if daemon_src.file_name().and_then(|n| n.to_str()) == Some("genubar-cli") {
         copy_executable(&daemon_src, &bin_dir.join("genubar-cli"))?;
     } else {
-        warnings.push(String::from("genubar-cli binary not found; skipped CLI install"));
+        warnings.push(String::from(
+            "genubar-cli binary not found; skipped CLI install",
+        ));
     }
 
     if let Some(ui_src) = search_local_artifact(&["genubar-settings"]) {
@@ -168,7 +166,9 @@ pub fn perform_install_or_update() -> Result<String, InstallerError> {
     } else if let Ok(ui_src) = resolve_or_fetch_artifact(&["genubar-settings"]) {
         copy_executable(&ui_src, &bin_dir.join("genubar-settings"))?;
     } else {
-        warnings.push(String::from("genubar-settings binary not found; skipped GUI install"));
+        warnings.push(String::from(
+            "genubar-settings binary not found; skipped GUI install",
+        ));
     }
 
     if bin_dir.join("genubar-settings").is_file() {
@@ -204,7 +204,9 @@ pub fn perform_install_or_update() -> Result<String, InstallerError> {
             })?;
         }
     } else {
-        warnings.push(String::from("libgenubar_gtk4_hook.so not found; skipped hook install"));
+        warnings.push(String::from(
+            "libgenubar_gtk4_hook.so not found; skipped hook install",
+        ));
     }
 
     install_extension_only()?;
@@ -233,7 +235,9 @@ pub fn perform_install_or_update() -> Result<String, InstallerError> {
     let enabled_state = query_systemctl_user_state("is-enabled");
     let active_state = query_systemctl_user_state("is-active");
     if enabled_state != "enabled" {
-        warnings.push(format!("genubar.service autostart state is '{enabled_state}'"));
+        warnings.push(format!(
+            "genubar.service autostart state is '{enabled_state}'"
+        ));
     }
     if active_state != "active" {
         warnings.push(format!("genubar.service runtime state is '{active_state}'"));
@@ -304,7 +308,9 @@ pub fn perform_uninstall(purge_configs_and_cache: bool) -> Result<String, Instal
         String::new()
     };
     let summary = if purge_configs_and_cache {
-        format!("Uninstalled Genubar, GNOME extension{revert_note}, and purged all configs & caches.")
+        format!(
+            "Uninstalled Genubar, GNOME extension{revert_note}, and purged all configs & caches."
+        )
     } else {
         format!(
             "Uninstalled Genubar binaries & extension{revert_note} (user configs in ~/.config/genubar preserved)."
@@ -328,7 +334,9 @@ fn revert_applied_patches_before_uninstall(warnings: &mut Vec<String>) -> usize 
     match PatchManager::load_or_init() {
         Ok(mut mgr) => revert_all_applied_patches_in_manager(&mut mgr, warnings),
         Err(err) => {
-            warnings.push(format!("Could not load patch manager to revert patches: {err}"));
+            warnings.push(format!(
+                "Could not load patch manager to revert patches: {err}"
+            ));
             0
         }
     }
@@ -366,9 +374,9 @@ pub fn inspect_status_snapshot() -> InstallerStatusSnapshot {
     let ext_compat = check_bundled_extension_compatibility();
     let ext_compat_ok = ext_compat.is_ok();
     let ext_compat_str = match &ext_compat {
-        Ok(v) => format!(
-            "Bundled Extension v{v} (Expected: v{EXPECTED_EXTENSION_VERSION}, compatible)"
-        ),
+        Ok(v) => {
+            format!("Bundled Extension v{v} (Expected: v{EXPECTED_EXTENSION_VERSION}, compatible)")
+        }
         Err(e) => format!("Extension incompatibility: {e}"),
     };
     let installed_ext_str = if ext_info.installed {
@@ -378,7 +386,8 @@ pub fn inspect_status_snapshot() -> InstallerStatusSnapshot {
     };
     let enabled_state = query_systemctl_user_state("is-enabled");
     let active_state = query_systemctl_user_state("is-active");
-    let service_str = format!("Systemd Service: autostart {enabled_state} | background {active_state}");
+    let service_str =
+        format!("Systemd Service: autostart {enabled_state} | background {active_state}");
     let summary_text = match &daemon_version {
         Some(v) => format!(
             "Installed Daemon: v{v} | Package: v{CURRENT_APP_VERSION}\n{service_str}\n{installed_ext_str}\n{ext_compat_str}"

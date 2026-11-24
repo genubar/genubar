@@ -2,8 +2,8 @@ use crate::components::dialogs::show_confirm_modal;
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
 use crate::utils::system::open_directory;
-use gtk4 as gtk;
 use gtk::prelude::*;
+use gtk4 as gtk;
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -154,10 +154,7 @@ where
 }
 
 /// Reloads ConfigManager off the GTK main thread and invokes `reload_handle` on completion.
-pub fn spawn_config_reload(
-    state: &AppState,
-    reload_handle: &Rc<RefCell<Option<Rc<dyn Fn()>>>>,
-) {
+pub fn spawn_config_reload(state: &AppState, reload_handle: &Rc<RefCell<Option<Rc<dyn Fn()>>>>) {
     let st_in = state.clone();
     let rh_in = reload_handle.clone();
     gtk::glib::spawn_future_local(async move {

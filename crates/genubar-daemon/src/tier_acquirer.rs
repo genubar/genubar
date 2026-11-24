@@ -23,30 +23,37 @@ impl TierAcquirer {
         allowed_tiers: Option<&[MenuSourceTier]>,
     ) -> Option<(MenuTarget, MenuNode, MenuSourceTier)> {
         let is_allowed = |tier: MenuSourceTier| -> bool {
-            allowed_tiers.map(|list| list.contains(&tier)).unwrap_or(true)
+            allowed_tiers
+                .map(|list| list.contains(&tier))
+                .unwrap_or(true)
         };
 
         let is_gtk4_hooked = info.pid != 0 && WindowRegistry::is_process_gtk4_hooked(info.pid);
 
         if is_allowed(MenuSourceTier::Gtk4Hook)
-            && let Some(res) = Self::try_gtk4_hook(service, cfg, caches, info).await {
-                return Some(res);
-            }
+            && let Some(res) = Self::try_gtk4_hook(service, cfg, caches, info).await
+        {
+            return Some(res);
+        }
 
         if is_allowed(MenuSourceTier::GtkNative)
-            && let Some(res) = Self::try_gtk_native(service, cfg, info).await {
-                return Some(res);
-            }
+            && let Some(res) = Self::try_gtk_native(service, cfg, info).await
+        {
+            return Some(res);
+        }
 
         if is_allowed(MenuSourceTier::CanonicalDbus)
-            && let Some(res) = Self::try_canonical_dbus(service, caches, cfg, info).await {
-                return Some(res);
-            }
+            && let Some(res) = Self::try_canonical_dbus(service, caches, cfg, info).await
+        {
+            return Some(res);
+        }
 
-        if is_allowed(MenuSourceTier::Atspi) && !is_gtk4_hooked
-            && let Some(res) = Self::try_atspi(service, cfg, info).await {
-                return Some(res);
-            }
+        if is_allowed(MenuSourceTier::Atspi)
+            && !is_gtk4_hooked
+            && let Some(res) = Self::try_atspi(service, cfg, info).await
+        {
+            return Some(res);
+        }
 
         None
     }
@@ -91,11 +98,17 @@ impl TierAcquirer {
             return None;
         }
 
-        let mut target_opt = caches.windows.resolve_gtk4(info.pid, &info.gtk_bus_name).await;
+        let mut target_opt = caches
+            .windows
+            .resolve_gtk4(info.pid, &info.gtk_bus_name)
+            .await;
         if target_opt.is_none() && WindowRegistry::is_process_gtk4_hooked(info.pid) {
             for _ in 0..7 {
                 tokio::time::sleep(Duration::from_millis(50)).await;
-                target_opt = caches.windows.resolve_gtk4(info.pid, &info.gtk_bus_name).await;
+                target_opt = caches
+                    .windows
+                    .resolve_gtk4(info.pid, &info.gtk_bus_name)
+                    .await;
                 if target_opt.is_some() {
                     break;
                 }
@@ -115,13 +128,14 @@ impl TierAcquirer {
                     app_path: Some(String::from(genubar_protocol::GTK4_APP_PATH)),
                     win_path: Some(String::from(genubar_protocol::GTK4_WIN_PATH)),
                 };
-                if let Ok(Ok(menu)) = tokio::time::timeout(
-                    Duration::from_millis(400),
-                    service.fetch_menu(&candidate),
-                )
-                .await
+                if let Ok(Ok(menu)) =
+                    tokio::time::timeout(Duration::from_millis(400), service.fetch_menu(&candidate))
+                        .await
                 {
-                    caches.windows.insert_gtk4(info.pid, candidate.clone()).await;
+                    caches
+                        .windows
+                        .insert_gtk4(info.pid, candidate.clone())
+                        .await;
                     caches.l1.store_menu(info, &menu).await;
                     return Some((candidate, menu, MenuSourceTier::Gtk4Hook));
                 }

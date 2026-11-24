@@ -173,9 +173,10 @@ pub fn update_gsettings_extension_list(
         items.retain(|u| u != rm);
     }
     if let Some(add) = enable_uuid
-        && !items.iter().any(|u| u == add) {
-            items.push(add.to_string());
-        }
+        && !items.iter().any(|u| u == add)
+    {
+        items.push(add.to_string());
+    }
 
     if items == original {
         return None;
@@ -349,7 +350,11 @@ mod tests {
             None
         );
         assert_eq!(
-            update_gsettings_extension_list("['genubar@github.com']", None, Some("genubar@github.com")),
+            update_gsettings_extension_list(
+                "['genubar@github.com']",
+                None,
+                Some("genubar@github.com")
+            ),
             Some(String::from("@as []"))
         );
     }

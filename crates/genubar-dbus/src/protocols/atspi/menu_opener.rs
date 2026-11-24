@@ -54,8 +54,7 @@ pub async fn open_path_chain(
 
     for (idx, segment) in label_path.iter().enumerate() {
         let is_intermediate_parent = idx + 1 < label_path.len();
-        let mut info =
-            find_direct_child_info(a11y, bus_name, &current_obj_path, segment).await;
+        let mut info = find_direct_child_info(a11y, bus_name, &current_obj_path, segment).await;
 
         if info.is_none() {
             trigger_node_action(

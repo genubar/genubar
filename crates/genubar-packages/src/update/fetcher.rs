@@ -56,18 +56,20 @@ pub fn fetch_package_payload_ext(
         ));
     }
 
-    if pkg.kind == PackageKind::Bundle && pkg.files.is_empty()
-        && let Some(ref raw_url) = pkg.download_url {
-            let resolved = UpdateService::resolve_relative_source(&pkg.source_url, raw_url);
-            let expanded = if let Some(p) = resolved.strip_prefix("file://") {
-                expand_tilde(p)
-            } else {
-                expand_tilde(&resolved)
-            };
-            if expanded.is_dir() {
-                return Ok(FetchedPackagePayload::LocalBundleDir(expanded));
-            }
+    if pkg.kind == PackageKind::Bundle
+        && pkg.files.is_empty()
+        && let Some(ref raw_url) = pkg.download_url
+    {
+        let resolved = UpdateService::resolve_relative_source(&pkg.source_url, raw_url);
+        let expanded = if let Some(p) = resolved.strip_prefix("file://") {
+            expand_tilde(p)
+        } else {
+            expand_tilde(&resolved)
+        };
+        if expanded.is_dir() {
+            return Ok(FetchedPackagePayload::LocalBundleDir(expanded));
         }
+    }
 
     if !pkg.files.is_empty() || (pkg.kind == PackageKind::Bundle && pkg.content.is_some()) {
         let mut materialized = HashMap::new();
@@ -156,7 +158,11 @@ mod tests {
     #[test]
     fn fetch_remote_packages_keeps_valid_sources_when_another_source_fails() {
         let tmp_json = std::env::temp_dir().join("genubar_test_valid_registry.json");
-        fs::write(&tmp_json, genubar_config::defaults::DEFAULT_EXAMPLE_REGISTRY_JSON).unwrap();
+        fs::write(
+            &tmp_json,
+            genubar_config::defaults::DEFAULT_EXAMPLE_REGISTRY_JSON,
+        )
+        .unwrap();
 
         let missing = String::from("/tmp/definitely_missing_genubar_registry_99999.json");
         let valid = tmp_json.to_string_lossy().to_string();

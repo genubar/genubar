@@ -19,18 +19,12 @@ pub fn parse_gtk_accel(accel: &str) -> Option<Vec<String>> {
     if !rest.is_empty() {
         parts.push(rest.to_uppercase());
     }
-    if parts.is_empty() {
-        None
-    } else {
-        Some(parts)
-    }
+    if parts.is_empty() { None } else { Some(parts) }
 }
 
 /// Parses AT-SPI2 keybinding strings such as `";;<Control>t"` or `"Ctrl+Shift+N"`.
 pub fn parse_atspi_shortcut(raw: &str) -> Option<Vec<String>> {
-    let candidate = raw
-        .split(';')
-        .map(str::trim).rfind(|s| !s.is_empty())?;
+    let candidate = raw.split(';').map(str::trim).rfind(|s| !s.is_empty())?;
 
     if candidate.starts_with('<') && !candidate.contains('+') {
         return parse_gtk_accel(candidate);
@@ -45,11 +39,7 @@ pub fn parse_atspi_shortcut(raw: &str) -> Option<Vec<String>> {
         .filter(|s| !s.is_empty())
         .collect();
 
-    if parts.is_empty() {
-        None
-    } else {
-        Some(parts)
-    }
+    if parts.is_empty() { None } else { Some(parts) }
 }
 
 fn normalize_modifier(raw: &str) -> String {

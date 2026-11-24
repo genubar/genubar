@@ -1,9 +1,8 @@
 use crate::components::rows::build_action_row;
 use crate::models::info_item::InfoField;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 
 pub fn show_info_modal(
     parent_widget: &impl IsA<gtk::Widget>,
@@ -29,9 +28,7 @@ pub fn show_info_modal(
         .build();
 
     let page = adw::PreferencesPage::new();
-    let group = adw::PreferencesGroup::builder()
-        .title(window_title)
-        .build();
+    let group = adw::PreferencesGroup::builder().title(window_title).build();
 
     for item in fields {
         group.add(&build_action_row(&item.label, &item.value));

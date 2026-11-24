@@ -1,10 +1,9 @@
 use crate::components::controls::build_spin_button;
 use crate::components::rows::{build_action_row, build_two_row_entry};
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 
 pub fn build_general_view(state: &AppState) -> gtk::Widget {
     let scrolled = gtk::ScrolledWindow::builder()
@@ -85,7 +84,9 @@ pub fn build_general_view(state: &AppState) -> gtk::Widget {
     // 2. Python Scripting Engine Settings (bound to `python_binary` and `script_timeout_ms`)
     let eng_group = adw::PreferencesGroup::builder()
         .title("Python Scripting Engine")
-        .description("Configure the interpreter and execution timeout for # ==GenubarScript== plugins")
+        .description(
+            "Configure the interpreter and execution timeout for # ==GenubarScript== plugins",
+        )
         .build();
 
     // Interpreter binary path (`GeneralConfig::python_binary`)

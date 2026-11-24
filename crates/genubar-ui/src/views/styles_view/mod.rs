@@ -5,10 +5,9 @@ use crate::components::controls::{
     build_scrolled_container, build_section_top_bar, clear_box, spawn_config_reload,
 };
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 use metrics_group::build_metrics_group;
 use std::cell::RefCell;
 use std::rc::Rc;

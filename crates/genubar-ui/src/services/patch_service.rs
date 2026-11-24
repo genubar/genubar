@@ -41,7 +41,9 @@ impl PatchService {
             Ok(None) => Ok(format!("Applied patch '{patch_id}'")),
             Err(MenuError::UnsupportedStep(step_name)) => patcher
                 .apply_patch_ext(patch_id, strategy, policy, true)
-                .map(|_| format!("Applied '{patch_id}' (skipped unsupported command '{step_name}')"))
+                .map(|_| {
+                    format!("Applied '{patch_id}' (skipped unsupported command '{step_name}')")
+                })
                 .map_err(UiError::Domain),
             Err(e) => Err(UiError::Domain(e)),
         }
@@ -74,14 +76,13 @@ impl PatchService {
         patch_file: &Path,
     ) -> Result<bool, UiError> {
         let was_applied = patcher.ledger.applied_patches.contains(patch_id);
-        if was_applied
-            && let Err(err) = patcher.revert_patch_ext(patch_id, true) {
-                tracing::warn!(
-                    patch_id = %patch_id,
-                    error = %err,
-                    "Rollback encountered errors prior to deleting patch file"
-                );
-            }
+        if was_applied && let Err(err) = patcher.revert_patch_ext(patch_id, true) {
+            tracing::warn!(
+                patch_id = %patch_id,
+                error = %err,
+                "Rollback encountered errors prior to deleting patch file"
+            );
+        }
         if patch_file.is_file() {
             std::fs::remove_file(patch_file).map_err(|source| UiError::Io {
                 context: format!("delete patch file {}", patch_file.display()),

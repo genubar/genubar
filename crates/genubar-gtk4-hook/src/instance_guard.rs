@@ -11,10 +11,7 @@ fn extract_script_identity(pid_dir: &str) -> Option<String> {
         .filter(|s| !s.is_empty())
         .map(|s| String::from_utf8_lossy(s).to_string())
         .collect();
-    args.iter()
-        .skip(1)
-        .find(|a| !a.starts_with('-'))
-        .cloned()
+    args.iter().skip(1).find(|a| !a.starts_with('-')).cloned()
 }
 
 /// Terminates any unhooked sibling process of the same executable before `g_application_run`

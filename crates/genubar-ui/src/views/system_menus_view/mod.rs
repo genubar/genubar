@@ -2,10 +2,9 @@ mod root_sorter_group;
 mod templates_group;
 
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 use root_sorter_group::build_root_sorter_group;
 use templates_group::build_templates_group;
 

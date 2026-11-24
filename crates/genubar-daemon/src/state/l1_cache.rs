@@ -37,26 +37,29 @@ impl L1SkeletonCache {
 
     fn load_from_disk(path: &PathBuf) -> SkeletonMap {
         if let Ok(raw) = fs::read_to_string(path)
-            && let Ok(map) = serde_json::from_str::<SkeletonMap>(&raw) {
-                tracing::debug!(count = map.len(), path = %path.display(), "Loaded L1 menu skeletons from disk");
-                return map;
-            }
+            && let Ok(map) = serde_json::from_str::<SkeletonMap>(&raw)
+        {
+            tracing::debug!(count = map.len(), path = %path.display(), "Loaded L1 menu skeletons from disk");
+            return map;
+        }
         HashMap::new()
     }
 
     fn write_snapshot_to_disk(path: &PathBuf, map: &SkeletonMap) {
         if map.is_empty() {
             if path.exists()
-                && let Err(err) = fs::remove_file(path) {
-                    tracing::warn!(error = %err, path = %path.display(), "Failed removing empty L1 cache file");
-                }
+                && let Err(err) = fs::remove_file(path)
+            {
+                tracing::warn!(error = %err, path = %path.display(), "Failed removing empty L1 cache file");
+            }
             return;
         }
         if let Some(parent) = path.parent()
-            && let Err(err) = fs::create_dir_all(parent) {
-                tracing::warn!(error = %err, path = %parent.display(), "Failed to create L1 cache directory");
-                return;
-            }
+            && let Err(err) = fs::create_dir_all(parent)
+        {
+            tracing::warn!(error = %err, path = %parent.display(), "Failed to create L1 cache directory");
+            return;
+        }
         match serde_json::to_string_pretty(map) {
             Ok(json) => {
                 if let Err(err) = fs::write(path, json) {

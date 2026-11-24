@@ -1,19 +1,16 @@
 mod patch_card;
 mod policy_group;
 
-use crate::components::controls::{
-    build_scrolled_container, build_section_top_bar, clear_box,
-};
+use crate::components::controls::{build_scrolled_container, build_section_top_bar, clear_box};
 use crate::components::dialogs::{show_confirm_modal, show_text_prompt_modal};
 use crate::components::rows::build_expander_row;
 use crate::services::patch_service::{PatchOpOutcome, PatchService};
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_patcher::{ConflictStrategy, PackageStatus};
 use genubar_platform::expand_tilde;
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 use patch_card::build_patch_card_row;
 use policy_group::build_policy_group;
 use std::cell::RefCell;
@@ -72,10 +69,9 @@ pub fn build_patches_view(state: &AppState, initial_filter: Option<String>) -> g
                 let st_in = st.clone();
                 let rh_in = rh.clone();
                 gtk::glib::spawn_future_local(async move {
-                    if let Ok(outcome) = gtk::gio::spawn_blocking(move || {
-                        PatchService::revert_all_owned(patcher)
-                    })
-                    .await
+                    if let Ok(outcome) =
+                        gtk::gio::spawn_blocking(move || PatchService::revert_all_owned(patcher))
+                            .await
                     {
                         finish_patch_list_op(&st_in, &rh_in, outcome);
                     }
@@ -239,7 +235,8 @@ pub fn build_patches_view(state: &AppState, initial_filter: Option<String>) -> g
                             match patcher.import_local_patch(&expanded) {
                                 Ok(ids) => {
                                     *st_in.patcher.borrow_mut() = patcher;
-                                    st_in.notify(&format!("Imported patch(es): {}", ids.join(", ")));
+                                    st_in
+                                        .notify(&format!("Imported patch(es): {}", ids.join(", ")));
                                     if let Some(ref cb) = *rh_in.borrow() {
                                         cb();
                                     }

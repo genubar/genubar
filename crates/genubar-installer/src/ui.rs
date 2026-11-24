@@ -4,8 +4,8 @@ use crate::operations::{
     perform_install_or_update, perform_uninstall,
 };
 use genubar_core::{CURRENT_APP_VERSION, EXPECTED_EXTENSION_VERSION, is_version_compatible};
-use gtk4 as gtk;
 use gtk::prelude::*;
+use gtk4 as gtk;
 use libadwaita as adw;
 use std::rc::Rc;
 
@@ -88,7 +88,8 @@ fn spawn_background_action<F>(
             }
             Err(join_err) => {
                 let err = InstallerError::Task(format!("{join_err:?}"));
-                ui_c.status_label.set_text(&format!("{error_prefix}: {err}"));
+                ui_c.status_label
+                    .set_text(&format!("{error_prefix}: {err}"));
             }
         }
     });

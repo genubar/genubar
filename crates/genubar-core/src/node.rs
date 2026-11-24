@@ -83,7 +83,10 @@ pub enum MenuItemType {
     Standard,
     Separator,
     SearchBar,
-    WindowList { min_windows_to_show: usize, max_title_length: usize },
+    WindowList {
+        min_windows_to_show: usize,
+        max_title_length: usize,
+    },
     Check(bool),
     Radio(bool),
     Submenu,
@@ -153,7 +156,7 @@ impl MenuNode {
                     true
                 }
                 _ => false,
-            }
+            };
         }
 
         for node in nodes.iter_mut() {
@@ -215,7 +218,7 @@ impl MenuNode {
                     true
                 }
                 _ => false,
-            }
+            };
         }
 
         Self::toggle_check_or_radio_by_path(&mut nodes[pos].children, rest, live_states)
@@ -284,8 +287,11 @@ impl MenuNode {
         let clean = node.clean_label();
         // Skip synthetic UI nodes so snapshot origin paths stay valid for real live items.
         if !clean.is_empty()
-            && !matches!(node.item_type,
-                MenuItemType::SearchBar | MenuItemType::WindowList { .. }) {
+            && !matches!(
+                node.item_type,
+                MenuItemType::SearchBar | MenuItemType::WindowList { .. }
+            )
+        {
             current.push(clean);
             node.origin_path = Some(current.clone());
             for child in &mut node.children {

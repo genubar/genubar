@@ -76,10 +76,9 @@ impl IconMatchRuleExt for IconMatchRule {
 
 fn is_excluded(rule: &IconMatchRule, ctx: &IconEvalContext<'_>) -> bool {
     if !rule.exclude_apps.is_empty()
-        && rule
-            .exclude_apps
-            .iter()
-            .any(|pat| wildcard_match(pat, &ctx.info.app_id) || wildcard_match(pat, &ctx.info.title))
+        && rule.exclude_apps.iter().any(|pat| {
+            wildcard_match(pat, &ctx.info.app_id) || wildcard_match(pat, &ctx.info.title)
+        })
     {
         return true;
     }
@@ -104,13 +103,13 @@ fn is_excluded(rule: &IconMatchRule, ctx: &IconEvalContext<'_>) -> bool {
 
     if let Some(act) = ctx.action
         && !rule.exclude_actions.is_empty()
-            && rule
-                .exclude_actions
-                .iter()
-                .any(|pat| wildcard_match(pat, act))
-        {
-            return true;
-        }
+        && rule
+            .exclude_actions
+            .iter()
+            .any(|pat| wildcard_match(pat, act))
+    {
+        return true;
+    }
 
     false
 }
@@ -135,14 +134,16 @@ fn matches_scope_and_position(rule: &IconMatchRule, ctx: &IconEvalContext<'_>) -
     }
 
     if let Some(min_i) = rule.min_index
-        && ctx.index_in_parent < min_i {
-            return false;
-        }
+        && ctx.index_in_parent < min_i
+    {
+        return false;
+    }
 
     if let Some(max_i) = rule.max_index
-        && ctx.index_in_parent > max_i {
-            return false;
-        }
+        && ctx.index_in_parent > max_i
+    {
+        return false;
+    }
 
     if let Some(ref after_pat) = rule.after_label {
         let anchor_pos = ctx
@@ -195,9 +196,9 @@ fn matches_positive_targets(rule: &IconMatchRule, ctx: &IconEvalContext<'_>) -> 
                 .match_actions
                 .iter()
                 .any(|pat| wildcard_match(pat, act))
-            {
-                return true;
-            }
+        {
+            return true;
+        }
 
         return false;
     }

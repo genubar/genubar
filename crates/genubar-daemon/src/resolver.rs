@@ -30,7 +30,10 @@ impl WindowMenuResolver {
         }
 
         let cached_entry = if cfg.settings.api_tiers.gtk4_hook.enabled {
-            let hooked_target = caches.windows.resolve_gtk4(info.pid, &info.gtk_bus_name).await;
+            let hooked_target = caches
+                .windows
+                .resolve_gtk4(info.pid, &info.gtk_bus_name)
+                .await;
             if hooked_target.is_some() || WindowRegistry::is_process_gtk4_hooked(info.pid) {
                 caches
                     .l1
@@ -51,7 +54,9 @@ impl WindowMenuResolver {
                 let raw_menu =
                     if let Some(ram_menu) = caches.canonical.get_cached_menu(info.pid).await {
                         ram_menu
-                    } else { caches.l1.get_menu(info).await? };
+                    } else {
+                        caches.l1.get_menu(info).await?
+                    };
                 (Some(target), raw_menu, MenuSourceTier::CanonicalDbus, false)
             }
         };
@@ -81,11 +86,10 @@ impl WindowMenuResolver {
         if info.pid == 0 && info.xid == 0 {
             let cfg_c = Arc::clone(cfg);
             let info_c = info.clone();
-            let desktop_root = tokio::task::spawn_blocking(move || {
-                Self::resolve_desktop_menu(&cfg_c, &info_c)
-            })
-            .await
-            .unwrap_or_else(|_| FallbackMenuBuilder::build_desktop_menu(cfg, info));
+            let desktop_root =
+                tokio::task::spawn_blocking(move || Self::resolve_desktop_menu(&cfg_c, &info_c))
+                    .await
+                    .unwrap_or_else(|_| FallbackMenuBuilder::build_desktop_menu(cfg, info));
             return (None, desktop_root, MenuSourceTier::DesktopIdle);
         }
 
@@ -97,25 +101,15 @@ impl WindowMenuResolver {
             .iter()
             .any(|p| !p.columns.is_empty() || p.python_script.is_some());
 
-        let mut raw_acquired = TierAcquirer::acquire_raw_menu(
-            service,
-            caches,
-            cfg,
-            info,
-            allowed_tiers.as_deref(),
-        )
-        .await;
+        let mut raw_acquired =
+            TierAcquirer::acquire_raw_menu(service, caches, cfg, info, allowed_tiers.as_deref())
+                .await;
 
         if raw_acquired.is_none() && allowed_tiers.is_none() {
             let fast_recheck = [MenuSourceTier::Gtk4Hook, MenuSourceTier::CanonicalDbus];
-            raw_acquired = TierAcquirer::acquire_raw_menu(
-                service,
-                caches,
-                cfg,
-                info,
-                Some(&fast_recheck),
-            )
-            .await;
+            raw_acquired =
+                TierAcquirer::acquire_raw_menu(service, caches, cfg, info, Some(&fast_recheck))
+                    .await;
         }
 
         let cfg_c = Arc::clone(cfg);
@@ -218,9 +212,10 @@ impl WindowMenuResolver {
                 if let Some(ref script) = cfg.settings.api_tiers.gtk_native.python_script
                     && let Some(out) = MenuPipeline::run_python_script_with_timeout(
                         python_bin, base_dir, script, info, tier, &live_menu, timeout_ms,
-                    ) {
-                        live_menu = out;
-                    }
+                    )
+                {
+                    live_menu = out;
+                }
             }
             MenuSourceTier::Gtk4Hook => {
                 let hook_cfg = &cfg.settings.api_tiers.gtk4_hook;
@@ -239,17 +234,19 @@ impl WindowMenuResolver {
                 if let Some(ref script) = cfg.settings.api_tiers.canonical_dbus.python_script
                     && let Some(out) = MenuPipeline::run_python_script_with_timeout(
                         python_bin, base_dir, script, info, tier, &live_menu, timeout_ms,
-                    ) {
-                        live_menu = out;
-                    }
+                    )
+                {
+                    live_menu = out;
+                }
             }
             MenuSourceTier::Atspi => {
                 if let Some(ref script) = cfg.settings.api_tiers.atspi.python_script
                     && let Some(out) = MenuPipeline::run_python_script_with_timeout(
                         python_bin, base_dir, script, info, tier, &live_menu, timeout_ms,
-                    ) {
-                        live_menu = out;
-                    }
+                    )
+                {
+                    live_menu = out;
+                }
             }
             _ => {}
         }

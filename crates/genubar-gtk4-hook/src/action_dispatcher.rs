@@ -89,32 +89,34 @@ pub(crate) unsafe fn dispatch_widget_or_app_action(
 
         // 1. Direct lookup in intercepted live GActionGroups (e.g. "slot", "view", "path-bar", "toolbar")
         if let Some((prefix, short_name)) = full_name.split_once('.')
-            && let Ok(c_short) = CString::new(short_name) {
-                for (w_addr, grp_prefix, g_addr) in &live_groups {
-                    if grp_prefix == prefix
-                        && unsafe {
-                            try_activate_on_action_group(
-                                *g_addr as *mut c_void,
-                                &c_short,
-                                effective_target,
-                                true,
-                            )
-                        }
-                    {
-                        hook_log!(
-                            "  -> Activated '{full_name}' directly on GActionGroup '{prefix}' (widget={})",
-                            unsafe { widget_type_name(*w_addr as *mut GtkWidget) }
-                        );
-                        handled = true;
-                        break;
+            && let Ok(c_short) = CString::new(short_name)
+        {
+            for (w_addr, grp_prefix, g_addr) in &live_groups {
+                if grp_prefix == prefix
+                    && unsafe {
+                        try_activate_on_action_group(
+                            *g_addr as *mut c_void,
+                            &c_short,
+                            effective_target,
+                            true,
+                        )
                     }
+                {
+                    hook_log!(
+                        "  -> Activated '{full_name}' directly on GActionGroup '{prefix}' (widget={})",
+                        unsafe { widget_type_name(*w_addr as *mut GtkWidget) }
+                    );
+                    handled = true;
+                    break;
                 }
             }
+        }
 
         // 2. Fallback: Walk the GTK4 widget tree (up to depth 36) using `gtk_widget_activate_action_variant`
         if !handled && !window.is_null() {
-            handled =
-                unsafe { activate_on_focused_or_window(window, effective_name_ptr, effective_target) };
+            handled = unsafe {
+                activate_on_focused_or_window(window, effective_name_ptr, effective_target)
+            };
             if handled {
                 hook_log!("  -> Activated '{full_name}' via GtkWidget subtree muxer");
             }
@@ -148,21 +150,20 @@ unsafe fn activate_on_focused_or_window(
     target_param: *mut GVariant,
 ) -> bool {
     if let Some(focus_w) = unsafe { gtk_window_get_focus(window) }
-        && !focus_w.is_null() {
-            if !target_param.is_null() {
-                unsafe {
-                    let _ = g_variant_ref(target_param);
-                }
-            }
-            let ok = unsafe {
-                gtk_widget_activate_action_variant(focus_w, action_ptr, target_param)
-            }
-            .map(|r| r != 0)
-            .unwrap_or(false);
-            if ok {
-                return true;
+        && !focus_w.is_null()
+    {
+        if !target_param.is_null() {
+            unsafe {
+                let _ = g_variant_ref(target_param);
             }
         }
+        let ok = unsafe { gtk_widget_activate_action_variant(focus_w, action_ptr, target_param) }
+            .map(|r| r != 0)
+            .unwrap_or(false);
+        if ok {
+            return true;
+        }
+    }
 
     unsafe { try_activate_on_subtree(window, 0, action_ptr, target_param) }
 }

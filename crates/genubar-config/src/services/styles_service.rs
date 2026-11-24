@@ -34,10 +34,11 @@ impl StylesManager {
         for entry in entries.flatten() {
             let path = entry.path();
             if path.extension().and_then(|e| e.to_str()) == Some("css")
-                && let Some(fname) = path.file_name().and_then(|n| n.to_str()) {
-                    let raw = read_string(&path).unwrap_or_default();
-                    out.push(Self::parse_header(fname, &raw));
-                }
+                && let Some(fname) = path.file_name().and_then(|n| n.to_str())
+            {
+                let raw = read_string(&path).unwrap_or_default();
+                out.push(Self::parse_header(fname, &raw));
+            }
         }
 
         out.sort_by(|a, b| a.name.cmp(&b.name));

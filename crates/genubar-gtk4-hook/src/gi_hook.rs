@@ -2,10 +2,10 @@
 
 use crate::ffi::load_next_sym;
 use crate::hooks::{
-    g_application_run, g_module_symbol, gtk_application_add_window,
-    gtk_menu_button_set_menu_model, gtk_menu_button_set_popover, gtk_popover_bind_model,
-    gtk_popover_new_from_model, gtk_widget_action_set_enabled, gtk_widget_insert_action_group,
-    gtk_window_present, gtk_window_set_application,
+    g_application_run, g_module_symbol, gtk_application_add_window, gtk_menu_button_set_menu_model,
+    gtk_menu_button_set_popover, gtk_popover_bind_model, gtk_popover_new_from_model,
+    gtk_widget_action_set_enabled, gtk_widget_insert_action_group, gtk_window_present,
+    gtk_window_set_application,
 };
 use libc::{c_char, c_int, c_void};
 use std::ffi::CStr;
@@ -105,7 +105,9 @@ pub unsafe fn intercept_g_module_symbol(
 
     if let Ok(name) = unsafe { CStr::from_ptr(symbol_name).to_str() } {
         let replacement: Option<(*mut c_void, &AtomicPtr<c_void>)> = match name {
-            "g_application_run" => Some((g_application_run as *mut c_void, &REAL_G_APPLICATION_RUN)),
+            "g_application_run" => {
+                Some((g_application_run as *mut c_void, &REAL_G_APPLICATION_RUN))
+            }
             "gtk_window_present" => {
                 Some((gtk_window_present as *mut c_void, &REAL_GTK_WINDOW_PRESENT))
             }

@@ -69,9 +69,10 @@ pub(crate) unsafe fn extract_activate_args(parameters: *mut GVariant) -> Option<
     let mut target_param: *mut GVariant = ptr::null_mut();
 
     if unsafe { g_variant_n_children(child1) }.unwrap_or(0) > 0
-        && let Some(boxed) = unsafe { g_variant_get_child_value(child1, 0) } {
-            target_param = unsafe { unbox_variant_recursively(boxed) };
-        }
+        && let Some(boxed) = unsafe { g_variant_get_child_value(child1, 0) }
+    {
+        target_param = unsafe { unbox_variant_recursively(boxed) };
+    }
 
     let action_name = (!action_ptr.is_null())
         .then(|| unsafe { CStr::from_ptr(action_ptr).to_str().unwrap_or("") }.to_string());

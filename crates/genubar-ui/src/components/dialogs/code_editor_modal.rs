@@ -1,6 +1,6 @@
 use crate::components::dialogs::show_confirm_modal;
-use gtk4 as gtk;
 use gtk::prelude::*;
+use gtk4 as gtk;
 use std::rc::Rc;
 
 pub fn show_code_editor_modal(

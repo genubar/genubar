@@ -66,10 +66,8 @@ pub fn search_packages(
                 || pr.id.to_lowercase().contains(&q)
             {
                 let compat = pr.is_compatible();
-                let badge = RemotePackageEntry::version_req_badge(
-                    compat,
-                    pr.min_app_version.as_deref(),
-                );
+                let badge =
+                    RemotePackageEntry::version_req_badge(compat, pr.min_app_version.as_deref());
                 results.push(CatalogSearchItem {
                     kind: PackageKind::Profile,
                     is_local: true,
@@ -89,10 +87,8 @@ pub fn search_packages(
                 || st.file_name.to_lowercase().contains(&q)
             {
                 let compat = st.is_compatible();
-                let badge = RemotePackageEntry::version_req_badge(
-                    compat,
-                    st.min_app_version.as_deref(),
-                );
+                let badge =
+                    RemotePackageEntry::version_req_badge(compat, st.min_app_version.as_deref());
                 results.push(CatalogSearchItem {
                     kind: PackageKind::Style,
                     is_local: true,
@@ -112,10 +108,8 @@ pub fn search_packages(
                 || ic.id.to_lowercase().contains(&q)
             {
                 let compat = ic.is_compatible();
-                let badge = RemotePackageEntry::version_req_badge(
-                    compat,
-                    ic.min_app_version.as_deref(),
-                );
+                let badge =
+                    RemotePackageEntry::version_req_badge(compat, ic.min_app_version.as_deref());
                 results.push(CatalogSearchItem {
                     kind: PackageKind::IconPack,
                     is_local: true,

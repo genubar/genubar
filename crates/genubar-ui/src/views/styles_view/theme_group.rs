@@ -3,12 +3,11 @@ use crate::components::dialogs::{show_code_editor_modal, show_text_prompt_modal}
 use crate::components::rows::build_action_row;
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_config::ThemeMode;
 use genubar_platform::expand_tilde;
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 

@@ -3,8 +3,8 @@ use crate::components::rows::build_action_row;
 use crate::state::AppState;
 use adw::prelude::*;
 use genubar_core::PatchErrorPolicy;
-use libadwaita as adw;
 use genubar_patcher::ConflictStrategy;
+use libadwaita as adw;
 use std::cell::RefCell;
 use std::rc::Rc;
 

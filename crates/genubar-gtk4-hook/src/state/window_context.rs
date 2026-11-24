@@ -77,14 +77,16 @@ pub fn active_window() -> *mut GtkWidget {
 
     if !app.is_null()
         && let Some(active_win) = unsafe { gtk_application_get_active_window(app) }
-            && !active_win.is_null() && known_set.contains(&(active_win as usize)) {
-                let is_vis = unsafe { gtk_widget_get_visible(active_win) }.unwrap_or(1) != 0;
-                let is_map = unsafe { gtk_widget_get_mapped(active_win) }.unwrap_or(1) != 0;
-                if is_vis && is_map {
-                    ACTIVE_GTK_WINDOW.store(active_win, Ordering::SeqCst);
-                    return active_win;
-                }
-            }
+        && !active_win.is_null()
+        && known_set.contains(&(active_win as usize))
+    {
+        let is_vis = unsafe { gtk_widget_get_visible(active_win) }.unwrap_or(1) != 0;
+        let is_map = unsafe { gtk_widget_get_mapped(active_win) }.unwrap_or(1) != 0;
+        if is_vis && is_map {
+            ACTIVE_GTK_WINDOW.store(active_win, Ordering::SeqCst);
+            return active_win;
+        }
+    }
 
     let cur = ACTIVE_GTK_WINDOW.load(Ordering::SeqCst);
     if !cur.is_null() && (known_set.is_empty() || known_set.contains(&(cur as usize))) {

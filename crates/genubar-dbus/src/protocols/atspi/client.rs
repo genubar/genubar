@@ -82,7 +82,9 @@ impl AtspiMenuClient {
 
     pub async fn discover_target_by_pid(&self, target_pid: u32) -> Option<MenuTarget> {
         let a11y = self.a11y_bus.connection().await.ok()?;
-        self.discovery.discover_target_by_pid(a11y, target_pid).await
+        self.discovery
+            .discover_target_by_pid(a11y, target_pid)
+            .await
     }
 
     pub async fn discover_target_by_pid_with_config(
@@ -113,10 +115,12 @@ impl AtspiMenuClient {
         paths: HashMap<i32, Vec<String>>,
     ) {
         let mut caches = self.target_caches.write().await;
-        if caches.len() >= MAX_TARGET_ID_CACHES && !caches.contains_key(&key)
-            && let Some(evict) = caches.keys().next().cloned() {
-                caches.remove(&evict);
-            }
+        if caches.len() >= MAX_TARGET_ID_CACHES
+            && !caches.contains_key(&key)
+            && let Some(evict) = caches.keys().next().cloned()
+        {
+            caches.remove(&evict);
+        }
         caches.insert(key, AtspiTargetIdCache { actions, paths });
     }
 
@@ -282,17 +286,17 @@ impl MenuProvider for AtspiMenuClient {
 
                 if !action_succeeded
                     && let Some(ref lpath) = label_path_opt
-                        && let Some(fresh_leaf) =
-                            open_path_chain(a11y, bus_name, menubar_path, lpath, true).await
-                        {
-                            action_succeeded = trigger_node_action(
-                                a11y,
-                                bus_name,
-                                &fresh_leaf,
-                                &format!("ActivateItem Direct-Fallback (id={item_id})"),
-                            )
-                            .await;
-                        }
+                    && let Some(fresh_leaf) =
+                        open_path_chain(a11y, bus_name, menubar_path, lpath, true).await
+                {
+                    action_succeeded = trigger_node_action(
+                        a11y,
+                        bus_name,
+                        &fresh_leaf,
+                        &format!("ActivateItem Direct-Fallback (id={item_id})"),
+                    )
+                    .await;
+                }
             }
             AtspiActionRef::CachedReplay {
                 ref bus_name,
@@ -314,15 +318,15 @@ impl MenuProvider for AtspiMenuClient {
                 if !action_succeeded
                     && let Some(fresh_leaf) =
                         open_path_chain(a11y, bus_name, mb_path, label_path, true).await
-                    {
-                        action_succeeded = trigger_node_action(
-                            a11y,
-                            bus_name,
-                            &fresh_leaf,
-                            &format!("ActivateItem Replay Phase 2 (id={item_id})"),
-                        )
-                        .await;
-                    }
+                {
+                    action_succeeded = trigger_node_action(
+                        a11y,
+                        bus_name,
+                        &fresh_leaf,
+                        &format!("ActivateItem Replay Phase 2 (id={item_id})"),
+                    )
+                    .await;
+                }
             }
         }
 
@@ -333,16 +337,17 @@ impl MenuProvider for AtspiMenuClient {
         }
 
         if let Some(lpath) = label_path_opt
-            && lpath.len() >= 2 {
-                tokio::time::sleep(Duration::from_millis(35)).await;
-                let parent_path = &lpath[..lpath.len() - 1];
-                let live_states =
-                    read_live_sibling_states(a11y, app_bus_name, menubar_path, parent_path).await;
+            && lpath.len() >= 2
+        {
+            tokio::time::sleep(Duration::from_millis(35)).await;
+            let parent_path = &lpath[..lpath.len() - 1];
+            let live_states =
+                read_live_sibling_states(a11y, app_bus_name, menubar_path, parent_path).await;
 
-                self.submenu_cache
-                    .update_toggle_state_by_path(*pid, &lpath, live_states.as_deref())
-                    .await;
-            }
+            self.submenu_cache
+                .update_toggle_state_by_path(*pid, &lpath, live_states.as_deref())
+                .await;
+        }
 
         Ok(())
     }
@@ -418,7 +423,9 @@ impl AtspiMenuClient {
                 open_path_chain(a11y, app_bus_name, menubar_path, &label_path, false)
                     .await
                     .ok_or_else(|| {
-                        MenuError::NotFound(format!("Could not resolve AT-SPI2 path {label_path:?}"))
+                        MenuError::NotFound(format!(
+                            "Could not resolve AT-SPI2 path {label_path:?}"
+                        ))
                     })?;
 
             trigger_node_action(
@@ -494,8 +501,8 @@ impl AtspiMenuClient {
         let (node, final_cache, final_paths) = timeout(Duration::from_secs(7), walk_fut)
             .await
             .map_err(|_| {
-                MenuError::Transport(format!("Timed out fetching AT-SPI2 submenu {label_path:?}"))
-            })??;
+            MenuError::Transport(format!("Timed out fetching AT-SPI2 submenu {label_path:?}"))
+        })??;
 
         self.extend_target_cache(target_key, final_cache, final_paths)
             .await;

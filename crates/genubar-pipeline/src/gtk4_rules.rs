@@ -114,7 +114,14 @@ pub const VIEW_KEYWORDS: &[&str] = &[
     "layer",
 ];
 
-pub const HELP_KEYWORDS: &[&str] = &["keyboard shortcut", "shortcut", "help", "about", "inspector", "tour"];
+pub const HELP_KEYWORDS: &[&str] = &[
+    "keyboard shortcut",
+    "shortcut",
+    "help",
+    "about",
+    "inspector",
+    "tour",
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Gtk4ItemBucket {

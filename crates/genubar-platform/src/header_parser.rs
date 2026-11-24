@@ -22,9 +22,10 @@ pub fn parse_metadata_block(
             .trim();
 
         if let Some(rest) = cleaned.strip_prefix('@')
-            && let Some((key, val)) = rest.split_once(char::is_whitespace) {
-                pairs.insert(key.trim().to_string(), val.trim().to_string());
-            }
+            && let Some((key, val)) = rest.split_once(char::is_whitespace)
+        {
+            pairs.insert(key.trim().to_string(), val.trim().to_string());
+        }
     }
 
     Some(pairs)
@@ -41,7 +42,8 @@ mod tests {
         assert_eq!(map.get("id").map(String::as_str), Some("my_script"));
         assert_eq!(map.get("name").map(String::as_str), Some("My Script"));
 
-        let css = "/* ==GenubarStyle==\n * @id dark_glass\n * @version 1.2.0\n ==/GenubarStyle== */\n";
+        let css =
+            "/* ==GenubarStyle==\n * @id dark_glass\n * @version 1.2.0\n ==/GenubarStyle== */\n";
         let css_map =
             parse_metadata_block(css, "/* ==GenubarStyle==", "==/GenubarStyle== */").unwrap();
         assert_eq!(css_map.get("id").map(String::as_str), Some("dark_glass"));

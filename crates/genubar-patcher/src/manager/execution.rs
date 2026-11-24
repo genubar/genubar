@@ -29,10 +29,11 @@ impl PatchExecutor {
 
         for step in &manifest.steps {
             if let PatchStep::Unsupported { raw_type } = step
-                && skip_unsupported {
-                    tracing::warn!(raw_type, patch_id, "Skipping unsupported patch step");
-                    continue;
-                }
+                && skip_unsupported
+            {
+                tracing::warn!(raw_type, patch_id, "Skipping unsupported patch step");
+                continue;
+            }
 
             let (should_skip, overwrite) =
                 Self::evaluate_step_conflict_mode(&mgr.ledger, patch_id, step, strategy);
@@ -107,11 +108,13 @@ impl PatchExecutor {
 
         let mut warnings = Vec::new();
         for step in manifest.steps.iter().rev() {
-            if lenient_policy && !force_unsafe
+            if lenient_policy
+                && !force_unsafe
                 && let Some((res_key, _)) = StepApplier::resource_key_for_step(step)
-                    && !mgr.ledger.resources.contains_key(&res_key) {
-                        continue;
-                    }
+                && !mgr.ledger.resources.contains_key(&res_key)
+            {
+                continue;
+            }
 
             if let Err(err) = StepApplier::revert_step(
                 patch_id,
@@ -176,7 +179,9 @@ impl PatchExecutor {
         let Some((res_key, new_val)) = StepApplier::resource_key_for_step(step) else {
             return (false, false);
         };
-        let has_conflict = ledger.check_conflict(patch_id, &res_key, &new_val).is_some();
+        let has_conflict = ledger
+            .check_conflict(patch_id, &res_key, &new_val)
+            .is_some();
 
         let should_skip = has_conflict && strategy == ConflictStrategy::SkipConflictingSteps;
         let overwrite = has_conflict && strategy == ConflictStrategy::Overwrite;
@@ -186,9 +191,10 @@ impl PatchExecutor {
     fn should_ignore_step_error(err: &MenuError, policy: PatchErrorPolicy) -> bool {
         match policy {
             PatchErrorPolicy::Strict => false,
-            PatchErrorPolicy::IgnoreSystemErrors => {
-                !matches!(err, MenuError::CheckFailed(_) | MenuError::UnsupportedStep(_))
-            }
+            PatchErrorPolicy::IgnoreSystemErrors => !matches!(
+                err,
+                MenuError::CheckFailed(_) | MenuError::UnsupportedStep(_)
+            ),
             PatchErrorPolicy::IgnoreAll => !matches!(err, MenuError::UnsupportedStep(_)),
         }
     }
@@ -199,8 +205,7 @@ impl PatchExecutor {
         executed_steps: &[PatchStep],
     ) {
         for prev_step in executed_steps.iter().rev() {
-            if let Err(rollback_err) =
-                StepApplier::revert_step(patch_id, prev_step, ledger, false)
+            if let Err(rollback_err) = StepApplier::revert_step(patch_id, prev_step, ledger, false)
             {
                 tracing::warn!(
                     patch_id,

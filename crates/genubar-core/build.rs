@@ -19,12 +19,8 @@ fn main() {
         )
     });
 
-    let parsed: serde_json::Value = serde_json::from_str(&raw).unwrap_or_else(|err| {
-        panic!(
-            "Failed to parse {} as JSON: {err}",
-            metadata_path.display()
-        )
-    });
+    let parsed: serde_json::Value = serde_json::from_str(&raw)
+        .unwrap_or_else(|err| panic!("Failed to parse {} as JSON: {err}", metadata_path.display()));
 
     let version = parsed
         .get("genubar-version")

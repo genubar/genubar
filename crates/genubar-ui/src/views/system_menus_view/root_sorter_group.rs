@@ -3,11 +3,10 @@ use crate::components::dialogs::show_exclusions_manager_modal;
 use crate::components::rows::{build_action_row, build_script_selector_row, build_two_row_entry};
 use crate::state::AppState;
 use crate::utils::text::{format_csv_list, parse_csv_list};
+use adw::prelude::*;
 use genubar_config::RootSortMode;
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 
 pub(super) fn build_root_sorter_group(state: &AppState) -> adw::PreferencesGroup {
     let sort_group = adw::PreferencesGroup::builder()
@@ -81,8 +80,7 @@ pub(super) fn build_root_sorter_group(state: &AppState) -> adw::PreferencesGroup
         let st = state.clone();
         let oe = order_entry;
         order_save_btn.connect_clicked(move |_| {
-            st.config.borrow_mut().settings.root_sorting.custom_order =
-                parse_csv_list(&oe.text());
+            st.config.borrow_mut().settings.root_sorting.custom_order = parse_csv_list(&oe.text());
             st.save_and_reload();
         });
     }

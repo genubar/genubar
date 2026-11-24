@@ -126,7 +126,8 @@ mod tests {
 
     #[test]
     fn try_parse_patch_file_contents_reports_toml_parse_errors() {
-        let err = PatchRepository::try_parse_patch_file_contents("[meta\nbroken = true").unwrap_err();
+        let err =
+            PatchRepository::try_parse_patch_file_contents("[meta\nbroken = true").unwrap_err();
         assert!(matches!(err, MenuError::ParseError(_)));
         assert!(err.to_string().contains("Invalid patch TOML"));
     }
@@ -137,7 +138,11 @@ mod tests {
         let _ = fs::remove_dir_all(&tmp);
         let patches = PatchRepository::load_all_manifests(&tmp).unwrap();
         assert!(!patches.is_empty());
-        assert!(patches.iter().all(|p| !p.meta.id.is_empty() && !p.steps.is_empty()));
+        assert!(
+            patches
+                .iter()
+                .all(|p| !p.meta.id.is_empty() && !p.steps.is_empty())
+        );
         let _ = fs::remove_dir_all(&tmp);
     }
 
@@ -148,7 +153,11 @@ mod tests {
         fs::create_dir_all(&tmp).unwrap();
 
         let json_path = tmp.join("settings.json");
-        fs::write(&json_path, "{\n  \"window.menuBarVisibility\": \"toggle\"\n}\n").unwrap();
+        fs::write(
+            &json_path,
+            "{\n  \"window.menuBarVisibility\": \"toggle\"\n}\n",
+        )
+        .unwrap();
 
         let text_path = tmp.join("env.conf");
         fs::write(&text_path, "EXISTING=1\n").unwrap();
@@ -171,13 +180,25 @@ mod tests {
         assert!(StepApplier::apply_step("patch_b", &json_step, &mut ledger, false).unwrap());
 
         let (res_key, _) = StepApplier::resource_key_for_step(&json_step).unwrap();
-        assert!(ledger.check_conflict("patch_c", &res_key, "\"hidden\"").is_some());
-        assert!(ledger.check_conflict("patch_c", &res_key, "\"classic\"").is_none());
+        assert!(
+            ledger
+                .check_conflict("patch_c", &res_key, "\"hidden\"")
+                .is_some()
+        );
+        assert!(
+            ledger
+                .check_conflict("patch_c", &res_key, "\"classic\"")
+                .is_none()
+        );
 
         let mid_json: serde_json::Value =
             serde_json::from_str(&fs::read_to_string(&json_path).unwrap()).unwrap();
         assert_eq!(mid_json["window.menuBarVisibility"], "classic");
-        assert!(fs::read_to_string(&text_path).unwrap().contains("GTK_USE_PORTAL=1"));
+        assert!(
+            fs::read_to_string(&text_path)
+                .unwrap()
+                .contains("GTK_USE_PORTAL=1")
+        );
 
         // Reverting patch_a must keep JSON at "classic" while patch_b still owns it, and revert text_step.
         StepApplier::revert_step("patch_a", &json_step, &mut ledger, false).unwrap();

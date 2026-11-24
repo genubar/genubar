@@ -5,11 +5,9 @@ use crate::models::info_item::InfoField;
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
 use crate::views::profiles_view::profile_editor::open_profile_dual_editor;
-use genubar_config::AppProfile;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use genubar_config::AppProfile;
+use libadwaita as adw;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -48,29 +46,30 @@ pub(super) fn build_profile_row(
     let (up_btn, down_btn) = build_priority_arrows(
         idx > 0,
         idx + 1 < total_len,
-        move || {
-            match ConfigService::move_profile_by_id(&mut st_up.config.borrow_mut(), &id_up, -1) {
-                Ok(true) => {
-                    st_up.save_and_reload();
-                    if let Some(ref cb) = *rh_up.borrow() {
-                        cb();
-                    }
+        move || match ConfigService::move_profile_by_id(&mut st_up.config.borrow_mut(), &id_up, -1)
+        {
+            Ok(true) => {
+                st_up.save_and_reload();
+                if let Some(ref cb) = *rh_up.borrow() {
+                    cb();
                 }
-                Ok(false) => {}
-                Err(e) => st_up.notify(&format!("Reorder error: {e}")),
             }
+            Ok(false) => {}
+            Err(e) => st_up.notify(&format!("Reorder error: {e}")),
         },
-        move || {
-            match ConfigService::move_profile_by_id(&mut st_down.config.borrow_mut(), &id_down, 1) {
-                Ok(true) => {
-                    st_down.save_and_reload();
-                    if let Some(ref cb) = *rh_down.borrow() {
-                        cb();
-                    }
+        move || match ConfigService::move_profile_by_id(
+            &mut st_down.config.borrow_mut(),
+            &id_down,
+            1,
+        ) {
+            Ok(true) => {
+                st_down.save_and_reload();
+                if let Some(ref cb) = *rh_down.borrow() {
+                    cb();
                 }
-                Ok(false) => {}
-                Err(e) => st_down.notify(&format!("Reorder error: {e}")),
             }
+            Ok(false) => {}
+            Err(e) => st_down.notify(&format!("Reorder error: {e}")),
         },
     );
 

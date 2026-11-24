@@ -68,10 +68,12 @@ impl CanonicalMenuClient {
 
     async fn store_target_paths(&self, key: (String, String), paths: TargetPathMap) {
         let mut caches = self.path_caches.write().await;
-        if caches.len() >= MAX_CACHED_TARGETS && !caches.contains_key(&key)
-            && let Some(evict_key) = caches.keys().next().cloned() {
-                caches.remove(&evict_key);
-            }
+        if caches.len() >= MAX_CACHED_TARGETS
+            && !caches.contains_key(&key)
+            && let Some(evict_key) = caches.keys().next().cloned()
+        {
+            caches.remove(&evict_key);
+        }
         caches.insert(key, paths);
     }
 
@@ -118,10 +120,12 @@ impl CanonicalMenuClient {
             return;
         }
         let mut caches = self.path_caches.write().await;
-        if caches.len() >= MAX_CACHED_TARGETS && !caches.contains_key(&key)
-            && let Some(evict_key) = caches.keys().next().cloned() {
-                caches.remove(&evict_key);
-            }
+        if caches.len() >= MAX_CACHED_TARGETS
+            && !caches.contains_key(&key)
+            && let Some(evict_key) = caches.keys().next().cloned()
+        {
+            caches.remove(&evict_key);
+        }
         let entry = caches.entry(key).or_default();
         for (id, path) in seeded {
             entry.entry(id).or_insert(path);
@@ -219,38 +223,35 @@ impl CanonicalMenuClient {
         let proxy = self.build_proxy(target).await?;
         let _ = proxy.about_to_show(0).await;
 
-        let max_attempts = (options.preload_passes as usize).saturating_add(1).clamp(1, 6);
+        let max_attempts = (options.preload_passes as usize)
+            .saturating_add(1)
+            .clamp(1, 6);
         let retry_delay_ms = options.swing_open_delay_ms.clamp(10, 500);
 
         let mut tree = None;
         let mut transport_err: Option<String> = None;
         for attempt in 0..max_attempts {
             // Try full recursive fetch quickly; fall back to depth=1 if a heavy Swing/Electron tree stalls.
-            let layout_res = match timeout(
-                Duration::from_millis(450),
-                proxy.get_layout(0, -1, vec![]),
-            )
-            .await
-            {
-                Ok(Ok(res)) => Ok(res),
-                Ok(Err(e)) => {
-                    transport_err = Some(e.to_string());
-                    Err(())
-                }
-                Err(_) => match timeout(
-                    Duration::from_millis(350),
-                    proxy.get_layout(0, 1, vec![]),
-                )
-                .await
-                {
+            let layout_res =
+                match timeout(Duration::from_millis(450), proxy.get_layout(0, -1, vec![])).await {
                     Ok(Ok(res)) => Ok(res),
                     Ok(Err(e)) => {
                         transport_err = Some(e.to_string());
                         Err(())
                     }
-                    Err(_) => Err(()),
-                },
-            };
+                    Err(_) => {
+                        match timeout(Duration::from_millis(350), proxy.get_layout(0, 1, vec![]))
+                            .await
+                        {
+                            Ok(Ok(res)) => Ok(res),
+                            Ok(Err(e)) => {
+                                transport_err = Some(e.to_string());
+                                Err(())
+                            }
+                            Err(_) => Err(()),
+                        }
+                    }
+                };
 
             if let Ok((_revision, (root_id, root_props, root_children))) = layout_res {
                 transport_err = None;
@@ -362,7 +363,9 @@ impl CanonicalMenuClient {
         let _ = proxy.about_to_show(live_id).await;
         let _ = proxy.event(live_id, "opened", &Variant::I32(0), now).await;
 
-        let poll_attempts = (options.preload_passes as usize).saturating_add(6).clamp(4, 12);
+        let poll_attempts = (options.preload_passes as usize)
+            .saturating_add(6)
+            .clamp(4, 12);
         let poll_interval = Duration::from_millis(open_delay_ms.min(60));
         let mut subtree = None;
         for _attempt in 0..poll_attempts {
@@ -370,18 +373,18 @@ impl CanonicalMenuClient {
                 proxy.get_layout(live_id, -1, vec![]).await
                 && let Ok(parsed) =
                     CanonicalMenuParser::parse_node(r_id, depth, &r_props, &r_children)
-                {
-                    if CanonicalMenuParser::has_meaningful_children(&parsed) {
-                        subtree = Some(parsed);
-                        break;
-                    }
+            {
+                if CanonicalMenuParser::has_meaningful_children(&parsed) {
                     subtree = Some(parsed);
+                    break;
                 }
+                subtree = Some(parsed);
+            }
             sleep(poll_interval).await;
         }
 
-        let mut node =
-            subtree.ok_or_else(|| MenuError::NotFound(format!("Submenu {submenu_id} not found")))?;
+        let mut node = subtree
+            .ok_or_else(|| MenuError::NotFound(format!("Submenu {submenu_id} not found")))?;
 
         let mut caches = self.path_caches.write().await;
         let target_map = caches.entry(cache_key).or_default();
@@ -431,9 +434,13 @@ impl MenuProvider for CanonicalMenuClient {
             .cloned();
 
         let target_id = if let Some(ref path) = cached_path {
-            self.resolve_live_id_by_path(&proxy, path, CanonicalFetchOptions::default().swing_open_delay_ms)
-                .await
-                .unwrap_or(item_id)
+            self.resolve_live_id_by_path(
+                &proxy,
+                path,
+                CanonicalFetchOptions::default().swing_open_delay_ms,
+            )
+            .await
+            .unwrap_or(item_id)
         } else {
             item_id
         };
@@ -474,10 +481,16 @@ mod tests {
             let key_b = CanonicalMenuClient::target_key(&win_b).unwrap();
 
             client
-                .store_target_paths(key_a.clone(), HashMap::from([(1, vec![String::from("File")])]))
+                .store_target_paths(
+                    key_a.clone(),
+                    HashMap::from([(1, vec![String::from("File")])]),
+                )
                 .await;
             client
-                .store_target_paths(key_b.clone(), HashMap::from([(2, vec![String::from("Edit")])]))
+                .store_target_paths(
+                    key_b.clone(),
+                    HashMap::from([(2, vec![String::from("Edit")])]),
+                )
                 .await;
 
             let caches = client.path_caches.read().await;

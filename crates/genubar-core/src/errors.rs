@@ -18,6 +18,8 @@ pub enum MenuError {
     #[error("Unsupported patch command '{0}'. Update Genubar or skip this step.")]
     UnsupportedStep(String),
     /// Returned on rollback when `patch_ledger.json` lacks the original state record.
-    #[error("Patch ledger is missing rollback data for '{0}'. Confirmation required for unsafe cleanup.")]
+    #[error(
+        "Patch ledger is missing rollback data for '{0}'. Confirmation required for unsafe cleanup."
+    )]
     CorruptedLedger(String),
 }

@@ -69,12 +69,7 @@ impl AtspiMenuParser {
     }
 
     pub fn resolve_item_type(role: &str, has_children: bool, is_checked: bool) -> MenuItemType {
-        if has_children
-            || matches!(
-                role,
-                "menu" | "menu bar" | "pop up button" | "menu button"
-            )
-        {
+        if has_children || matches!(role, "menu" | "menu bar" | "pop up button" | "menu button") {
             MenuItemType::Submenu
         } else if role == "check menu item" {
             MenuItemType::Check(is_checked)
@@ -117,9 +112,10 @@ impl AtspiMenuParser {
                 if node.item_type == MenuItemType::Submenu {
                     let nested_key = format!("{app_comm}::{}", current_path.join("::"));
                     if let Some(nested_children) = submenu_cache.get(&nested_key)
-                        && !nested_children.is_empty() {
-                            node.children = nested_children.clone();
-                        }
+                        && !nested_children.is_empty()
+                    {
+                        node.children = nested_children.clone();
+                    }
                 }
 
                 if !node.children.is_empty() {

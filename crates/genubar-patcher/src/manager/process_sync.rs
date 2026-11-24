@@ -47,13 +47,14 @@ pub(super) fn sync_dbus_services_and_kill_stale_daemons(steps: &[PatchStep], is_
                     match read_text_file(&sys_service) {
                         Ok(raw) => {
                             if let Some(patched) = inject_env_into_dbus_service(&raw, inject_env)
-                                && let Err(err) = write_text_file(&user_service, &patched) {
-                                    tracing::warn!(
-                                        path = %user_service.display(),
-                                        error = %err,
-                                        "Failed to write patched user D-Bus service override"
-                                    );
-                                }
+                                && let Err(err) = write_text_file(&user_service, &patched)
+                            {
+                                tracing::warn!(
+                                    path = %user_service.display(),
+                                    error = %err,
+                                    "Failed to write patched user D-Bus service override"
+                                );
+                            }
                         }
                         Err(err) => {
                             tracing::warn!(
@@ -78,7 +79,10 @@ pub(super) fn sync_dbus_services_and_kill_stale_daemons(steps: &[PatchStep], is_
     }
 
     let apps_dir = user_applications_dir();
-    if let Err(err) = Command::new("update-desktop-database").arg(&apps_dir).status() {
+    if let Err(err) = Command::new("update-desktop-database")
+        .arg(&apps_dir)
+        .status()
+    {
         tracing::debug!(
             path = %apps_dir.display(),
             error = %err,

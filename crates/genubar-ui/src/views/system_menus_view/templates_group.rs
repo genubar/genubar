@@ -3,11 +3,10 @@ use crate::components::dialogs::{show_code_editor_modal, show_confirm_modal};
 use crate::components::rows::{build_action_row, build_script_selector_row};
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_config::{AppTemplateMode, DesktopMenuMode};
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 
 fn build_template_mode_row<F>(
     title: &str,
@@ -21,10 +20,7 @@ where
 {
     script_row.set_visible(is_python);
     let row = build_action_row(title, subtitle);
-    let dd = build_compact_dropdown(
-        &["Static TOML", "Python Script"],
-        u32::from(is_python),
-    );
+    let dd = build_compact_dropdown(&["Static TOML", "Python Script"], u32::from(is_python));
     let script_row_c = script_row.clone();
     dd.connect_selected_notify(move |drop| {
         let python_selected = drop.selected() == 1;
@@ -60,19 +56,17 @@ pub(super) fn build_templates_group(state: &AppState) -> adw::PreferencesGroup {
                 &initial,
                 "Validate & Save app_menu.toml",
                 None,
-                move |raw| {
-                    match ConfigService::validate_and_save_app_menu(
-                        &mut st_in.config.borrow_mut(),
-                        &raw,
-                    ) {
-                        Ok(()) => {
-                            st_in.save_and_reload();
-                            true
-                        }
-                        Err(e) => {
-                            st_in.notify(&e.to_string());
-                            false
-                        }
+                move |raw| match ConfigService::validate_and_save_app_menu(
+                    &mut st_in.config.borrow_mut(),
+                    &raw,
+                ) {
+                    Ok(()) => {
+                        st_in.save_and_reload();
+                        true
+                    }
+                    Err(e) => {
+                        st_in.notify(&e.to_string());
+                        false
                     }
                 },
                 None,
@@ -144,19 +138,17 @@ pub(super) fn build_templates_group(state: &AppState) -> adw::PreferencesGroup {
                 &initial,
                 "Validate & Save desktop_menu.toml",
                 None,
-                move |raw| {
-                    match ConfigService::validate_and_save_desktop_menu(
-                        &mut st_in.config.borrow_mut(),
-                        &raw,
-                    ) {
-                        Ok(()) => {
-                            st_in.save_and_reload();
-                            true
-                        }
-                        Err(e) => {
-                            st_in.notify(&e.to_string());
-                            false
-                        }
+                move |raw| match ConfigService::validate_and_save_desktop_menu(
+                    &mut st_in.config.borrow_mut(),
+                    &raw,
+                ) {
+                    Ok(()) => {
+                        st_in.save_and_reload();
+                        true
+                    }
+                    Err(e) => {
+                        st_in.notify(&e.to_string());
+                        false
                     }
                 },
                 None,

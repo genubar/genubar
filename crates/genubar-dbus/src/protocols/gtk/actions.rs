@@ -84,7 +84,11 @@ pub async fn activate_custom_gtk_action(
         return false;
     }
 
-    for candidate in action_spec.split('|').map(str::trim).filter(|s| !s.is_empty()) {
+    for candidate in action_spec
+        .split('|')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         let clean_cand = candidate.split('(').next().unwrap_or(candidate).trim();
         let (prefix, short_name) = clean_cand.split_once('.').unwrap_or(("win", clean_cand));
 
@@ -105,9 +109,9 @@ pub async fn activate_custom_gtk_action(
             )
             .await
             .is_ok()
-            {
-                return true;
-            }
+        {
+            return true;
+        }
     }
 
     false

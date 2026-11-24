@@ -55,9 +55,7 @@ pub fn apply(
         MenuError::ParseError(format!("Root of {} is not a JSON object", path.display()))
     })?;
 
-    let prev_val_str = obj
-        .get(key)
-        .and_then(|v| serde_json::to_string(v).ok());
+    let prev_val_str = obj.get(key).and_then(|v| serde_json::to_string(v).ok());
 
     obj.insert(key.to_string(), value.clone());
 

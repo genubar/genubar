@@ -179,9 +179,9 @@ impl GtkMenuParser {
         if let Some(ref hw) = hidden_when
             && ((hw == "action-disabled" && (!enabled || !action_known))
                 || (hw == "action-missing" && !action_known))
-            {
-                return;
-            }
+        {
+            return;
+        }
 
         result.push(MenuNode {
             id: item_id,
@@ -312,10 +312,10 @@ impl GtkMenuParser {
                 if fields.len() == 2
                     && let (Variant::Str(s), Variant::Bool(b)) =
                         (unwrap_val(&fields[0]), unwrap_val(&fields[1]))
-                    {
-                        let expected = format!("('{s}', {b})");
-                        return printed == expected;
-                    }
+                {
+                    let expected = format!("('{s}', {b})");
+                    return printed == expected;
+                }
                 false
             }
             _ => false,

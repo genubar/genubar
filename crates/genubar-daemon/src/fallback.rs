@@ -45,9 +45,10 @@ impl FallbackMenuBuilder {
                         MenuSourceTier::DesktopIdle,
                         &base,
                         cfg.settings.general.script_timeout_ms,
-                    ) {
-                        return out;
-                    }
+                    )
+                {
+                    return out;
+                }
                 base
             }
         }

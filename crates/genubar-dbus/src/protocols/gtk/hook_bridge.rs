@@ -38,9 +38,10 @@ pub async fn query_gtk4_zoom_percent(
             .destination(bus_name)
             .build()
             .await
-            && let Ok(pct) = bridge.get_zoom_percent().await {
-                return pct;
-            }
+        && let Ok(pct) = bridge.get_zoom_percent().await
+    {
+        return pct;
+    }
     100
 }
 
@@ -112,7 +113,10 @@ mod tests {
     fn parses_structured_hook_states_without_tsv_ambiguity() {
         let bool_st = parse_hook_action_state(true, "bool", "true");
         assert!(bool_st.enabled);
-        assert!(matches!(bool_st.state.as_deref(), Some(Variant::Bool(true))));
+        assert!(matches!(
+            bool_st.state.as_deref(),
+            Some(Variant::Bool(true))
+        ));
 
         let str_st = parse_hook_action_state(true, "str", "dark");
         assert_eq!(str_st.printed_state.as_deref(), Some("dark"));

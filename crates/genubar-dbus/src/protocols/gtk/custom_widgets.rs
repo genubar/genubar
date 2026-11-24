@@ -32,7 +32,11 @@ impl GtkCustomWidgetExpander {
             return Some(Self::build_single_action_node(
                 "Rotate Left",
                 "win.rotate-ccw",
-                Some(vec!["Ctrl".to_string(), "Shift".to_string(), "R".to_string()]),
+                Some(vec![
+                    "Ctrl".to_string(),
+                    "Shift".to_string(),
+                    "R".to_string(),
+                ]),
                 next_id,
                 cache,
             ));
@@ -143,7 +147,12 @@ impl GtkCustomWidgetExpander {
     }
 
     fn active_theme_bridge_action(action_states: &HashMap<String, ActionState>) -> &'static str {
-        for key in ["genubar.theme", "win.interface-style", "settings.style-variant", "app.style-scheme"] {
+        for key in [
+            "genubar.theme",
+            "win.interface-style",
+            "settings.style-variant",
+            "app.style-scheme",
+        ] {
             let Some(st) = action_states.get(key) else {
                 continue;
             };
@@ -225,9 +234,21 @@ impl GtkCustomWidgetExpander {
     fn build_clipboard_nodes(next_id: &mut i32) -> Vec<MenuNode> {
         let mut nodes = Vec::new();
         for (lbl, key_act, sc) in [
-            ("Cut", "key:Ctrl+X", vec!["Ctrl".to_string(), "X".to_string()]),
-            ("Copy", "key:Ctrl+C", vec!["Ctrl".to_string(), "C".to_string()]),
-            ("Paste", "key:Ctrl+V", vec!["Ctrl".to_string(), "V".to_string()]),
+            (
+                "Cut",
+                "key:Ctrl+X",
+                vec!["Ctrl".to_string(), "X".to_string()],
+            ),
+            (
+                "Copy",
+                "key:Ctrl+C",
+                vec!["Ctrl".to_string(), "C".to_string()],
+            ),
+            (
+                "Paste",
+                "key:Ctrl+V",
+                vec!["Ctrl".to_string(), "V".to_string()],
+            ),
         ] {
             let id = *next_id;
             *next_id += 1;
@@ -265,8 +286,9 @@ mod tests {
         let mut next_id = 10;
         let mut cache = HashMap::new();
 
-        let zoom = GtkCustomWidgetExpander::expand("zoom-control", 125, &states, &mut next_id, &mut cache)
-            .unwrap();
+        let zoom =
+            GtkCustomWidgetExpander::expand("zoom-control", 125, &states, &mut next_id, &mut cache)
+                .unwrap();
         assert_eq!(zoom[0].label, "Zoom: 125%");
         let zoom_actions: Vec<&str> = zoom.iter().filter_map(|n| n.action.as_deref()).collect();
         assert_eq!(
@@ -275,8 +297,14 @@ mod tests {
         );
         assert!(cache.values().any(|c| c.full_action == ACTION_ZOOM_IN));
 
-        let theme = GtkCustomWidgetExpander::expand("theme-selector", 100, &states, &mut next_id, &mut cache)
-            .unwrap();
+        let theme = GtkCustomWidgetExpander::expand(
+            "theme-selector",
+            100,
+            &states,
+            &mut next_id,
+            &mut cache,
+        )
+        .unwrap();
         assert_eq!(theme.len(), 1);
         assert_eq!(theme[0].children.len(), 3);
         let dark_item = theme[0]

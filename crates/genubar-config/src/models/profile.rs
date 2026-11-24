@@ -51,7 +51,9 @@ impl AppMatcher {
                     if self.contains.contains('*') {
                         wildcard_match(&self.contains, target)
                     } else {
-                        target.to_lowercase().contains(&self.contains.to_lowercase())
+                        target
+                            .to_lowercase()
+                            .contains(&self.contains.to_lowercase())
                     }
                 };
                 match self.field {

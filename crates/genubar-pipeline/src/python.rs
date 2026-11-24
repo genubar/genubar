@@ -202,18 +202,18 @@ mod tests {
         ) {
             assert_eq!(res.label, "Transformed");
 
-        let started = std::time::Instant::now();
-        let timed_out = PythonRunner::run_with_timeout(
-            "python3",
-            &tmp_dir,
-            &slow_script,
-            &info,
-            MenuSourceTier::AppProfile,
-            &root,
-            80,
-        );
-        assert!(timed_out.is_none());
-        assert!(started.elapsed() < std::time::Duration::from_millis(1200));
+            let started = std::time::Instant::now();
+            let timed_out = PythonRunner::run_with_timeout(
+                "python3",
+                &tmp_dir,
+                &slow_script,
+                &info,
+                MenuSourceTier::AppProfile,
+                &root,
+                80,
+            );
+            assert!(timed_out.is_none());
+            assert!(started.elapsed() < std::time::Duration::from_millis(1200));
         }
 
         let _ = fs::remove_dir_all(&tmp_dir);

@@ -87,9 +87,10 @@ impl RootMenuSorter {
                         MenuSourceTier::AppProfile,
                         &root,
                         timeout_ms,
-                    ) {
-                        return sorted;
-                    }
+                    )
+                {
+                    return sorted;
+                }
                 root
             }
         }
@@ -229,8 +230,15 @@ mod tests {
             Path::new("/tmp"),
             500,
         );
-        let std_labels: Vec<String> = sorted_std.children.iter().map(MenuNode::clean_label).collect();
-        assert_eq!(std_labels, vec!["MyBrand", "File", "Edit", "Plugins", "Help"]);
+        let std_labels: Vec<String> = sorted_std
+            .children
+            .iter()
+            .map(MenuNode::clean_label)
+            .collect();
+        assert_eq!(
+            std_labels,
+            vec!["MyBrand", "File", "Edit", "Plugins", "Help"]
+        );
 
         let custom_cfg = RootSortConfig {
             mode: RootSortMode::Custom,
@@ -252,8 +260,15 @@ mod tests {
             Path::new("/tmp"),
             500,
         );
-        let custom_labels: Vec<String> = sorted_custom.children.iter().map(MenuNode::clean_label).collect();
-        assert_eq!(custom_labels, vec!["MyBrand", "Help", "File", "Plugins", "Edit"]);
+        let custom_labels: Vec<String> = sorted_custom
+            .children
+            .iter()
+            .map(MenuNode::clean_label)
+            .collect();
+        assert_eq!(
+            custom_labels,
+            vec!["MyBrand", "Help", "File", "Plugins", "Edit"]
+        );
 
         let excluded_cfg = RootSortConfig {
             mode: RootSortMode::Standard,
@@ -270,7 +285,14 @@ mod tests {
             Path::new("/tmp"),
             500,
         );
-        let excluded_labels: Vec<String> = excluded_out.children.iter().map(MenuNode::clean_label).collect();
-        assert_eq!(excluded_labels, vec!["MyBrand", "Help", "Plugins", "Edit", "File"]);
+        let excluded_labels: Vec<String> = excluded_out
+            .children
+            .iter()
+            .map(MenuNode::clean_label)
+            .collect();
+        assert_eq!(
+            excluded_labels,
+            vec!["MyBrand", "Help", "Plugins", "Edit", "File"]
+        );
     }
 }

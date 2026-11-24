@@ -47,9 +47,7 @@ impl PatchLedger {
     }
 
     fn load_or_default_from(custom_path: Option<PathBuf>) -> Self {
-        let path = custom_path
-            .clone()
-            .unwrap_or_else(Self::ledger_path);
+        let path = custom_path.clone().unwrap_or_else(Self::ledger_path);
         let mut ledger = if !path.exists() {
             Self::default()
         } else {

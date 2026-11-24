@@ -5,11 +5,10 @@ use crate::models::package_ui::{
 };
 use crate::services::config_service::ConfigService;
 use crate::state::AppState;
+use adw::prelude::*;
 use genubar_packages::{collect_all_installed_items, delete_installed_item};
 use gtk4 as gtk;
-use gtk::prelude::*;
 use libadwaita as adw;
-use adw::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -76,16 +75,16 @@ pub fn build_installed_view(state: &AppState) -> gtk::Widget {
             let page = adw::PreferencesPage::new();
             let group = adw::PreferencesGroup::builder()
                 .title("All Installed Packages & Configuration Files")
-                .description("Manage, inspect, jump to the editor tab, or remove any installed component")
+                .description(
+                    "Manage, inspect, jump to the editor tab, or remove any installed component",
+                )
                 .build();
 
             let q = search_entry.text().trim().to_lowercase();
             let filter_idx = kind_drop.selected();
 
-            let all_items = collect_all_installed_items(
-                &state.config.borrow(),
-                &state.patcher.borrow(),
-            );
+            let all_items =
+                collect_all_installed_items(&state.config.borrow(), &state.patcher.borrow());
             let selected_kind = installed_filter_from_index(filter_idx);
 
             let mut shown = 0usize;
@@ -108,7 +107,12 @@ pub fn build_installed_view(state: &AppState) -> gtk::Widget {
                     .unwrap_or_else(|| String::from("built-in"));
 
                 let row = build_action_row(
-                    &format!("[{}] {} (v{})", package_kind_badge(item.kind), item.name, item.version),
+                    &format!(
+                        "[{}] {} (v{})",
+                        package_kind_badge(item.kind),
+                        item.name,
+                        item.version
+                    ),
                     &format!("by {} • id={} • {}", item.author, item.id, path_str),
                 );
 
@@ -208,8 +212,7 @@ pub fn build_installed_view(state: &AppState) -> gtk::Widget {
             let st_in = st.clone();
             let pop_in = pop.clone();
             gtk::glib::spawn_future_local(async move {
-                let res =
-                    gtk::gio::spawn_blocking(ConfigService::reload_config_and_patcher).await;
+                let res = gtk::gio::spawn_blocking(ConfigService::reload_config_and_patcher).await;
                 btn_c.set_sensitive(true);
                 match res {
                     Ok(Ok((cfg, pat))) => {

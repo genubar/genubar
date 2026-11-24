@@ -1,9 +1,7 @@
 use crate::coordinator::FocusCoordinator;
 use crate::executor::ActionExecutor;
 use genubar_config::ConfigManager;
-use genubar_core::{
-    ActiveWindowInfo, CustomAction, MenuProvider, MenuTarget, SystemCommand,
-};
+use genubar_core::{ActiveWindowInfo, CustomAction, MenuProvider, MenuTarget, SystemCommand};
 use genubar_dbus::MenuSignalSink;
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
@@ -153,9 +151,10 @@ impl ActionDispatcher {
                 {
                     let mut guard = coordinator.current_menu.write().await;
                     if let Some(ref mut payload) = *guard
-                        && payload.root.toggle_check_or_radio_by_id(item_id) {
-                            toggled_json = serde_json::to_string(payload).ok();
-                        }
+                        && payload.root.toggle_check_or_radio_by_id(item_id)
+                    {
+                        toggled_json = serde_json::to_string(payload).ok();
+                    }
                 }
                 if let Some(json) = toggled_json {
                     sink.emit_active_menu_changed(&json).await;

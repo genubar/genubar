@@ -345,7 +345,16 @@ pub unsafe fn build_register_window_variant(
         return std::ptr::null_mut();
     }
     let func: FnVariantNewReg = unsafe { std::mem::transmute(ptr) };
-    unsafe { func(c"(ussss)".as_ptr(), pid, bus_name, menu_path, app_path, win_path) }
+    unsafe {
+        func(
+            c"(ussss)".as_ptr(),
+            pid,
+            bus_name,
+            menu_path,
+            app_path,
+            win_path,
+        )
+    }
 }
 
 /// Serializes `(key, enabled, kind, value)` entries into a GLib `(a(sbss))` tuple `GVariant`.

@@ -5,10 +5,9 @@ mod gtk4_hook;
 mod gtk_native;
 
 use crate::state::AppState;
-use gtk4 as gtk;
-use gtk::prelude::*;
-use libadwaita as adw;
 use adw::prelude::*;
+use gtk4 as gtk;
+use libadwaita as adw;
 
 pub fn build_protocols_view(state: &AppState) -> gtk::Widget {
     let scrolled = gtk::ScrolledWindow::builder()

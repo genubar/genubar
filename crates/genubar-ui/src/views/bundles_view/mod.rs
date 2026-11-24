@@ -5,12 +5,11 @@ use crate::components::controls::{build_scrolled_container, clear_box};
 use crate::components::rows::build_action_row;
 use crate::services::bundle_service::BundleService;
 use crate::state::AppState;
+use adw::prelude::*;
 use bundle_row::build_bundle_row;
 use gtk4 as gtk;
-use gtk::prelude::*;
 use import_group::build_import_bundle_group;
 use libadwaita as adw;
-use adw::prelude::*;
 use std::rc::Rc;
 
 pub fn build_bundles_view(state: &AppState) -> gtk::Widget {
