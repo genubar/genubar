@@ -19,16 +19,27 @@ mode = "static"
 sync_new_items = false
 
 # 1. First column displaying the active application's name
+# Merges any column emitted as "{app_name}", the app's name, "App", or "Application"
+# by a TOML profile, Python transformer, or native GTK app-menu above system actions.
 [[columns]]
 type = "submenu"
 label = "{app_name}"
+merge_with_live = true
+match_aliases = [["{app_name}"], ["App"], ["Application"]]
 items = [
+    { type = "inherit_others" },
+    { type = "separator" },
     { type = "action", label = "Genubar Settings...", action = "cmd:genubar-settings" },
     { type = "separator" },
     { type = "action", label = "Capture Menu Snapshot", action = "sys:capture_menu_snapshot" },
     { type = "action", label = "Refresh Menu Cache", action = "sys:refresh_menu", only_tiers = ["atspi"] },
     { type = "separator" },
-    { type = "action", label = "Quit {app_name}", action = "sys:quit_app", shortcut = ["Ctrl", "Q"] },
+    { type = "action", label = "Quit {app_name}", action = "sys:quit_app", shortcut = ["Ctrl", "Q"], match_aliases = [
+        ["{app_name}", "Quit"],
+        ["{app_name}", "Quit {app_name}"],
+        ["App", "Quit"],
+        ["Application", "Quit"]
+    ] },
 ]
 
 # 2. Splice point where all native/profile columns of the application (File, View, ...) are inserted

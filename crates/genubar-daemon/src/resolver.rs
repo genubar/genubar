@@ -429,4 +429,76 @@ mod tests {
         );
         let _ = fs::remove_dir_all(&tmp_base);
     }
+
+    #[test]
+    fn default_app_menu_merges_python_or_profile_app_name_column() {
+        let tmp_base = std::env::temp_dir().join("genubar_test_resolver_app_merge");
+        let _ = fs::remove_dir_all(&tmp_base);
+        let cfg = ConfigManager::load_from_base_dir(tmp_base.clone()).unwrap();
+        let info = ActiveWindowInfo {
+            pid: 4242,
+            xid: 1,
+            app_id: String::from("org.example.Demo"),
+            title: String::from("Demo"),
+            ..Default::default()
+        };
+        let live_with_app_col = MenuNode {
+            id: 0,
+            label: String::from("Root"),
+            enabled: true,
+            visible: true,
+            item_type: MenuItemType::Submenu,
+            shortcut: None,
+            action: None,
+            icon: None,
+            origin_path: None,
+            children: vec![MenuNode {
+                id: -900,
+                label: String::from("{app_name}"),
+                enabled: true,
+                visible: true,
+                item_type: MenuItemType::Submenu,
+                shortcut: None,
+                action: None,
+                icon: None,
+                origin_path: None,
+                children: vec![MenuNode {
+                    id: -902,
+                    label: String::from("Copy PID (4242)"),
+                    enabled: true,
+                    visible: true,
+                    item_type: MenuItemType::Standard,
+                    shortcut: None,
+                    action: Some(String::from("copy:4242")),
+                    icon: None,
+                    origin_path: None,
+                    children: Vec::new(),
+                }],
+            }],
+        };
+
+        let result = WindowMenuResolver::finalize_menu_pipeline(
+            &cfg,
+            &info,
+            live_with_app_col,
+            MenuSourceTier::Gtk4Hook,
+            false,
+        );
+        assert_eq!(result.children[0].label, "Demo");
+        assert!(
+            !result
+                .children
+                .iter()
+                .skip(1)
+                .any(|c| c.label == "{app_name}" || c.label == "Demo")
+        );
+        assert_eq!(result.children[0].children[0].label, "Copy PID (4242)");
+        assert!(
+            result.children[0]
+                .children
+                .iter()
+                .any(|c| c.label == "Genubar Settings...")
+        );
+        let _ = fs::remove_dir_all(&tmp_base);
+    }
 }
