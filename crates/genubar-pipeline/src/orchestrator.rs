@@ -203,8 +203,11 @@ impl MenuPipeline {
                     continue;
                 }
                 let expanded_label = StaticMenuBuilder::expand_label(label, Some(app_name));
-                let candidate_names =
-                    MandatoryMerger::collect_candidate_names(&expanded_label, match_aliases);
+                let candidate_names = MandatoryMerger::collect_candidate_names(
+                    &expanded_label,
+                    match_aliases,
+                    Some(app_name),
+                );
 
                 if candidate_names.contains(&sub_norm) {
                     let mut initial_index = HashMap::new();
@@ -223,8 +226,9 @@ impl MenuPipeline {
 
                     let filtered_defs = MandatoryMerger::filter_unclaimed_action_defs(
                         items,
-                        &expanded_label,
+                        &candidate_names,
                         &initial_index,
+                        Some(app_name),
                     );
 
                     Self::evaluate_fetched_submenu_defs(

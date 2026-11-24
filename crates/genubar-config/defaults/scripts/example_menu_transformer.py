@@ -40,6 +40,21 @@ def make_action_item(item_id: int, label: str, action: str, icon: str | None = N
     }
 
 
+def make_submenu(item_id: int, label: str, children: list[dict] | None = None) -> dict:
+    """Helper that builds a top-level column or nested submenu MenuNode dictionary."""
+    return {
+        "id": item_id,
+        "label": label,
+        "enabled": True,
+        "visible": True,
+        "item_type": "Submenu",
+        "shortcut": None,
+        "action": None,
+        "icon": None,
+        "children": children if children is not None else [],
+    }
+
+
 def make_separator(item_id: int = -950) -> dict:
     """Helper that builds a horizontal separator MenuNode."""
     return {
@@ -56,14 +71,25 @@ def make_separator(item_id: int = -950) -> dict:
 
 
 def transform_menu(window: dict, tier: str, root: dict) -> dict:
-    columns = root.get("children", [])
+    columns = root.setdefault("children", [])
     pid = window.get("pid", 0)
 
-    # Example: Append a diagnostic "Copy Window PID" item at the bottom of the first column
-    if columns and pid > 0:
-        first_col_items = columns[0].setdefault("children", [])
-        first_col_items.append(make_separator(-901))
-        first_col_items.append(
+    # Example: Route a diagnostic "Copy PID" item into the `{app_name}` column.
+    # `app_menu.toml` merges any column named `{app_name}` (or the app name / "App" / "Application")
+    # into the leading application column above system items like Genubar Settings and Quit.
+    if pid > 0:
+        app_col = next(
+            (c for c in columns if c.get("label", "").strip().lower() == "{app_name}"),
+            None,
+        )
+        if app_col is None:
+            app_col = make_submenu(-900, "{app_name}", [])
+            columns.insert(0, app_col)
+
+        app_items = app_col.setdefault("children", [])
+        if app_items:
+            app_items.append(make_separator(-901))
+        app_items.append(
             make_action_item(
                 item_id=-902,
                 label=f"Copy PID ({pid})",
