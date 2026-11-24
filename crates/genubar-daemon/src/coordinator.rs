@@ -46,6 +46,7 @@ impl FocusCoordinator {
         mgr: ConfigManager,
     ) -> Result<Self, MenuError> {
         mgr.sync_platform_env();
+        let initial_css_rev = mgr.stylesheet_fingerprint();
         service
             .atspi()
             .set_disk_cache_enabled(mgr.settings.api_tiers.atspi.enable_disk_cache);
@@ -58,7 +59,7 @@ impl FocusCoordinator {
             current_menu: Arc::new(RwLock::new(None)),
             last_window: Arc::new(RwLock::new(ActiveWindowInfo::default())),
             focus_seq: Arc::new(AtomicU64::new(0)),
-            css_revision: Arc::new(AtomicU64::new(1)),
+            css_revision: Arc::new(AtomicU64::new(initial_css_rev)),
             last_published_json: Arc::new(RwLock::new(String::new())),
         })
     }

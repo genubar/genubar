@@ -7,6 +7,21 @@ use std::path::Path;
 
 const METRICS_START_MARKER: &str = "/* GENUBAR_METRICS_START */";
 const METRICS_END_MARKER: &str = "/* GENUBAR_METRICS_END */";
+const JS_MAX_SAFE_INT_MASK: u64 = (1u64 << 53) - 1;
+
+/// Computes a deterministic, non-zero, JS-safe (`<= 2^53 - 1`) FNV-1a content fingerprint for CSS bytes.
+pub fn css_content_fingerprint(bytes: &[u8]) -> u64 {
+    const FNV_OFFSET: u64 = 0xcbf2_9ce4_8422_2325;
+    const FNV_PRIME: u64 = 0x0100_0000_01b3;
+
+    let mut hash = FNV_OFFSET;
+    for &b in bytes {
+        hash ^= u64::from(b);
+        hash = hash.wrapping_mul(FNV_PRIME);
+    }
+    let safe = hash & JS_MAX_SAFE_INT_MASK;
+    if safe == 0 { 1 } else { safe }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CssSyncModeKind {
@@ -79,6 +94,22 @@ impl CssSynchronizer {
         Ok(())
     }
 
+    /// Computes a stable content fingerprint of the active extension stylesheet (falling back
+    /// to the compiled custom stylesheet if the extension target file is absent).
+    pub fn fingerprint(base_dir: &Path, opts: &CssSyncOptions<'_>) -> u64 {
+        let dst = resolve_user_path(base_dir, opts.extension_css_path);
+        let compiled_src = resolve_user_path(base_dir, opts.custom_css_path);
+
+        for candidate in [&dst, &compiled_src] {
+            if let Ok(bytes) = std::fs::read(candidate)
+                && !bytes.is_empty()
+            {
+                return css_content_fingerprint(&bytes);
+            }
+        }
+        1
+    }
+
     pub fn inject_metrics_block(raw_css: &str, m: &CssMetrics) -> String {
         let metrics_block = format!(
             "{METRICS_START_MARKER}\n\
@@ -142,5 +173,17 @@ mod tests {
         assert_eq!(twice.matches(METRICS_START_MARKER).count(), 1);
         assert!(twice.contains("font-size: 16px;"));
         assert!(!twice.contains("font-size: 13px;"));
+    }
+
+    #[test]
+    fn css_fingerprint_is_deterministic_js_safe_and_detects_edits() {
+        let fp1 = css_content_fingerprint(b".genubar-panel-button { padding: 6px; }");
+        let fp2 = css_content_fingerprint(b".genubar-panel-button { padding: 6px; }");
+        let fp3 = css_content_fingerprint(b".genubar-panel-button { padding: 8px; }");
+
+        assert_eq!(fp1, fp2);
+        assert_ne!(fp1, fp3);
+        assert!(fp1 > 0 && fp1 <= JS_MAX_SAFE_INT_MASK);
+        assert!(fp3 > 0 && fp3 <= JS_MAX_SAFE_INT_MASK);
     }
 }
