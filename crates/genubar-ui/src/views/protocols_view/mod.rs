@@ -17,8 +17,8 @@ pub fn build_protocols_view(state: &AppState) -> gtk::Widget {
         .build();
 
     let page = adw::PreferencesPage::new();
-    page.add(&gtk_native::build_gtk_native_group(state));
     page.add(&gtk4_hook::build_gtk4_hook_group(state));
+    page.add(&gtk_native::build_gtk_native_group(state));
     page.add(&canonical::build_canonical_group(state));
     page.add(&atspi::build_atspi_group(state));
     page.add(&cache_group::build_cache_group(state));

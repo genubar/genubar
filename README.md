@@ -32,7 +32,7 @@ Global menubar for **GNOME on Wayland** (GNOME Shell 47+, with `shell-version` 4
 
 - **Multi-Protocol Menu Extraction:** Reads native GTK3 `org.gtk.Menus`, injected GTK4/GTK3 popover trees (`libgenubar_gtk4_hook.so`), `com.canonical.dbusmenu` (Qt, Electron, JetBrains), and AT-SPI2 (`org.a11y.Bus`).
 - **Declarative Customization:** Per-application TOML profiles with live menu inheritance, Python menu transformer scripts, custom icon packs, and GNOME Shell CSS theme/metric syncing.
-- **Reversible Application Patcher:** Tracks all `.desktop`, D-Bus `.service`, CLI wrapper, JSON, GSettings, and Flatpak overrides in `~/.config/genubar/patch_ledger.json` for clean rollback.
+- **Reversible Application Patcher:** Tracks all `.desktop`, D-Bus `.service`, CLI wrapper, JSON, GSettings, and Flatpak overrides in `~/.local/share/genubar/patch_ledger.json` for clean rollback.
 - **Graphical Settings Manager:** `genubar-settings` provides live configuration, snapshot capture, profile generation, and extension/daemon update checks.
 
 ### Supported Applications & Backends
@@ -204,9 +204,10 @@ On first startup, `genubar-daemon` or `genubar-settings` populates `~/.config/ge
 ├── patches/*.toml          # Custom application patches (plus built-in patch catalog)
 ├── bundles/<id>/bundle.toml # Grouped patch + profile + style + icon packs
 ├── scripts/*.py             # Python menu_transformer / patch_script plugins (# ==GenubarScript==)
-├── snapshots/*.json         # Captured app menu snapshots for profile generation
-└── patch_ledger.json        # Transactional backup state for reverting applied patches
+└── snapshots/*.json         # Captured app menu snapshots for profile generation
 ```
+
+Transactional patch rollback state is stored separately at `~/.local/share/genubar/patch_ledger.json`.
 
 ### Genubar Settings UI
 
@@ -217,7 +218,7 @@ Run `genubar-settings` to configure all 11 areas visually with live daemon reloa
 - **System Menus & Sorter:** Customize top-level column sorting order (`Standard`, `Custom`, or Python script) and edit `desktop_menu.toml` / `app_menu.toml`.
 - **App Profiles:** Match apps by `app_id`, `title`, or `any`; reorder or merge columns (`inherit`, `inherit_others`, `merge_with_live`, `sync_new_items`); capture live app snapshots and turn them into profiles.
 - **Patches & Bundles:** Detect installed apps, apply/revert patches safely (with `.desktop`, D-Bus `.service`, Flatpak, GSettings, JSON, or wrapper rollback), or toggle bundles.
-- **Protocols & Cache:** Enable/disable GTK Native, GTK4 Hook, Canonical DBusMenu, and AT-SPI2 backends, configure AT-SPI traversal depth, and inspect/clear disk caches.
+- **Protocols & Cache:** Enable/disable GTK4 Hook, GTK Native, Canonical DBusMenu, and AT-SPI2 backends, configure AT-SPI traversal depth, and inspect/clear disk caches.
 - **Installed Packages, Marketplace & About:** Manage installed items, browse registry feeds, and verify two-way compatibility between `genubar-daemon` and `genubar@github.com`.
 
 ### Supported Menu Actions in Profiles and Templates
@@ -251,7 +252,9 @@ Genubar operates strictly within your user home directory (no `sudo` or system `
   - `~/.local/share/dbus-1/services/` — user D-Bus `.service` overrides for patched `DBusActivatable` GTK4 apps (so D-Bus-activated launches receive `LD_PRELOAD`)
   - `~/.local/share/icons/hicolor/scalable/apps/` — `org.genubar.Settings.svg` and `org.genubar.Installer.svg`
   - `~/.local/share/flatpak/overrides/` — user Flatpak overrides (only when applying `flatpak_override` patch steps)
-  - `~/.config/genubar/` & `~/.cache/genubar/` — user configuration files, transactional rollback state (`patch_ledger.json`), and disk menu caches (`l1_roots.json`, `atspi_menus.json`)
+  - `~/.config/genubar/` — user configuration files, profiles, styles, icons, and scripts
+  - `~/.local/share/genubar/patch_ledger.json` — transactional rollback state for applied patches
+  - `~/.cache/genubar/` — disk menu caches (`l1_roots.json`, `atspi_menus.json`) and installer archive cache
 - **Reverting patches & full removal:**
   - Revert any patch or bundle in **Genubar Settings** (**Patches** / **Bundles**) or via `genubar-cli revert-patch --id <id>` / `genubar-cli revert-bundle --id <id>`. Original files and settings are restored from `patch_ledger.json`.
   - Run `genubar-installer --uninstall` to revert all active patches from `patch_ledger.json` and remove binaries, hook library, extension, desktop/icon assets, and `genubar.service` (keeping `~/.config/genubar`).

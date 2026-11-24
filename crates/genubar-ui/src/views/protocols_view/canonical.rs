@@ -36,7 +36,7 @@ pub fn build_canonical_group(state: &AppState) -> adw::PreferencesGroup {
     group.add(&build_switch_row(
         state,
         "Cache Last Valid Menu in RAM & L1 Disk Cache",
-        "Prevents Default-Fallback flicker when switching workspaces in Java Swing / JetBrains IDEs",
+        "Prevents temporary fallback menu flicker when switching workspaces in Java Swing / JetBrains IDEs",
         cache_valid,
         |st, active| {
             st.config
