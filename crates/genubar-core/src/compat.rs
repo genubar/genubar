@@ -1,8 +1,8 @@
-pub use genubar_protocol::{EXTENSION_FILES, EXTENSION_UUID, LEGACY_EXTENSION_UUID};
+pub use genubar_protocol::{EXTENSION_FILES, EXTENSION_UUID};
 use serde::Deserialize;
 
 pub const CURRENT_APP_VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const EXPECTED_EXTENSION_VERSION: &str = "0.1.0";
+pub const EXPECTED_EXTENSION_VERSION: &str = env!("GENUBAR_EXPECTED_EXTENSION_VERSION");
 pub const MIN_COMPATIBLE_EXTENSION_VERSION: &str = "0.1.0";
 pub const IPC_PROTOCOL_VERSION: u32 = 1;
 
@@ -148,6 +148,7 @@ mod tests {
 
     #[test]
     fn semver_compatibility_checks_work() {
+        assert!(parse_semver_triple(EXPECTED_EXTENSION_VERSION).is_some());
         assert!(is_version_compatible("0.1.0", "0.1.0"));
         assert!(is_version_compatible("0.1.0", "v0.2.0"));
         assert!(!is_version_compatible("0.2.0", "0.1.9"));

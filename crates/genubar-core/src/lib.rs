@@ -10,9 +10,8 @@ mod traits;
 pub use action::{CustomAction, PatchErrorPolicy, SystemCommand};
 pub use compat::{
     CURRENT_APP_VERSION, EXPECTED_EXTENSION_VERSION, EXTENSION_FILES, EXTENSION_UUID,
-    ExtensionCompatReport, IPC_PROTOCOL_VERSION, LEGACY_EXTENSION_UUID,
-    MIN_COMPATIBLE_EXTENSION_VERSION, check_extension_metadata_json, is_version_compatible,
-    parse_semver_triple,
+    ExtensionCompatReport, IPC_PROTOCOL_VERSION, MIN_COMPATIBLE_EXTENSION_VERSION,
+    check_extension_metadata_json, is_version_compatible, parse_semver_triple,
 };
 pub use errors::MenuError;
 pub use node::{

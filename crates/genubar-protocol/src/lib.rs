@@ -40,7 +40,6 @@ pub const ACTION_ZOOM_RESET: &str = "genubar.zoom-reset";
 
 // GNOME Shell extension metadata
 pub const EXTENSION_UUID: &str = "genubar@github.com";
-pub const LEGACY_EXTENSION_UUID: &str = "genubar@local";
 pub const EXTENSION_FILES: &[&str] = &[
     "metadata.json",
     "extension.js",
@@ -71,17 +70,14 @@ pub const EXTENSION_FILES: &[&str] = &[
 // Shared GTK4 hook library markers & protected process lists
 pub const GTK4_HOOK_ACTIVE_SO_NAME: &str = "active_gtk4_hook.so";
 pub const GTK4_HOOK_CANONICAL_SO_NAME: &str = "libgenubar_gtk4_hook.so";
-pub const GTK4_HOOK_LEGACY_SO_NAME: &str = "libmenu_gtk4_hook.so";
 
-pub const GTK4_HOOK_SO_NAMES: [&str; 3] = [
+pub const GTK4_HOOK_SO_NAMES: [&str; 2] = [
     GTK4_HOOK_ACTIVE_SO_NAME,
     GTK4_HOOK_CANONICAL_SO_NAME,
-    GTK4_HOOK_LEGACY_SO_NAME,
 ];
 
-pub const GTK4_HOOK_MAP_MARKERS: [&str; 3] = [
+pub const GTK4_HOOK_MAP_MARKERS: [&str; 2] = [
     "genubar_gtk4_hook",
-    "menu_gtk4_hook",
     "active_gtk4_hook",
 ];
 

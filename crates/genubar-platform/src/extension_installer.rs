@@ -1,9 +1,7 @@
 use crate::compat_probe::inspect_installed_extension;
-use crate::fs_utils::{ensure_dir, remove_dir_if_exists, write_bytes_file, write_text_file};
+use crate::fs_utils::{ensure_dir, write_bytes_file, write_text_file};
 use crate::paths::extensions_dir;
-use genubar_core::{
-    EXTENSION_UUID, LEGACY_EXTENSION_UUID, MenuError, check_extension_metadata_json,
-};
+use genubar_core::{EXTENSION_UUID, MenuError, check_extension_metadata_json};
 use std::fs;
 use std::process::Command;
 
@@ -138,17 +136,6 @@ fn cleanup_legacy_extension_files(ext_dir: &std::path::Path) {
     }
 }
 
-fn cleanup_legacy_extension_uuid_dir() {
-    let legacy_dir = extensions_dir().join(LEGACY_EXTENSION_UUID);
-    if legacy_dir.exists() {
-        let _ = Command::new("gnome-extensions")
-            .args(["disable", LEGACY_EXTENSION_UUID])
-            .status();
-        sync_extension_gsettings(None, Some(LEGACY_EXTENSION_UUID));
-        let _ = remove_dir_if_exists(&legacy_dir);
-    }
-}
-
 fn parse_gvariant_str_array(raw: &str) -> Vec<String> {
     let trimmed = raw.trim();
     if trimmed.is_empty() || trimmed == "@as []" || trimmed == "[]" {
@@ -240,7 +227,6 @@ pub fn check_embedded_extension_compatibility() -> Result<String, MenuError> {
 /// when `prefer_workspace_local` is true.
 pub fn install_embedded_extension(prefer_workspace_local: bool) -> Result<String, MenuError> {
     let ext_ver = check_embedded_extension_compatibility()?;
-    cleanup_legacy_extension_uuid_dir();
     let ext_dir = extensions_dir().join(EXTENSION_UUID);
     ensure_dir(&ext_dir)?;
     cleanup_legacy_extension_files(&ext_dir);
@@ -281,9 +267,7 @@ pub fn install_embedded_extension(prefer_workspace_local: bool) -> Result<String
         }
     };
     if !enabled_via_cli {
-        sync_extension_gsettings(Some(EXTENSION_UUID), Some(LEGACY_EXTENSION_UUID));
-    } else {
-        sync_extension_gsettings(None, Some(LEGACY_EXTENSION_UUID));
+        sync_extension_gsettings(Some(EXTENSION_UUID), None);
     }
 
     let info = inspect_installed_extension();
@@ -296,7 +280,6 @@ pub fn install_embedded_extension(prefer_workspace_local: bool) -> Result<String
 
 /// Writes an atomic pre-fetched list of extension `(filename, bytes)` files to `extensions_dir()`.
 pub fn write_downloaded_extension_files(files: &[(&str, Vec<u8>)]) -> Result<String, MenuError> {
-    cleanup_legacy_extension_uuid_dir();
     let ext_dir = extensions_dir().join(EXTENSION_UUID);
     ensure_dir(&ext_dir)?;
     cleanup_legacy_extension_files(&ext_dir);
@@ -349,9 +332,9 @@ mod tests {
         );
         assert_eq!(
             update_gsettings_extension_list(
-                "['dash-to-dock@micxgx.gmail.com', 'genubar@local']",
+                "['dash-to-dock@micxgx.gmail.com', 'other@example.com']",
                 Some("genubar@github.com"),
-                Some("genubar@local")
+                Some("other@example.com")
             ),
             Some(String::from(
                 "['dash-to-dock@micxgx.gmail.com', 'genubar@github.com']"
@@ -361,7 +344,7 @@ mod tests {
             update_gsettings_extension_list(
                 "['dash-to-dock@micxgx.gmail.com', 'genubar@github.com']",
                 Some("genubar@github.com"),
-                Some("genubar@local")
+                Some("other@example.com")
             ),
             None
         );

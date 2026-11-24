@@ -1,7 +1,9 @@
 use crate::fs_utils::{ensure_dir, replace_with_atomic_copy_or_symlink};
 use crate::paths::{lib_dir, resolve_user_path};
 use genubar_core::MenuError;
-use genubar_protocol::{GTK4_HOOK_ACTIVE_SO_NAME, GTK4_HOOK_SO_NAMES, HIDDEN_BUTTONS_ENV};
+use genubar_protocol::{
+    GTK4_HOOK_ACTIVE_SO_NAME, GTK4_HOOK_CANONICAL_SO_NAME, GTK4_HOOK_SO_NAMES, HIDDEN_BUTTONS_ENV,
+};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -22,8 +24,7 @@ pub fn newest_gtk4_hook_so() -> Option<PathBuf> {
             "/../../target/release/libgenubar_gtk4_hook.so"
         )));
     }
-    candidates.push(lib.join("libgenubar_gtk4_hook.so"));
-    candidates.push(lib.join("libmenu_gtk4_hook.so"));
+    candidates.push(lib.join(GTK4_HOOK_CANONICAL_SO_NAME));
 
     candidates
         .into_iter()

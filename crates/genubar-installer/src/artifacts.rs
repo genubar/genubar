@@ -51,13 +51,17 @@ fn find_file_recursive(root: &Path, target_name: &str, depth: usize) -> Option<P
     None
 }
 
-fn local_search_dirs() -> Vec<PathBuf> {
+fn build_local_search_dirs(
+    explicit_target: Option<&str>,
+    exe_dir: Option<PathBuf>,
+) -> Vec<PathBuf> {
     let mut dirs = Vec::new();
-    if let Ok(explicit_target) = env::var("GENUBAR_TARGET_DIR") {
-        let trimmed = explicit_target.trim();
-        if !trimmed.is_empty() {
-            dirs.push(PathBuf::from(trimmed));
-        }
+    if let Some(trimmed) = explicit_target.map(str::trim).filter(|s| !s.is_empty()) {
+        dirs.push(PathBuf::from(trimmed));
+    }
+
+    if let Some(dir) = exe_dir {
+        dirs.push(dir);
     }
 
     #[cfg(debug_assertions)]
@@ -79,14 +83,15 @@ fn local_search_dirs() -> Vec<PathBuf> {
         PathBuf::from("genubar/target/debug"),
         PathBuf::from("."),
     ]);
-
-    if let Some(exe_dir) = env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(Path::to_path_buf))
-    {
-        dirs.push(exe_dir);
-    }
     dirs
+}
+
+fn local_search_dirs() -> Vec<PathBuf> {
+    let explicit = env::var("GENUBAR_TARGET_DIR").ok();
+    let exe_dir = env::current_exe()
+        .ok()
+        .and_then(|p| p.parent().map(Path::to_path_buf));
+    build_local_search_dirs(explicit.as_deref(), exe_dir)
 }
 
 pub fn search_local_artifact(names: &[&str]) -> Option<PathBuf> {
@@ -185,5 +190,25 @@ mod tests {
         assert!(platform.starts_with("linux-"));
         assert!(release_archive_filename().contains(&platform));
         assert!(release_archive_url().ends_with(&release_archive_filename()));
+    }
+
+    #[test]
+    fn local_search_dirs_prioritize_explicit_override_then_exe_dir_before_dev_targets() {
+        let explicit = PathBuf::from("/opt/genubar-override");
+        let exe_dir = PathBuf::from("/tmp/extracted-release");
+        let dirs = build_local_search_dirs(Some(explicit.to_str().unwrap()), Some(exe_dir.clone()));
+
+        assert_eq!(dirs[0], explicit);
+        assert_eq!(dirs[1], exe_dir);
+
+        let release_idx = dirs
+            .iter()
+            .position(|d| d == &PathBuf::from("target/release"))
+            .unwrap();
+        let debug_idx = dirs
+            .iter()
+            .position(|d| d == &PathBuf::from("target/debug"))
+            .unwrap();
+        assert!(1 < release_idx && release_idx < debug_idx);
     }
 }
