@@ -122,6 +122,7 @@ impl MenuPipeline {
             )
         {
             root = script_out;
+            MandatoryMerger::reconcile_app_name_columns(&mut root, app_name);
         }
 
         sanitize_separators(&mut root);
@@ -363,6 +364,7 @@ impl MenuPipeline {
             )
         {
             root = out;
+            MandatoryMerger::reconcile_app_name_columns(&mut root, app_name);
         }
 
         sanitize_separators(&mut root);

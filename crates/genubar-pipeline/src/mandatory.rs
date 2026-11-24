@@ -251,6 +251,76 @@ impl MandatoryMerger {
             }
         }
     }
+
+    /// Reconciles any literal `{app_name}` / `{os_name}` columns returned by a post-merge Python script:
+    /// merges a literal `{app_name}` column into an existing expanded `app_name` column (above its
+    /// existing system items), or expands placeholders in place when no separate app column exists.
+    pub fn reconcile_app_name_columns(root: &mut MenuNode, app_name: &str) {
+        let has_placeholder = root
+            .children
+            .iter()
+            .any(|c| c.label.contains("{app_name}") || c.label.contains("{os_name}"));
+        if !has_placeholder {
+            return;
+        }
+
+        let norm_app = clean_label(app_name).to_lowercase();
+        let existing_app_idx = root
+            .children
+            .iter()
+            .position(|c| !norm_app.is_empty() && c.clean_label().to_lowercase() == norm_app);
+
+        if let Some(target_idx) = existing_app_idx {
+            let mut prepended: Vec<MenuNode> = Vec::new();
+            let mut kept: Vec<MenuNode> = Vec::with_capacity(root.children.len());
+            let mut adjusted_target_idx = target_idx;
+
+            for (idx, mut col) in root.children.drain(..).enumerate() {
+                let is_literal_app_placeholder =
+                    col.label.trim().eq_ignore_ascii_case("{app_name}");
+                if idx != target_idx && is_literal_app_placeholder {
+                    if idx < target_idx {
+                        adjusted_target_idx = adjusted_target_idx.saturating_sub(1);
+                    }
+                    prepended.extend(col.children);
+                    continue;
+                }
+                if col.label.contains("{app_name}") || col.label.contains("{os_name}") {
+                    col.label = StaticMenuBuilder::expand_label(&col.label, Some(app_name));
+                }
+                kept.push(col);
+            }
+
+            if !prepended.is_empty()
+                && let Some(target_col) = kept.get_mut(adjusted_target_idx)
+            {
+                if !target_col.children.is_empty() {
+                    prepended.push(MenuNode {
+                        id: -940,
+                        label: String::new(),
+                        enabled: true,
+                        visible: true,
+                        item_type: MenuItemType::Separator,
+                        shortcut: None,
+                        action: None,
+                        icon: None,
+                        origin_path: None,
+                        children: vec![],
+                    });
+                }
+                prepended.append(&mut target_col.children);
+                target_col.children = prepended;
+                sanitize_separators(target_col);
+            }
+            root.children = kept;
+        } else {
+            for col in &mut root.children {
+                if col.label.contains("{app_name}") || col.label.contains("{os_name}") {
+                    col.label = StaticMenuBuilder::expand_label(&col.label, Some(app_name));
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -478,5 +548,97 @@ mod tests {
             merged_normal.children[0].children[0].label,
             "Genubar Settings..."
         );
+    }
+
+    #[test]
+    fn reconcile_app_name_columns_merges_or_expands_post_script_placeholders() {
+        // Case 1: Post-template Python script prepends `{app_name}` next to already-expanded `Files`.
+        let mut with_existing = make_node(
+            0,
+            "Root",
+            MenuItemType::Submenu,
+            None,
+            vec![
+                make_node(
+                    -900,
+                    "{app_name}",
+                    MenuItemType::Submenu,
+                    None,
+                    vec![make_node(
+                        -902,
+                        "Copy PID (99)",
+                        MenuItemType::Standard,
+                        Some("copy:99"),
+                        vec![],
+                    )],
+                ),
+                make_node(
+                    -10,
+                    "Files",
+                    MenuItemType::Submenu,
+                    None,
+                    vec![
+                        make_node(
+                            -11,
+                            "Genubar Settings...",
+                            MenuItemType::Standard,
+                            Some("cmd:genubar-settings"),
+                            vec![],
+                        ),
+                        make_node(
+                            -12,
+                            "Quit Files",
+                            MenuItemType::Standard,
+                            Some("sys:quit_app"),
+                            vec![],
+                        ),
+                    ],
+                ),
+                make_node(1, "File", MenuItemType::Submenu, None, vec![]),
+            ],
+        );
+
+        MandatoryMerger::reconcile_app_name_columns(&mut with_existing, "Files");
+
+        let top_labels: Vec<&str> = with_existing
+            .children
+            .iter()
+            .map(|c| c.label.as_str())
+            .collect();
+        assert_eq!(top_labels, vec!["Files", "File"]);
+        let files_items: Vec<&str> = with_existing.children[0]
+            .children
+            .iter()
+            .filter(|n| n.item_type != MenuItemType::Separator)
+            .map(|n| n.label.as_str())
+            .collect();
+        assert_eq!(
+            files_items,
+            vec!["Copy PID (99)", "Genubar Settings...", "Quit Files"]
+        );
+
+        // Case 2: Standalone `{app_name}` column with no pre-existing `Files` column expands in place.
+        let mut standalone = make_node(
+            0,
+            "Root",
+            MenuItemType::Submenu,
+            None,
+            vec![make_node(
+                -900,
+                "{app_name}",
+                MenuItemType::Submenu,
+                None,
+                vec![make_node(
+                    -902,
+                    "Custom Action",
+                    MenuItemType::Standard,
+                    Some("cmd:true"),
+                    vec![],
+                )],
+            )],
+        );
+        MandatoryMerger::reconcile_app_name_columns(&mut standalone, "Files");
+        assert_eq!(standalone.children.len(), 1);
+        assert_eq!(standalone.children[0].label, "Files");
     }
 }

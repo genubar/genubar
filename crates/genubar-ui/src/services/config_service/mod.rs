@@ -366,14 +366,17 @@ impl ConfigService {
         deleted
     }
 
-    pub fn list_valid_scripts(cfg: &ConfigManager) -> Vec<String> {
+    pub fn list_scripts_by_kind(cfg: &ConfigManager, allowed_kinds: &[&str]) -> Vec<String> {
         let mut scripts = Vec::new();
         let scripts_dir = cfg.base_dir().join("scripts");
         if let Ok(entries) = fs::read_dir(scripts_dir) {
             for entry in entries.flatten() {
                 let p = entry.path();
                 if p.extension().and_then(|e| e.to_str()) == Some("py")
-                    && PythonRunner::parse_and_validate_header(&p).is_some()
+                    && let Some(meta) = PythonRunner::parse_and_validate_header(&p)
+                    && allowed_kinds
+                        .iter()
+                        .any(|kind| meta.kind.eq_ignore_ascii_case(kind))
                     && let Some(fname) = p.file_name().and_then(|n| n.to_str())
                 {
                     scripts.push(format!("scripts/{fname}"));
@@ -382,6 +385,10 @@ impl ConfigService {
         }
         scripts.sort();
         scripts
+    }
+
+    pub fn list_valid_scripts(cfg: &ConfigManager) -> Vec<String> {
+        Self::list_scripts_by_kind(cfg, &["menu_transformer"])
     }
 }
 
@@ -444,6 +451,30 @@ mod tests {
         assert_eq!(cfg.icon_packs[0].id, "pack_b");
         assert!(ConfigService::set_icon_pack_enabled(&mut cfg, "pack_a", false).unwrap());
         assert!(!cfg.icon_packs[1].enabled);
+
+        let _ = fs::remove_dir_all(cfg.base_dir());
+    }
+
+    #[test]
+    fn list_scripts_filters_menu_transformers_from_patch_scripts() {
+        let cfg = temp_cfg("script_kinds");
+        let custom_default_kind = cfg.base_dir().join("scripts/custom_default.py");
+        fs::write(
+            &custom_default_kind,
+            "# ==GenubarScript==\n# @id custom_default\n# @name Custom\n# ==/GenubarScript==\n",
+        )
+        .unwrap();
+
+        let menu_scripts = ConfigService::list_valid_scripts(&cfg);
+        assert!(menu_scripts.contains(&String::from("scripts/example_menu_transformer.py")));
+        assert!(menu_scripts.contains(&String::from("scripts/custom_default.py")));
+        assert!(!menu_scripts.contains(&String::from("scripts/example_patch_script.py")));
+
+        let patch_scripts = ConfigService::list_scripts_by_kind(&cfg, &["patch_script"]);
+        assert_eq!(
+            patch_scripts,
+            vec![String::from("scripts/example_patch_script.py")]
+        );
 
         let _ = fs::remove_dir_all(cfg.base_dir());
     }
