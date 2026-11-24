@@ -35,6 +35,7 @@ pub struct GeneralConfig {
     pub patch_error_policy: PatchErrorPolicy,
     pub enable_menu_search: bool,
     pub show_menu_icons: bool,
+    pub show_menu_shortcuts: bool,
     pub auto_map_standard_icons: bool,
 }
 
@@ -51,6 +52,7 @@ impl Default for GeneralConfig {
             patch_error_policy: PatchErrorPolicy::Strict,
             enable_menu_search: true,
             show_menu_icons: true,
+            show_menu_shortcuts: true,
             auto_map_standard_icons: true,
         }
     }

@@ -159,6 +159,11 @@ mod tests {
     fn embedded_defaults_and_bootstrapper_validate_end_to_end() {
         let settings: crate::GlobalSettings = toml::from_str(DEFAULT_SETTINGS_TOML).unwrap();
         let default_settings = crate::GlobalSettings::default();
+        assert!(settings.general.show_menu_shortcuts);
+        assert_eq!(
+            settings.general.show_menu_shortcuts,
+            default_settings.general.show_menu_shortcuts
+        );
         assert!(!settings.api_tiers.gtk4_hook.hide_original_buttons);
         assert_eq!(
             settings.api_tiers.gtk4_hook.hide_original_buttons,

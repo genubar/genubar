@@ -14,6 +14,7 @@ impl WindowMenuResolver {
         PipelineRuntimeConfig {
             script_timeout_ms: cfg.settings.general.script_timeout_ms,
             show_menu_icons: cfg.settings.general.show_menu_icons,
+            show_menu_shortcuts: cfg.settings.general.show_menu_shortcuts,
             auto_map_standard_icons: cfg.settings.general.auto_map_standard_icons,
             enable_menu_search: cfg.settings.general.enable_menu_search,
         }
@@ -351,6 +352,7 @@ mod tests {
         let _ = fs::remove_dir_all(&tmp_base);
         let mut cfg = ConfigManager::load_from_base_dir(tmp_base.clone()).unwrap();
         cfg.settings.general.enable_menu_search = false;
+        cfg.settings.general.show_menu_shortcuts = false;
         cfg.settings.api_tiers.atspi.append_refresh_cache_button = false;
 
         let info = ActiveWindowInfo {
@@ -383,8 +385,15 @@ mod tests {
         let json_off = serde_json::to_string(&result_off).unwrap();
         assert!(!json_off.contains("sys:refresh_menu"));
         assert!(!json_off.contains("SearchBar"));
+        assert!(!json_off.contains("\"shortcut\":[\""));
+
+        let desktop_off =
+            WindowMenuResolver::resolve_desktop_menu(&cfg, &ActiveWindowInfo::default());
+        let desktop_json_off = serde_json::to_string(&desktop_off).unwrap();
+        assert!(!desktop_json_off.contains("\"shortcut\":[\""));
 
         cfg.settings.general.enable_menu_search = true;
+        cfg.settings.general.show_menu_shortcuts = true;
         cfg.settings.api_tiers.atspi.append_refresh_cache_button = true;
         let result_on = WindowMenuResolver::finalize_menu_pipeline(
             &cfg,
@@ -396,6 +405,12 @@ mod tests {
         let json_on = serde_json::to_string(&result_on).unwrap();
         assert!(json_on.contains("sys:refresh_menu"));
         assert!(json_on.contains("SearchBar"));
+        assert!(json_on.contains("\"shortcut\":[\"Ctrl\",\"Q\"]"));
+
+        let desktop_on =
+            WindowMenuResolver::resolve_desktop_menu(&cfg, &ActiveWindowInfo::default());
+        let desktop_json_on = serde_json::to_string(&desktop_on).unwrap();
+        assert!(desktop_json_on.contains("\"shortcut\":[\"Super\",\"L\"]"));
 
         let _ = fs::remove_dir_all(&tmp_base);
     }

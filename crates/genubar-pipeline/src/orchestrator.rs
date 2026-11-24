@@ -4,6 +4,7 @@ use crate::inherit::InheritanceEngine;
 use crate::mandatory::MandatoryMerger;
 use crate::postprocess::{
     apply_more_overflow, sanitize_separators, strip_action_items, strip_search_bars,
+    strip_shortcuts,
 };
 use crate::python::{DEFAULT_SCRIPT_TIMEOUT_MS, PythonRunner};
 use crate::sorter::RootMenuSorter;
@@ -21,6 +22,7 @@ use std::path::Path;
 pub struct PipelineRuntimeConfig {
     pub script_timeout_ms: u64,
     pub show_menu_icons: bool,
+    pub show_menu_shortcuts: bool,
     pub auto_map_standard_icons: bool,
     pub enable_menu_search: bool,
 }
@@ -30,6 +32,7 @@ impl Default for PipelineRuntimeConfig {
         Self {
             script_timeout_ms: DEFAULT_SCRIPT_TIMEOUT_MS,
             show_menu_icons: true,
+            show_menu_shortcuts: true,
             auto_map_standard_icons: true,
             enable_menu_search: true,
         }
@@ -478,6 +481,9 @@ impl MenuPipeline {
     ) {
         if !runtime.enable_menu_search {
             strip_search_bars(root);
+        }
+        if !runtime.show_menu_shortcuts {
+            strip_shortcuts(root);
         }
         if strip_refresh_button {
             strip_action_items(root, "sys:refresh_menu");

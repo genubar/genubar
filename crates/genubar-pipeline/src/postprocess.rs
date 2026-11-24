@@ -71,6 +71,14 @@ pub fn strip_action_items(root: &mut MenuNode, action_name: &str) {
     retain_nodes_recursive(root, &|n| n.action.as_deref() != Some(action_name));
 }
 
+/// Clears keyboard shortcut hints recursively across the menu tree.
+pub fn strip_shortcuts(root: &mut MenuNode) {
+    root.shortcut = None;
+    for child in &mut root.children {
+        strip_shortcuts(child);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -124,5 +132,43 @@ mod tests {
         strip_action_items(&mut root, "sys:refresh_menu");
         assert_eq!(root.children[0].children.len(), 1);
         assert_eq!(root.children[0].children[0].id, 4);
+    }
+
+    #[test]
+    fn strip_shortcuts_clears_nested_shortcuts_while_preserving_items() {
+        let mut item = leaf(4, MenuItemType::Standard, Some("win.about"));
+        item.shortcut = Some(vec![String::from("Ctrl"), String::from("I")]);
+        let mut root = MenuNode {
+            id: 0,
+            label: String::from("Root"),
+            enabled: true,
+            visible: true,
+            item_type: MenuItemType::Submenu,
+            shortcut: None,
+            action: None,
+            icon: None,
+            origin_path: None,
+            children: vec![MenuNode {
+                id: 1,
+                label: String::from("Help"),
+                enabled: true,
+                visible: true,
+                item_type: MenuItemType::Submenu,
+                shortcut: Some(vec![String::from("F1")]),
+                action: None,
+                icon: None,
+                origin_path: None,
+                children: vec![item],
+            }],
+        };
+
+        strip_shortcuts(&mut root);
+        assert_eq!(root.children[0].shortcut, None);
+        assert_eq!(root.children[0].children.len(), 1);
+        assert_eq!(root.children[0].children[0].shortcut, None);
+        assert_eq!(
+            root.children[0].children[0].action.as_deref(),
+            Some("win.about")
+        );
     }
 }
