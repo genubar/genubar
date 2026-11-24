@@ -12,13 +12,34 @@ impl MandatoryMerger {
         aliases: &[Vec<String>],
         live_root_index: &HashMap<Vec<String>, MenuNode>,
     ) -> bool {
+        Self::alias_exists_in_live_with_app(aliases, live_root_index, None)
+    }
+
+    pub fn alias_exists_in_live_with_app(
+        aliases: &[Vec<String>],
+        live_root_index: &HashMap<Vec<String>, MenuNode>,
+        app_name: Option<&str>,
+    ) -> bool {
         aliases.iter().any(|alias_path| {
-            let norm_key: Vec<String> = alias_path
+            let raw_key: Vec<String> = alias_path
                 .iter()
                 .map(|seg| clean_label(seg).to_lowercase())
                 .filter(|s| !s.is_empty())
                 .collect();
-            !norm_key.is_empty() && live_root_index.contains_key(&norm_key)
+            if !raw_key.is_empty() && live_root_index.contains_key(&raw_key) {
+                return true;
+            }
+            if app_name.is_some() {
+                let expanded_key: Vec<String> = alias_path
+                    .iter()
+                    .map(|seg| {
+                        clean_label(&StaticMenuBuilder::expand_label(seg, app_name)).to_lowercase()
+                    })
+                    .filter(|s| !s.is_empty())
+                    .collect();
+                return !expanded_key.is_empty() && live_root_index.contains_key(&expanded_key);
+            }
+            false
         })
     }
 
@@ -37,14 +58,23 @@ impl MandatoryMerger {
         next_id: &mut i32,
     ) {
         let expanded_col_label = StaticMenuBuilder::expand_label(label, app_name);
-        let candidate_col_names = Self::collect_candidate_names(&expanded_col_label, col_aliases);
-        let filtered_defs =
-            Self::filter_unclaimed_action_defs(items, &expanded_col_label, live_root_index);
+        let candidate_col_names =
+            Self::collect_candidate_names(&expanded_col_label, col_aliases, app_name);
+        let filtered_defs = Self::filter_unclaimed_action_defs(
+            items,
+            &candidate_col_names,
+            live_root_index,
+            app_name,
+        );
 
         if let Some(existing_col) = out_columns
             .iter_mut()
             .find(|c| candidate_col_names.contains(&c.clean_label().to_lowercase()))
         {
+            if existing_col.label.contains("{app_name}") || existing_col.label.contains("{os_name}")
+            {
+                existing_col.label = expanded_col_label;
+            }
             // Keep empty lazy submenus on AT-SPI2 / Canonical DBusMenu untouched so the frontend triggers
             // `FetchSubmenu`; `apply_app_menu_to_fetched_submenu` merges mandatory items once expanded.
             let is_lazy_unexpanded = existing_col.item_type == MenuItemType::Submenu
@@ -118,11 +148,24 @@ impl MandatoryMerger {
     pub(crate) fn collect_candidate_names(
         expanded_label: &str,
         col_aliases: &[Vec<String>],
+        app_name: Option<&str>,
     ) -> Vec<String> {
-        let mut names = vec![clean_label(expanded_label).to_lowercase()];
+        let mut names = Vec::new();
+        let mut push_unique = |raw: &str| {
+            let norm = clean_label(raw).to_lowercase();
+            if !norm.is_empty() && !names.contains(&norm) {
+                names.push(norm);
+            }
+        };
+
+        push_unique(expanded_label);
         for alias in col_aliases {
             if let Some(first) = alias.first() {
-                names.push(clean_label(first).to_lowercase());
+                push_unique(first);
+                if app_name.is_some() {
+                    let expanded = StaticMenuBuilder::expand_label(first, app_name);
+                    push_unique(&expanded);
+                }
             }
         }
         names
@@ -130,8 +173,9 @@ impl MandatoryMerger {
 
     pub(crate) fn filter_unclaimed_action_defs(
         items: &[MenuNodeDef],
-        expanded_col_label: &str,
+        candidate_col_names: &[String],
         live_root_index: &HashMap<Vec<String>, MenuNode>,
+        app_name: Option<&str>,
     ) -> Vec<MenuNodeDef> {
         items
             .iter()
@@ -141,9 +185,19 @@ impl MandatoryMerger {
                     match_aliases,
                     ..
                 } => {
-                    let mut all_aliases = match_aliases.clone();
-                    all_aliases.push(vec![expanded_col_label.to_string(), act_lbl.clone()]);
-                    !Self::alias_exists_in_live(&all_aliases, live_root_index)
+                    if Self::alias_exists_in_live_with_app(match_aliases, live_root_index, app_name)
+                    {
+                        return false;
+                    }
+                    let expanded_act_lbl = StaticMenuBuilder::expand_label(act_lbl, app_name);
+                    let mut col_scoped_aliases = Vec::with_capacity(candidate_col_names.len() * 2);
+                    for col_name in candidate_col_names {
+                        col_scoped_aliases.push(vec![col_name.clone(), expanded_act_lbl.clone()]);
+                        if expanded_act_lbl != *act_lbl {
+                            col_scoped_aliases.push(vec![col_name.clone(), act_lbl.clone()]);
+                        }
+                    }
+                    !Self::alias_exists_in_live(&col_scoped_aliases, live_root_index)
                 }
                 _ => true,
             })
@@ -196,5 +250,233 @@ impl MandatoryMerger {
                 existing_col.children.extend(built);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::orchestrator::MenuPipeline;
+    use genubar_config::{AppMenuTemplateConfig, AppTemplateMode};
+    use genubar_core::ActiveWindowInfo;
+    use std::path::Path;
+
+    fn make_node(
+        id: i32,
+        label: &str,
+        item_type: MenuItemType,
+        action: Option<&str>,
+        children: Vec<MenuNode>,
+    ) -> MenuNode {
+        MenuNode {
+            id,
+            label: label.to_string(),
+            enabled: true,
+            visible: true,
+            item_type,
+            shortcut: None,
+            action: action.map(str::to_string),
+            icon: None,
+            origin_path: None,
+            children,
+        }
+    }
+
+    fn app_menu_template() -> AppMenuTemplateConfig {
+        AppMenuTemplateConfig {
+            mode: AppTemplateMode::Static,
+            sync_new_items: false,
+            python_script: None,
+            columns: vec![
+                MenuNodeDef::Submenu {
+                    label: String::from("{app_name}"),
+                    icon: None,
+                    enabled: true,
+                    visible: true,
+                    only_tiers: None,
+                    merge_with_live: true,
+                    match_aliases: vec![
+                        vec![String::from("{app_name}")],
+                        vec![String::from("App")],
+                        vec![String::from("Application")],
+                    ],
+                    items: vec![
+                        MenuNodeDef::InheritOthers,
+                        MenuNodeDef::Separator {
+                            visible: true,
+                            only_tiers: None,
+                        },
+                        MenuNodeDef::Action {
+                            label: String::from("Genubar Settings..."),
+                            action: Some(String::from("cmd:genubar-settings")),
+                            icon: None,
+                            enabled: true,
+                            visible: true,
+                            shortcut: None,
+                            only_tiers: None,
+                            match_aliases: vec![],
+                        },
+                        MenuNodeDef::Separator {
+                            visible: true,
+                            only_tiers: None,
+                        },
+                        MenuNodeDef::Action {
+                            label: String::from("Quit {app_name}"),
+                            action: Some(String::from("sys:quit_app")),
+                            icon: None,
+                            enabled: true,
+                            visible: true,
+                            shortcut: Some(vec![String::from("Ctrl"), String::from("Q")]),
+                            only_tiers: None,
+                            match_aliases: vec![
+                                vec![String::from("{app_name}"), String::from("Quit")],
+                                vec![String::from("{app_name}"), String::from("Quit {app_name}")],
+                                vec![String::from("App"), String::from("Quit")],
+                                vec![String::from("Application"), String::from("Quit")],
+                            ],
+                        },
+                    ],
+                },
+                MenuNodeDef::InheritOthers,
+            ],
+        }
+    }
+
+    #[test]
+    fn merges_literal_app_name_and_alias_columns_above_system_actions() {
+        let template = app_menu_template();
+        let info = ActiveWindowInfo::default();
+
+        // Case 1: Python script emits a literal `{app_name}` column
+        let python_root = make_node(
+            0,
+            "Root",
+            MenuItemType::Submenu,
+            None,
+            vec![
+                make_node(
+                    -900,
+                    "{app_name}",
+                    MenuItemType::Submenu,
+                    None,
+                    vec![make_node(
+                        -901,
+                        "Copy PID (42)",
+                        MenuItemType::Standard,
+                        Some("copy:42"),
+                        vec![],
+                    )],
+                ),
+                make_node(
+                    1,
+                    "File",
+                    MenuItemType::Submenu,
+                    None,
+                    vec![make_node(
+                        2,
+                        "Quit",
+                        MenuItemType::Standard,
+                        Some("app.quit"),
+                        vec![],
+                    )],
+                ),
+            ],
+        );
+
+        let merged = MenuPipeline::apply_app_menu_template(
+            python_root,
+            &template,
+            &info,
+            MenuSourceTier::Gtk4Hook,
+            "python3",
+            Path::new("."),
+            "Firefox",
+        );
+
+        let top_labels: Vec<&str> = merged.children.iter().map(|c| c.label.as_str()).collect();
+        assert_eq!(top_labels, vec!["Firefox", "File"]);
+
+        let app_items: Vec<&str> = merged.children[0]
+            .children
+            .iter()
+            .filter(|n| n.item_type != MenuItemType::Separator)
+            .map(|n| n.label.as_str())
+            .collect();
+        // `File -> Quit` must not suppress `Quit Firefox` in the app column
+        assert_eq!(
+            app_items,
+            vec!["Copy PID (42)", "Genubar Settings...", "Quit Firefox"]
+        );
+
+        // Case 2: GTK3 native `Application` column with its own `Quit` deduplicates `Quit {app_name}`
+        let gtk3_root = make_node(
+            0,
+            "Root",
+            MenuItemType::Submenu,
+            None,
+            vec![
+                make_node(
+                    10,
+                    "Application",
+                    MenuItemType::Submenu,
+                    None,
+                    vec![
+                        make_node(11, "Preferences", MenuItemType::Standard, None, vec![]),
+                        make_node(12, "Quit", MenuItemType::Standard, None, vec![]),
+                    ],
+                ),
+                make_node(20, "View", MenuItemType::Submenu, None, vec![]),
+            ],
+        );
+
+        let merged_gtk3 = MenuPipeline::apply_app_menu_template(
+            gtk3_root,
+            &template,
+            &info,
+            MenuSourceTier::GtkNative,
+            "python3",
+            Path::new("."),
+            "Inkscape",
+        );
+
+        let gtk3_top: Vec<&str> = merged_gtk3
+            .children
+            .iter()
+            .map(|c| c.label.as_str())
+            .collect();
+        assert_eq!(gtk3_top, vec!["Inkscape", "View"]);
+
+        let gtk3_app_items: Vec<&str> = merged_gtk3.children[0]
+            .children
+            .iter()
+            .filter(|n| n.item_type != MenuItemType::Separator)
+            .map(|n| n.label.as_str())
+            .collect();
+        assert_eq!(
+            gtk3_app_items,
+            vec!["Preferences", "Quit", "Genubar Settings..."]
+        );
+
+        // Case 3: Normal app with no app column must not start with a leading separator
+        let normal_root = make_node(
+            0,
+            "Root",
+            MenuItemType::Submenu,
+            None,
+            vec![make_node(1, "File", MenuItemType::Submenu, None, vec![])],
+        );
+        let merged_normal = MenuPipeline::apply_app_menu_template(
+            normal_root,
+            &template,
+            &info,
+            MenuSourceTier::Gtk4Hook,
+            "python3",
+            Path::new("."),
+            "Files",
+        );
+        assert_eq!(
+            merged_normal.children[0].children[0].label,
+            "Genubar Settings..."
+        );
     }
 }

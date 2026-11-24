@@ -105,11 +105,10 @@ impl InheritanceEngine {
                     ..
                 } => {
                     let expanded = StaticMenuBuilder::expand_label(label, app_name);
-                    claimed.insert(clean_label(&expanded).to_lowercase());
-                    for alias in match_aliases {
-                        if let Some(first) = alias.first() {
-                            claimed.insert(clean_label(first).to_lowercase());
-                        }
+                    for candidate in
+                        MandatoryMerger::collect_candidate_names(&expanded, match_aliases, app_name)
+                    {
+                        claimed.insert(candidate);
                     }
                 }
                 _ => {}
@@ -209,7 +208,11 @@ impl InheritanceEngine {
             }
             MenuNodeDef::Action { match_aliases, .. }
                 if !match_aliases.is_empty()
-                    && MandatoryMerger::alias_exists_in_live(match_aliases, live_root_index) => {}
+                    && MandatoryMerger::alias_exists_in_live_with_app(
+                        match_aliases,
+                        live_root_index,
+                        app_name,
+                    ) => {}
             other_static => {
                 let built = StaticMenuBuilder::build_static_list(
                     std::slice::from_ref(other_static),
