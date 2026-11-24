@@ -5,7 +5,7 @@ use adw::prelude::*;
 
 pub fn build_gtk_native_group(state: &AppState) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
-        .title("Tier 1: GTK Native D-Bus Menus")
+        .title("Tier 2: GTK Native D-Bus Menus")
         .description("Used by native GTK3 applications that export GMenuModel directly to the session bus")
         .build();
 

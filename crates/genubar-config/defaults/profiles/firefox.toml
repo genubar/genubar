@@ -1,6 +1,6 @@
 # Profile for Mozilla Firefox demonstrating tree inheritance (`type = "inherit"`) and `sync_new_items`.
-# Because Firefox exports Canonical DBusMenu when patched, `sync_new_items = true` preserves
-# all browser menus automatically while letting you override or hide specific columns below.
+# Firefox menus are acquired via AT-SPI2 (with dynamic History/Bookmarks icon suppression in `icons.toml`);
+# `sync_new_items = true` preserves all live browser columns while letting you override or hide specific ones below.
 id = "firefox"
 name = "Mozilla Firefox"
 enabled = true

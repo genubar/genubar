@@ -224,7 +224,7 @@ pub fn run_gui() {
                 Box::new(|| {
                     install_extension_only().map(|ver| {
                         format!(
-                            "Installed GNOME Shell extension v{ver} (re-login on Wayland if needed)."
+                            "Installed GNOME Shell extension v{ver}. Log out and back in to reload GNOME Shell."
                         )
                     })
                 })

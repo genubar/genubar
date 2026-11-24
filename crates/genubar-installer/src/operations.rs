@@ -3,9 +3,7 @@ use crate::artifacts::{
     search_local_artifact,
 };
 use crate::error::InstallerError;
-use genubar_core::{
-    CURRENT_APP_VERSION, EXPECTED_EXTENSION_VERSION, EXTENSION_UUID, LEGACY_EXTENSION_UUID,
-};
+use genubar_core::{CURRENT_APP_VERSION, EXPECTED_EXTENSION_VERSION, EXTENSION_UUID};
 use genubar_patcher::{PatchLedger, PatchManager};
 use genubar_platform::{
     APP_ICON_NAME, EMBEDDED_APP_ICON_SVG, INSTALLER_ICON_NAME, bin_dir, cache_dir, config_dir,
@@ -13,9 +11,7 @@ use genubar_platform::{
     lib_dir, query_installed_daemon_version, sync_extension_gsettings, systemd_user_dir,
     user_applications_dir, user_icons_scalable_apps_dir,
 };
-use genubar_protocol::{
-    GTK4_HOOK_ACTIVE_SO_NAME, GTK4_HOOK_CANONICAL_SO_NAME, GTK4_HOOK_LEGACY_SO_NAME,
-};
+use genubar_protocol::{GTK4_HOOK_ACTIVE_SO_NAME, GTK4_HOOK_CANONICAL_SO_NAME};
 use std::fs;
 use std::path::Path;
 use std::process::Command;
@@ -199,9 +195,7 @@ pub fn perform_install_or_update() -> Result<String, InstallerError> {
         }
     }
 
-    if let Some(hook_src) =
-        search_local_artifact(&[GTK4_HOOK_CANONICAL_SO_NAME, GTK4_HOOK_LEGACY_SO_NAME])
-    {
+    if let Some(hook_src) = search_local_artifact(&[GTK4_HOOK_CANONICAL_SO_NAME]) {
         for target_name in [GTK4_HOOK_CANONICAL_SO_NAME, GTK4_HOOK_ACTIVE_SO_NAME] {
             let dst = lib_dir.join(target_name);
             fs::copy(&hook_src, &dst).map_err(|source| InstallerError::Io {
@@ -279,13 +273,7 @@ pub fn perform_uninstall(purge_configs_and_cache: bool) -> Result<String, Instal
             .args(["disable", EXTENSION_UUID])
             .status();
     }
-    if extensions_dir().join(LEGACY_EXTENSION_UUID).exists() {
-        let _ = Command::new("gnome-extensions")
-            .args(["disable", LEGACY_EXTENSION_UUID])
-            .status();
-    }
     sync_extension_gsettings(None, Some(EXTENSION_UUID));
-    sync_extension_gsettings(None, Some(LEGACY_EXTENSION_UUID));
 
     remove_file_logged(&systemd_dir.join("genubar.service"), &mut warnings);
     remove_file_logged(&bin_dir.join("genubar-daemon"), &mut warnings);
@@ -303,7 +291,6 @@ pub fn perform_uninstall(purge_configs_and_cache: bool) -> Result<String, Instal
     }
     remove_dir_logged(&lib_dir(), &mut warnings);
     remove_dir_logged(&extensions_dir().join(EXTENSION_UUID), &mut warnings);
-    remove_dir_logged(&extensions_dir().join(LEGACY_EXTENSION_UUID), &mut warnings);
 
     if purge_configs_and_cache {
         remove_dir_logged(&config_dir(), &mut warnings);

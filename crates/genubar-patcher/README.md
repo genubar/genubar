@@ -15,7 +15,7 @@ Many Linux applications (GTK4, Electron, Qt, JetBrains IDEs, Flatpak packages) d
   - `cli_wrapper.rs`: Generates wrapper scripts in `~/.local/bin/` for terminal-launched binaries.
   - `flatpak.rs`: Configures Flatpak overrides (`--talk-name`, environment injection, read-only `~/.local/lib/genubar:ro` access for `active_gtk4_hook.so`).
   - `gsettings.rs`, `json_set.rs`, `text_line.rs`, `firefox_pref.rs`, `python_script.rs`: Handles GSettings keys, JSON dot-paths, appended config lines, Firefox `user.js` preferences, and sandboxed patch scripts.
-- **Transactional Ledger (`ledger.rs`):** Records every touched resource, previous state/backup, and patch ownership (`owners`) inside `~/.config/genubar/patch_ledger.json` so shared resources are only restored when the last owning patch is reverted.
+- **Transactional Ledger (`ledger.rs`):** Records every touched resource, previous state/backup, and patch ownership (`owners`) inside `~/.local/share/genubar/patch_ledger.json` so shared resources are only restored when the last owning patch is reverted.
 - **Process Synchronization (`manager/process_sync.rs`):** Prompts/terminates affected background instances when required after applying/reverting hooks.
 
 ## Testing

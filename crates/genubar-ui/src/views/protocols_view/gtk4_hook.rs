@@ -12,7 +12,7 @@ use std::path::PathBuf;
 
 pub fn build_gtk4_hook_group(state: &AppState) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
-        .title("Tier 2: GTK4 Hook (libgenubar_gtk4_hook.so)")
+        .title("Tier 1: GTK4 Hook (libgenubar_gtk4_hook.so)")
         .description("Extracts popover menus, Zoom controls, and Adwaita themes from GTK4 apps")
         .build();
 
@@ -43,7 +43,7 @@ pub fn build_gtk4_hook_group(state: &AppState) -> adw::PreferencesGroup {
     group.add(&build_switch_row(
         state,
         "Hide Original Hamburger Buttons Inside GTK4 Windows",
-        "Updates GENUBAR_GTK4_HIDE_BUTTONS in session RAM immediately",
+        "Updates GENUBAR_GTK4_HIDE_BUTTONS in the D-Bus/systemd activation environment for newly launched apps",
         hide_buttons,
         |st, active| {
             st.config

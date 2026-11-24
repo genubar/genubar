@@ -11,7 +11,7 @@ use adw::prelude::*;
 pub fn build_atspi_group(state: &AppState) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
         .title("Tier 4: AT-SPI2 Accessibility Bus")
-        .description("Extracts and caches menus from Firefox, Thunderbird, and Chromium browsers")
+        .description("Extracts and caches menus from Firefox and Chromium-based browsers")
         .build();
 
     let cfg = state.config.borrow();

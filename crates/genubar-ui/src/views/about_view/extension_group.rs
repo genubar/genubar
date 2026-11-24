@@ -131,7 +131,7 @@ pub fn build_extension_group(state: &AppState) -> ExtensionWidgets {
                         btn_c.set_label("Install / Sync Local");
                         btn_c.remove_css_class("suggested-action");
                         st_in.notify(&format!(
-                            "Extension v{ver} installed to ~/.local/share/gnome-shell/extensions/{EXTENSION_UUID}. Re-login on Wayland if GNOME Shell needs reload."
+                            "Extension v{ver} installed to ~/.local/share/gnome-shell/extensions/{EXTENSION_UUID}. Log out and back in to reload GNOME Shell."
                         ));
                     }
                     Err(e) => {
@@ -178,7 +178,7 @@ pub fn build_extension_group(state: &AppState) -> ExtensionWidgets {
                         ext_row_in.set_subtitle(&fresh.status_summary);
                         btn_c.set_visible(false);
                         st_in.notify(&format!(
-                            "Extension updated to v{new_ver}! Re-login or restart GNOME Shell to activate."
+                            "Extension updated to v{new_ver}. Log out and back in to activate."
                         ));
                     }
                     Err(e) => {
@@ -206,7 +206,7 @@ pub fn build_extension_group(state: &AppState) -> ExtensionWidgets {
 
     let ext_help_row = build_action_row(
         "How Extension Updates Work",
-        "Use 'Install Extension' / 'Install / Sync Local' to install local files, run 'genubar-installer' for full setup, or click Check for Updates (↻) above to fetch the latest compatible extension from GitHub. On Wayland, log out and back in if GNOME Shell already loaded an older version.",
+        "Use 'Install Extension' / 'Install / Sync Local' to install local files, run 'genubar-installer' for full setup, or click Check for Updates (↻) above to fetch the latest compatible extension from GitHub. Log out and back in if GNOME Shell already loaded an older version.",
     );
     ext_group.add(&ext_help_row);
 

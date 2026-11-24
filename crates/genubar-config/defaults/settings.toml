@@ -6,7 +6,6 @@
 app_update_url = "https://raw.githubusercontent.com/genubar/genubar-registry/main/app.json"
 # Registry feeds (local JSON file paths or HTTPS URLs) listed in Marketplace
 registry_urls = [
-    "~/.config/genubar/example_registry.json",
     "https://raw.githubusercontent.com/genubar/genubar-registry/main/registry.json",
 ]
 # Executable name or path for Python menu/patch scripts (# ==GenubarScript==)
@@ -70,16 +69,8 @@ popup_border_radius_px = 14
 item_border_radius_px = 9
 font_size_px = 13
 
-[api_tiers.gtk_native]
-# Tier 1: Reads native GTK3 GMenuModel (org.gtk.Menus / org.gtk.Actions)
-enabled = true
-# Include the separate GApplication app-menu object path when exported by GTK3 apps
-include_app_menu_column = true
-# Optional Python transformer for GTK Native menus:
-# python_script = "scripts/example_menu_transformer.py"
-
 [api_tiers.gtk4_hook]
-# Tier 2: Accepts menus/actions exported by LD_PRELOAD libgenubar_gtk4_hook.so
+# Tier 1: Accepts menus/actions exported by LD_PRELOAD libgenubar_gtk4_hook.so
 enabled = true
 # Column organization for flat GTK4 popovers:
 #   "standard"      - groups items into File | Edit | View | Help (recommended)
@@ -88,10 +79,20 @@ enabled = true
 layout_algorithm = "standard"
 # Surface custom header/popover widget controls that lack a GMenuModel inside View
 expose_unknown_custom_widgets = true
-# Sets GENUBAR_GTK4_HIDE_BUTTONS=1 in GTK4 env to hide in-window hamburger buttons
-hide_original_buttons = true
+# Sets GENUBAR_GTK4_HIDE_BUTTONS=1 in GTK4 env to hide in-window hamburger buttons (off by default)
+hide_original_buttons = false
 # Optional custom hook library symlink source (defaults to built-in libgenubar_gtk4_hook.so)
 # custom_hook_so_path = "~/my_custom_hook.so"
+# Optional Python transformer for GTK4 Hook menus (used when layout_algorithm = "python_script"):
+# python_script = "scripts/example_menu_transformer.py"
+
+[api_tiers.gtk_native]
+# Tier 2: Reads native GTK3 GMenuModel (org.gtk.Menus / org.gtk.Actions)
+enabled = true
+# Include the separate GApplication app-menu object path when exported by GTK3 apps
+include_app_menu_column = true
+# Optional Python transformer for GTK Native menus:
+# python_script = "scripts/example_menu_transformer.py"
 
 [api_tiers.canonical_dbus]
 # Tier 3: Reads com.canonical.dbusmenu (Qt, Electron, Firefox, JetBrains/JVM)
@@ -102,6 +103,8 @@ preload_passes = 2
 swing_open_delay_ms = 35
 # Cache the last valid root menu briefly while an app rebuilds its D-Bus menu
 cache_last_valid_menu = true
+# Optional Python transformer for Canonical DBusMenu menus:
+# python_script = "scripts/example_menu_transformer.py"
 
 [api_tiers.atspi]
 # Tier 4: Accessibility tree fallback (org.a11y.Bus) when D-Bus menu tiers are absent
@@ -112,6 +115,8 @@ enable_disk_cache = true
 append_refresh_cache_button = true
 # Submenu labels skipped from AT-SPI2 skeleton caching so they always re-fetch live
 default_volatile_submenus = []
+# Optional Python transformer for AT-SPI2 menus:
+# python_script = "scripts/example_menu_transformer.py"
 
 [api_tiers.atspi.search]
 # AT-SPI2 accessible roles treated as top-level menubar containers
